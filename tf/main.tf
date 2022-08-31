@@ -144,3 +144,30 @@ output "alb_dns_name" {
     description = "The domain name of the load balancer"
 }
 
+resource "aws_ecr_repository" "foo" {
+  name                 = "eklie"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+terraform {
+    backend "remote" {
+    # The name of your Terraform Cloud organization.
+    organization = "renadvent"
+
+    # The name of the Terraform Cloud workspace to store Terraform state files in.
+    workspaces {
+        name = "eklie"
+    }
+    }
+}
+
+# An example resource that does nothing.
+resource "null_resource" "example" {
+    triggers = {
+    value = "A example resource that does nothing!"
+    }
+}
