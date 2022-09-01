@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 
 def get_secret():
 
-    secret_name = "prod/eklie"
+    secret_name = "pro/eklie"
     region_name = "us-west-1"
 
     # Create a Secrets Manager client
