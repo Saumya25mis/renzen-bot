@@ -13,6 +13,7 @@ GUILD = SECRETS["eklie-guild"]
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
+print("got client")
 
 
 @client.event
@@ -28,6 +29,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     """On Message client action."""
+    print("got message")
     if message.author == client.user:
         return
 
