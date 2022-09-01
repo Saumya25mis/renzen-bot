@@ -6,4 +6,4 @@ WORKDIR $AP
 
 RUN pip3 install --no-cache-dir -r src/requirements.txt
 
-CMD [ "python3", "-m", "src/bot.py" ]
+CMD [ "python3", "src/bot.py" ]
