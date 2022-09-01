@@ -14,7 +14,7 @@ from botocore.exceptions import ClientError
 def get_secret():
     """Get discord secrets."""
 
-    secret_name = "pro/eklie"
+    secret_name = "prod/eklie"
     region_name = "us-west-1"
 
     # Create a Secrets Manager client
