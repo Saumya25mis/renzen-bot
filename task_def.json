@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-west-1:103443233719:task-definition/eklie-task:1",
+    "taskDefinitionArn": "arn:aws:ecs:us-west-1:103443233719:task-definition/eklie-task:19",
     "containerDefinitions": [
         {
             "name": "eklie-container",
-            "image": "",
+            "image": "103443233719.dkr.ecr.us-west-1.amazonaws.com/eklie-repo:Latest",
             "cpu": 0,
             "links": [],
             "portMappings": [
@@ -41,9 +41,10 @@
         }
     ],
     "family": "eklie-task",
+    "taskRoleArn": "arn:aws:iam::103443233719:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::103443233719:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 1,
+    "revision": 19,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -61,6 +62,9 @@
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
         },
         {
             "name": "ecs.capability.execution-role-ecr-pull"
@@ -89,7 +93,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2022-09-01T03:46:02.871Z",
+    "registeredAt": "2022-09-01T21:46:12.884Z",
     "registeredBy": "arn:aws:iam::103443233719:root",
     "tags": [
         {
@@ -98,7 +102,7 @@
         },
         {
             "key": "ecs:taskDefinition:stackId",
-            "value": "arn:aws:cloudformation:us-west-1:103443233719:stack/ECS-Console-V2-TaskDefinition-97707b71-7ac4-4e76-aca4-fa1bd4041a98/96347c20-29a8-11ed-84a1-06768fdcd499"
+            "value": "arn:aws:cloudformation:us-west-1:103443233719:stack/ECS-Console-V2-TaskDefinition-7fb1ed45-71bc-4e90-b9fe-c0cd61e2f34b/7c82da50-2a3f-11ed-a61d-029eb30e5057"
         }
     ]
 }
