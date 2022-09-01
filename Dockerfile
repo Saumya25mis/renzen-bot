@@ -1,13 +1,9 @@
-FROM ubuntu
+FROM python:3.8.3-slim-buster
 ENV AP /data/app
 
-# RUN curl -O https://bootstrap.pypa.io/get-pip.py
-# RUN python3 get-pip.py --user
-
-WORKDIR /src
-ADD src/requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
+ADD . $AP/
 WORKDIR $AP
-CMD [ "python3", "-m", "bot.py" ]
+
+RUN pip3 install --no-cache-dir -r src/requirements.txt
+
+CMD [ "python3", "-m", "src/bot.py" ]
