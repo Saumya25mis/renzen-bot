@@ -1,13 +1,18 @@
+"""Get discord secrets."""
+
+# pylint: disable=line-too-long, invalid-name, no-else-raise, import-error
+
 # Use this code snippet in your app.
 # If you need more information about configurations or implementing the sample code, visit the AWS docs:
 # https://aws.amazon.com/developers/getting-started/python/
 
-import boto3
 import base64
+import boto3
 from botocore.exceptions import ClientError
 
 
 def get_secret():
+    """Get discord secrets."""
 
     secret_name = "pro/eklie"
     region_name = "us-west-1"
@@ -54,3 +59,7 @@ def get_secret():
             )
 
     # Your code goes here.
+    if secret:
+        return secret
+
+    return decoded_binary_secret

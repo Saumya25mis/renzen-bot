@@ -1,15 +1,10 @@
-# bot.py
-import os
+# pylint:disable=import-error
+
+"""Discord Bot."""
+
 import random
-
 import discord
-
-from eklie import get_secret
-
-# bot.py
-import os
-
-import discord
+from src import get_secret
 
 
 SECRETS = get_secret.get_secret()
@@ -21,6 +16,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
+    """On Ready client action."""
     guild = discord.utils.get(client.guilds, name=GUILD)
     print(
         f"{client.user} is connected to the following guild:\n"
@@ -30,6 +26,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    """On Message client action."""
     if message.author == client.user:
         return
 
