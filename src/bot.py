@@ -11,7 +11,8 @@ SECRETS = get_secret.get_secret()
 TOKEN = SECRETS["eklie-token"]
 GUILD = SECRETS["eklie-guild"]
 
-client = discord.Client()
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
 
 
 @client.event
