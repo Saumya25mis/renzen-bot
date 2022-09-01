@@ -41,7 +41,7 @@
         }
     ],
     "family": "eklie-task",
-    "taskRoleArn": "arn:aws:iam::103443233719:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::103443233719:role/eklieDeployTask",
     "executionRoleArn": "arn:aws:iam::103443233719:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "revision": 19,
