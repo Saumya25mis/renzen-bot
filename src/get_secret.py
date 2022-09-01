@@ -7,6 +7,7 @@
 # https://aws.amazon.com/developers/getting-started/python/
 
 import base64
+import json
 import boto3
 from botocore.exceptions import ClientError
 
@@ -53,11 +54,9 @@ def get_secret():
         # Depending on whether the secret is a string or binary, one of these fields will be populated.
         if "SecretString" in get_secret_value_response:
             secret = get_secret_value_response["SecretString"]
-            return secret
+
         else:
-            decoded_binary_secret = base64.b64decode(
-                get_secret_value_response["SecretBinary"]
-            )
-            return decoded_binary_secret
+            secret = base64.b64decode(get_secret_value_response["SecretBinary"])
 
     # Your code goes here.
+    return json.loads(secret)
