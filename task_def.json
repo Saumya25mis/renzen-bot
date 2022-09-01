@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "eklie-container",
-            "image": "103443233719.dkr.ecr.us-west-1.amazonaws.com/eklie-repo",
+            "image": "",
             "cpu": 0,
             "links": [],
             "portMappings": [
