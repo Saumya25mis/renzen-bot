@@ -4,6 +4,10 @@ ENV AP /data/app
 ADD . $AP/
 WORKDIR $AP
 
+# install requirements
 RUN pip3 install --no-cache-dir -r src/requirements.txt
+
+# install module
+RUN pip3 install -e .
 
 CMD [ "python3", "src/bot.py" ]
