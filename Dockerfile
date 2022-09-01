@@ -1,8 +1,8 @@
 FROM ubuntu
 ENV AP /data/app
 
-RUN curl -O https://bootstrap.pypa.io/get-pip.py
-RUN python3 get-pip.py --user
+# RUN curl -O https://bootstrap.pypa.io/get-pip.py
+# RUN python3 get-pip.py --user
 
 WORKDIR /src
 ADD src/requirements.txt requirements.txt
