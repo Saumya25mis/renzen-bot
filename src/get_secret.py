@@ -1,7 +1,6 @@
-"""Get discord secrets."""
+# pylint: disable=line-too-long, invalid-name, no-else-raise, import-error, no-else-return
 
-# pylint: disable=line-too-long, invalid-name, no-else-raise, import-error
-#
+"""Get discord secrets."""
 
 # Use this code snippet in your app.
 # If you need more information about configurations or implementing the sample code, visit the AWS docs:
@@ -54,13 +53,11 @@ def get_secret():
         # Depending on whether the secret is a string or binary, one of these fields will be populated.
         if "SecretString" in get_secret_value_response:
             secret = get_secret_value_response["SecretString"]
+            return secret
         else:
             decoded_binary_secret = base64.b64decode(
                 get_secret_value_response["SecretBinary"]
             )
+            return decoded_binary_secret
 
     # Your code goes here.
-    if secret:
-        return secret
-
-    return decoded_binary_secret
