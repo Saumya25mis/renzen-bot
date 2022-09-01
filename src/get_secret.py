@@ -1,6 +1,7 @@
 """Get discord secrets."""
 
 # pylint: disable=line-too-long, invalid-name, no-else-raise, import-error
+#
 
 # Use this code snippet in your app.
 # If you need more information about configurations or implementing the sample code, visit the AWS docs:
