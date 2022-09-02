@@ -69,9 +69,7 @@ async def on_message(message: discord.Message):
 
     # save to db
     logger.debug("Preparing to INSERT into DB")
-    cur.execute(
-        "INSERT INTO test (num, data) VALUES (%s, %s)", (message.id, message.content)
-    )
+    cur.execute("INSERT INTO test (num, data) VALUES (%s, %s)", (0, message.content))
     logger.debug("Executed INSERT")
     # conn.commit()
     # logger.debug("Committed to DB")
