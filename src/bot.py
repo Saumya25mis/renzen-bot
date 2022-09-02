@@ -30,22 +30,22 @@ async def test(ctx, arg):
 async def on_message(message):
     """On message test."""
     await bot.process_commands(message)
-    await message.channel.sent("ping!!!")
+    await message.channel.send("ping!!!")
 
 
-# @bot.group()
-# async def cool(ctx):
-#     """Says if a user is cool.
-#     In reality this just checks if a subcommand is being invoked.
-#     """
-#     if ctx.invoked_subcommand is None:
-#         await ctx.send(f"No, {ctx.subcommand_passed} is not cool")
+@bot.group()
+async def cool(ctx):
+    """Says if a user is cool.
+    In reality this just checks if a subcommand is being invoked.
+    """
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f"No, {ctx.subcommand_passed} is not cool")
 
 
-# @cool.command(name="bot")
-# async def _bot(ctx):
-#     """Is the bot cool?"""
-#     await ctx.send("Yes, the bot is cool.")
+@cool.command(name="bot")
+async def _bot(ctx):
+    """Is the bot cool?"""
+    await ctx.send("Yes, the bot is cool.")
 
 
 bot.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
