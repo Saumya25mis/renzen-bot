@@ -8,7 +8,7 @@ import psycopg2
 
 from src import get_secret
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
@@ -55,22 +55,22 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.command()
 async def test(ctx, arg):
     """Test command."""
-    logger.debug("Received test command.")
+    logger.info("Received test command.")
     await ctx.send(arg)
 
 
 @bot.event
 async def on_message(message: discord.Message):
     """On message test."""
-    logger.debug("Received on_message event")
+    logger.info("Received on_message event")
     if message.author == bot.user:
         return
     await message.channel.send("ping!!!")
 
     # save to db
-    logger.debug("Preparing to INSERT into DB")
+    logger.info("Preparing to INSERT into DB")
     cur.execute("INSERT INTO test (num, data) VALUES (%s, %s)", (0, message.content))
-    logger.debug("Executed INSERT")
+    logger.info("Executed INSERT")
     # conn.commit()
     # logger.debug("Committed to DB")
 
