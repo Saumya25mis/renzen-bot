@@ -28,15 +28,9 @@ async def test(ctx, arg):
 
 
 @bot.event()
-async def _on_message(message):
+async def on_message(message):
     """On message test."""
     await message.channel.sent("ping!!!")
-
-
-@bot.event()
-async def _on_message(ctx, message):
-    """On message test."""
-    await ctx.send(f"pong ctx {message}!!!")
 
 
 @bot.group()
