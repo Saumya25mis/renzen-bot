@@ -64,6 +64,8 @@ async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
     await message.channel.send("ping!!!")
+
+    # save to db
     logger.debug("Preparing to INSERT into DB")
     cur.execute(
         "INSERT INTO test (num, data) VALUES (%s, %s)", (message.id, message.content)
@@ -71,6 +73,7 @@ async def on_message(message: discord.Message):
     logger.debug("Executed INSERT")
     conn.commit()
     logger.debug("Committed to DB")
+
     await bot.process_commands(message)
 
 
@@ -89,4 +92,4 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-bot.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
+bot.run(TOKEN)
