@@ -29,10 +29,10 @@ async def test(ctx, arg):
 @bot.event
 async def on_message(message):
     """On message test."""
-    await bot.process_commands(message)
     if message.author == bot.user:
         return
     await message.channel.send("ping!!!")
+    await bot.process_commands(message)
 
 
 @bot.group()
