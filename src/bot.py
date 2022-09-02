@@ -80,4 +80,4 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-bot.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
+bot.run("token", log_handler=handler, log_level=logging.DEBUG)
