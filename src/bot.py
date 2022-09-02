@@ -1,5 +1,4 @@
-# pylint:disable=import-error
-
+# pylint: disable=import-error
 """Discord Bot."""
 
 import logging
@@ -27,9 +26,10 @@ async def test(ctx, arg):
     await ctx.send(arg)
 
 
-@bot.event()
+@bot.event
 async def on_message(message):
     """On message test."""
+    await bot.process_commands(message)
     await message.channel.sent("ping!!!")
 
 
