@@ -4,6 +4,7 @@
 import logging
 import discord
 from discord.ext import commands
+import psycopg2
 
 from src import get_secret
 
@@ -12,6 +13,32 @@ handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w"
 SECRETS = get_secret.get_secret()
 TOKEN = SECRETS["eklie-token"]
 GUILD = SECRETS["eklie-guild"]
+
+
+DB_PASSWORD = SECRETS["postgres-password"]
+DB_USERNAME = SECRETS["postgres-username"]
+DB_PORT = SECRETS["postgres-port"]
+DB_ENDPOINT = SECRETS["postgres-endpoint"]
+
+
+conn = psycopg2.connect(
+    database="postgres",
+    user=DB_USERNAME,
+    password=DB_PASSWORD,
+    host=DB_ENDPOINT,
+    port=DB_PORT,
+    sslmode="require",
+)
+
+cur = conn.cursor()
+# https://www.psycopg.org/docs/usage.html
+
+# cur.execute()
+# cur.fetchone()
+# conn.commit()
+# cur.close()
+# conn.close
+# conn.rollback()
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -27,11 +54,14 @@ async def test(ctx, arg):
 
 
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     """On message test."""
     if message.author == bot.user:
         return
     await message.channel.send("ping!!!")
+    cur.execute(
+        "INSERT INTO test (num, data) VALUES (%s, %s)", (message.id, message.content)
+    )
     await bot.process_commands(message)
 
 
