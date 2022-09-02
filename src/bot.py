@@ -33,6 +33,8 @@ conn = psycopg2.connect(
     sslmode="require",
 )
 
+conn.autocommit = True
+
 cur = conn.cursor()
 # https://www.psycopg.org/docs/usage.html
 
@@ -71,8 +73,8 @@ async def on_message(message: discord.Message):
         "INSERT INTO test (num, data) VALUES (%s, %s)", (message.id, message.content)
     )
     logger.debug("Executed INSERT")
-    conn.commit()
-    logger.debug("Committed to DB")
+    # conn.commit()
+    # logger.debug("Committed to DB")
 
     await bot.process_commands(message)
 
