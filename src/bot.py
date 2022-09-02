@@ -33,7 +33,7 @@ class MyClient(discord.Client):
             await message.reply("Hello!", mention_author=True)
 
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
 
@@ -41,7 +41,7 @@ client = MyClient(intents=intents)
 client.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
 
 
-bot = commands.Bot(command_prefix="?", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.command()
