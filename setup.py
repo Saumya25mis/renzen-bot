@@ -10,5 +10,5 @@ setuptools.setup(
     description="A discord bot",
     license="MIT",
     # python_requires=">=3.8",
-    install_requires=["boto3", "discord.py", "psycopg2"],
+    install_requires=["boto3", "discord.py", "psycopg2-binary"],
 )
