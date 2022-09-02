@@ -12,26 +12,27 @@ SECRETS = get_secret.get_secret()
 TOKEN = SECRETS["eklie-token"]
 GUILD = SECRETS["eklie-guild"]
 
+
+class MyClient(discord.Client):
+    """Client class."""
+
+    async def on_ready(self):
+        """On Ready."""
+        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        print("------")
+
+    async def on_message(self, message):
+        """On Message."""
+        # we do not want the bot to reply to itself
+        if message.author.id == self.user.id:
+            return
+
+        if message.content.startswith("!hello"):
+            await message.reply("Hello!", mention_author=True)
+
+
 intents = discord.Intents.default()
-client = discord.Client(intents=intents)
+intents.message_content = True
 
-logging.info("got client")
-
-
-@client.event
-async def on_ready():
-    """On Ready event."""
-    logging.info("We have logged in as %s", client)
-
-
-@client.event
-async def on_message(message):
-    """On message event."""
-    if message.author == client.user:
-        return
-
-    if message.content.startswith("$hello"):
-        await message.channel.send("Hello!")
-
-
+client = MyClient(intents=intents)
 client.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
