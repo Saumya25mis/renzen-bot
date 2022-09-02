@@ -35,6 +35,7 @@ class MyClient(discord.Client):
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.guild_messages = True
 
 client = MyClient(intents=intents)
 client.run(TOKEN, log_handler=handler, log_level=logging.DEBUG)
