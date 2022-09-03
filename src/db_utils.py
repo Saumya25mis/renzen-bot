@@ -28,6 +28,6 @@ def save_message_to_db(message: discord.Message):
     logger.info("Preparing to INSERT into DB")
     cur.execute(
         "INSERT INTO messages (author, content, channel) VALUES (%s, %s, %s)",
-        (message.author, message.content, message.channel),
+        (message.author.name, message.content, message.channel.name),
     )
     logger.info("Executed INSERT")
