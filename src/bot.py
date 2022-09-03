@@ -49,7 +49,11 @@ intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents,
+    activity="being developed at https://github.com/renadvent/eklie",
+)
 
 
 @bot.command()
