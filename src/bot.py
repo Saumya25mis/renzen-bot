@@ -15,10 +15,14 @@ intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
 
+bot_activity = discord.Activity(
+    state="being developed at https://github.com/renadvent/eklie"
+)
+
 bot = commands.Bot(
     command_prefix="!",
     intents=intents,
-    activity="being developed at https://github.com/renadvent/eklie",
+    activity=bot_activity,
 )
 
 
