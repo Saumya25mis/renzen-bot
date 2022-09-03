@@ -60,3 +60,14 @@ def get_secret():
 
     # Your code goes here.
     return json.loads(secret)
+
+
+SECRETS = get_secret()
+TOKEN = SECRETS["eklie-token"]
+GUILD = SECRETS["eklie-guild"]
+
+
+DB_PASSWORD = SECRETS["postgres-password"]
+DB_USERNAME = SECRETS["postgres-username"]
+DB_PORT = SECRETS["postgres-port"]
+DB_ENDPOINT = SECRETS["postgres-endpoint"]

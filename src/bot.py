@@ -4,46 +4,12 @@
 import logging
 import discord
 from discord.ext import commands
-import psycopg2
 
-from src import get_secret
+from src import secret_utils
+from src import db_utils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
-
-SECRETS = get_secret.get_secret()
-TOKEN = SECRETS["eklie-token"]
-GUILD = SECRETS["eklie-guild"]
-
-
-DB_PASSWORD = SECRETS["postgres-password"]
-DB_USERNAME = SECRETS["postgres-username"]
-DB_PORT = SECRETS["postgres-port"]
-DB_ENDPOINT = SECRETS["postgres-endpoint"]
-
-
-conn = psycopg2.connect(
-    database="postgres",
-    user=DB_USERNAME,
-    password=DB_PASSWORD,
-    host=DB_ENDPOINT,
-    port=DB_PORT,
-    sslmode="require",
-)
-
-conn.autocommit = True
-
-cur = conn.cursor()
-# https://www.psycopg.org/docs/usage.html
-
-# cur.execute()
-# cur.fetchone()
-# conn.commit()
-# cur.close()
-# conn.close
-# conn.rollback()
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -69,15 +35,14 @@ async def on_message(message: discord.Message):
     logger.info("Received on_message event")
     if message.author == bot.user:
         return
+
+    # temp debug ack
     await message.channel.send("ping!!!")
 
     # save to db
-    logger.info("Preparing to INSERT into DB")
-    cur.execute("INSERT INTO test (num, data) VALUES (%s, %s)", (0, message.content))
-    logger.info("Executed INSERT")
-    # conn.commit()
-    # logger.debug("Committed to DB")
+    db_utils.save_message_to_db(message=message)
 
+    # process commands
     await bot.process_commands(message)
 
 
@@ -96,4 +61,4 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-bot.run(TOKEN)
+bot.run(secret_utils.TOKEN)
