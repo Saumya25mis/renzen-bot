@@ -1,4 +1,4 @@
-# pylint: disable=import-error
+# pylint: disable=import-error, unused-argument
 """Discord Bot."""
 
 import logging
@@ -33,6 +33,13 @@ async def test(ctx, arg):
     await ctx.send(arg)
 
 
+@bot.command()
+async def best(ctx, arg):
+    """Test command."""
+    logger.info("Received test command.")
+    await ctx.send("Angel is the best.")
+
+
 @bot.event
 async def on_message(message: discord.Message):
     """On message test."""
@@ -41,7 +48,7 @@ async def on_message(message: discord.Message):
         return
 
     # temp debug ack
-    await message.channel.send("ping!!!")
+    # await message.channel.send("ping!!!")
 
     # save to db
     db_utils.save_message_to_db(message=message)
