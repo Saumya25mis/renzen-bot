@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "me-test"
+Description: ""
+Resources:
+  ECSCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+        ClusterName: "bot-cluster"
+        CapacityProviders:
+        - "FARGATE"
+        - "FARGATE_SPOT"
+
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: "bot-service"
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: "ECSTaskDefinition"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups:
+            - !Ref InstanceSecurityGroup
+          Subnets:
+            - !Ref mySubnet1
+            - !Ref mySubnet2
+      SchedulingStrategy: "REPLICA"
+      CapacityProviderStrategy:
+        -
+          CapacityProvider: "FARGATE"
+          Weight: 1
+          Base: 0
+
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: stack
+        Value: production
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "us-west-1b"
+      Tags:
+      - Key: stack
+        Value: production
+
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: 10.0.100.0/24
+      AvailabilityZone: "us-west-1c"
+      Tags:
+      - Key: stack
+        Value: production
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  ECRRepository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+        RepositoryName: "bot-repo"
+
+  ECSTaskDefinition:
+      Type: "AWS::ECS::TaskDefinition"
+      Properties:
+          ContainerDefinitions:
+            -
+              Essential: true
+              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:Latest"
+              LogConfiguration:
+                  LogDriver: "awslogs"
+                  Options:
+                      awslogs-create-group: "true"
+                      awslogs-group: "/ecs/bot-task"
+                      awslogs-region: !Ref AWS::Region
+                      awslogs-stream-prefix: "ecs"
+              Name: "bot-container"
+              PortMappings:
+                -
+                  ContainerPort: 80
+                  HostPort: 80
+                  Protocol: "tcp"
+          Family: "bot-task"
+          TaskRoleArn: !GetAtt botDeployTaskRole.Arn
+          ExecutionRoleArn: !GetAtt botecsTaskExecutionRole.Arn
+          NetworkMode: "awsvpc"
+          RequiresCompatibilities:
+            - "FARGATE"
+          Cpu: "1024"
+          Memory: "3072"
+
+  botDeployTaskRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          RoleName: "botDeployTaskRole"
+          AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          MaxSessionDuration: 3600
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+          Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
+
+  botecsTaskExecutionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          RoleName: "botecsTaskExecutionRole"
+          AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          MaxSessionDuration: 3600
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"

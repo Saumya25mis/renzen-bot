@@ -1,0 +1,13 @@
+User Setup Steps:
+
+- Create Web Accounts
+  - Github Account
+  - AWS account
+  - Discord App account
+
+- Open Template on github codespaces
+- Run `make setup`
+  - Provide
+    - AWS credentials
+    - Discord Bot credentials
+

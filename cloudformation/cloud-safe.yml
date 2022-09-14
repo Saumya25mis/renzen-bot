@@ -1,0 +1,1316 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    IAMUser:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "brainboard"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+
+    IAMUser2:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "erickrtiddle"
+            Groups:
+              - !Ref IAMGroup2
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+              - "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+              - "arn:aws:iam::aws:policy/IAMFullAccess"
+              - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+              - "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+              - "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+              - "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+              - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+              - "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"
+
+    IAMUser3:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "github-user"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMUser4:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "terraform-user"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMGroup:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "Test"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMGroup2:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "worker"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+              - "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+              - "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "${IAMRole2}-clone"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codepipeline.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - !Sub "arn:aws:iam::${AWS::AccountId}:policy/service-role/${IAMRole2}-clone"
+
+    IAMRole2:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "AWSCodePipelineServiceRole-${AWS::Region}-test-pipeline-2"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codepipeline.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - !Ref IAMManagedPolicy5
+
+    IAMRole3:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "CloudCraftRole"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::968898580625:root\"},\"Action\":\"sts:AssumeRole\",\"Condition\":{\"StringEquals\":{\"sts:ExternalId\":\"a084720e-5b93-4634-8fd1-5453a01bbad7\"}}}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+            Description: "CloudCraftRole"
+
+    IAMRole4:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "codebuild-${CodeBuildProject2}-service-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - !Ref IAMManagedPolicy6
+
+    IAMRole5:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "codebuild-${CodeBuildProject3}-service-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - !Ref IAMManagedPolicy3
+
+    IAMRole6:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "codebuild-${CodeBuildProject}-service-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - !Ref IAMManagedPolicy2
+
+    IAMRole7:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ecsTaskExecutionRole"
+            AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+    IAMRole8:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "rds-monitoring-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"monitoring.rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+
+    IAMRole9:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "eklieDeployTask"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+              - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+            Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
+
+    IAMServiceLinkedRole:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "autoscaling.amazonaws.com"
+            Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
+
+    IAMServiceLinkedRole2:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ecs.amazonaws.com"
+            Description: "Role to enable Amazon ECS to manage your cluster."
+
+    IAMServiceLinkedRole3:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "elasticloadbalancing.amazonaws.com"
+            Description: "Allows ELB to call AWS services on your behalf."
+
+    IAMServiceLinkedRole4:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "rds.amazonaws.com"
+            Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
+    IAMManagedPolicy:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "CloudCraft"
+            Path: "/"
+            PolicyDocument: |
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Action": [
+                        "apigateway:Get",
+                        "autoscaling:Describe*",
+                        "cloudfront:Get*",
+                        "cloudfront:List*",
+                        "cloudwatch:Describe*",
+                        "cloudwatch:Get*",
+                        "cloudwatch:List*",
+                        "directconnect:Describe*",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:ListTables",
+                        "dynamodb:ListTagsOfResource",
+                        "ec2:Describe*",
+                        "ecr-public:Describe*",
+                        "ecr-public:List*",
+                        "ecr:Describe*",
+                        "ecr:List*",
+                        "ecs:Describe*",
+                        "ecs:List*",
+                        "eks:Describe*",
+                        "eks:List*",
+                        "elasticache:Describe*",
+                        "elasticache:List*",
+                        "elasticfilesystem:Describe*",
+                        "elasticloadbalancing:Describe*",
+                        "es:Describe*",
+                        "es:List*",
+                        "fsx:Describe*",
+                        "fsx:List*",
+                        "glacier:Describe*",
+                        "glacier:Get*",
+                        "glacier:List*",
+                        "kinesis:Describe*",
+                        "kinesis:List*",
+                        "lambda:GetFunction",
+                        "lambda:List*",
+                        "rds:Describe*",
+                        "rds:ListTagsForResource",
+                        "redshift:Describe*",
+                        "route53:Get*",
+                        "route53:List*",
+                        "s3:GetBucketAcl",
+                        "s3:GetBucketLocation",
+                        "s3:GetBucketNotification",
+                        "s3:GetBucketTagging",
+                        "s3:GetEncryptionConfiguration",
+                        "s3:List*",
+                        "ses:Get*",
+                        "ses:List*",
+                        "sns:GetSubscriptionAttributes",
+                        "sns:GetTopicAttributes",
+                        "sns:List*",
+                        "sqs:GetQueueAttributes",
+                        "sqs:GetQueueUrl",
+                        "sqs:ListQueues",
+                        "sqs:ListQueueTags",
+                        "tag:Get*",
+                        "wafv2:GetWebACL*",
+                        "wafv2:List*"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    }
+                  ]
+                }
+
+    IAMManagedPolicy2:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: !Sub "CodeBuildBasePolicy-${CodeBuildProject}-${AWS::Region}"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject}",
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject}:*"
+                            ],
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:s3:::codepipeline-${AWS::Region}-*"
+                            ],
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:GetObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "codebuild:CreateReportGroup",
+                                "codebuild:CreateReport",
+                                "codebuild:UpdateReport",
+                                "codebuild:BatchPut${IAMGroup}Cases",
+                                "codebuild:BatchPutCodeCoverages"
+                            ],
+                            "Resource": [
+                                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${CodeBuildProject}-*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy3:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: !Sub "CodeBuildBasePolicy-${CodeBuildProject3}-${AWS::Region}"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                          "Action": [
+                            "ecr:BatchCheckLayerAvailability",
+                            "ecr:CompleteLayerUpload",
+                            "ecr:GetAuthorizationToken",
+                            "ecr:InitiateLayerUpload",
+                            "ecr:PutImage",
+                            "ecr:UploadLayerPart"
+                          ],
+                          "Resource": "*",
+                          "Effect": "Allow"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject3}",
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject3}:*"
+                            ],
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:s3:::codepipeline-${AWS::Region}-*"
+                            ],
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:GetObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "codebuild:CreateReportGroup",
+                                "codebuild:CreateReport",
+                                "codebuild:UpdateReport",
+                                "codebuild:BatchPut${IAMGroup}Cases",
+                                "codebuild:BatchPutCodeCoverages"
+                            ],
+                            "Resource": [
+                                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${CodeBuildProject3}-*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy4:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: !Ref IAMRole
+            Path: "/service-role/"
+            PolicyDocument: |
+                {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "iam:PassRole"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow",
+                            "Condition": {
+                                "StringEqualsIfExists": {
+                                    "iam:PassedToService": [
+                                        "cloudformation.amazonaws.com",
+                                        "elasticbeanstalk.amazonaws.com",
+                                        "ec2.amazonaws.com",
+                                        "ecs-tasks.amazonaws.com"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Action": [
+                                "codecommit:CancelUploadArchive",
+                                "codecommit:GetBranch",
+                                "codecommit:GetCommit",
+                                "codecommit:GetRepository",
+                                "codecommit:GetUploadArchiveStatus",
+                                "codecommit:UploadArchive"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codedeploy:CreateDeployment",
+                                "codedeploy:GetApplication",
+                                "codedeploy:GetApplicationRevision",
+                                "codedeploy:GetDeployment",
+                                "codedeploy:GetDeploymentConfig",
+                                "codedeploy:RegisterApplicationRevision"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codestar-connections:UseConnection"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "elasticbeanstalk:*",
+                                "ec2:*",
+                                "elasticloadbalancing:*",
+                                "autoscaling:*",
+                                "cloudwatch:*",
+                                "s3:*",
+                                "sns:*",
+                                "cloudformation:*",
+                                "rds:*",
+                                "sqs:*",
+                                "ecs:*"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "lambda:InvokeFunction",
+                                "lambda:ListFunctions"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "opsworks:CreateDeployment",
+                                "opsworks:DescribeApps",
+                                "opsworks:DescribeCommands",
+                                "opsworks:DescribeDeployments",
+                                "opsworks:DescribeInstances",
+                                "opsworks:DescribeStacks",
+                                "opsworks:UpdateApp",
+                                "opsworks:UpdateStack"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "cloudformation:CreateStack",
+                                "cloudformation:DeleteStack",
+                                "cloudformation:DescribeStacks",
+                                "cloudformation:UpdateStack",
+                                "cloudformation:CreateChangeSet",
+                                "cloudformation:DeleteChangeSet",
+                                "cloudformation:DescribeChangeSet",
+                                "cloudformation:ExecuteChangeSet",
+                                "cloudformation:SetStackPolicy",
+                                "cloudformation:ValidateTemplate"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codebuild:BatchGetBuilds",
+                                "codebuild:StartBuild",
+                                "codebuild:BatchGetBuildBatches",
+                                "codebuild:StartBuildBatch"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "devicefarm:ListProjects",
+                                "devicefarm:ListDevicePools",
+                                "devicefarm:GetRun",
+                                "devicefarm:GetUpload",
+                                "devicefarm:CreateUpload",
+                                "devicefarm:ScheduleRun"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "servicecatalog:ListProvisioningArtifacts",
+                                "servicecatalog:CreateProvisioningArtifact",
+                                "servicecatalog:DescribeProvisioningArtifact",
+                                "servicecatalog:DeleteProvisioningArtifact",
+                                "servicecatalog:UpdateProduct"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "cloudformation:ValidateTemplate"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ecr:DescribeImages"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "states:DescribeExecution",
+                                "states:DescribeStateMachine",
+                                "states:StartExecution"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "appconfig:StartDeployment",
+                                "appconfig:StopDeployment",
+                                "appconfig:GetDeployment"
+                            ],
+                            "Resource": "*"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+
+    IAMManagedPolicy5:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: !Sub "AWSCodePipelineServiceRole-${AWS::Region}-test-pipeline-2"
+            Path: "/service-role/"
+            PolicyDocument: |
+                {
+                    "Statement": [
+                        {
+                          "Action": [
+                            "ecr:BatchCheckLayerAvailability",
+                            "ecr:CompleteLayerUpload",
+                            "ecr:GetAuthorizationToken",
+                            "ecr:InitiateLayerUpload",
+                            "ecr:PutImage",
+                            "ecr:UploadLayerPart"
+                          ],
+                          "Resource": "*",
+                          "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "iam:PassRole"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow",
+                            "Condition": {
+                                "StringEqualsIfExists": {
+                                    "iam:PassedToService": [
+                                        "cloudformation.amazonaws.com",
+                                        "elasticbeanstalk.amazonaws.com",
+                                        "ec2.amazonaws.com",
+                                        "ecs-tasks.amazonaws.com"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Action": [
+                                "codecommit:CancelUploadArchive",
+                                "codecommit:GetBranch",
+                                "codecommit:GetCommit",
+                                "codecommit:GetRepository",
+                                "codecommit:GetUploadArchiveStatus",
+                                "codecommit:UploadArchive"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codedeploy:CreateDeployment",
+                                "codedeploy:GetApplication",
+                                "codedeploy:GetApplicationRevision",
+                                "codedeploy:GetDeployment",
+                                "codedeploy:GetDeploymentConfig",
+                                "codedeploy:RegisterApplicationRevision"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codestar-connections:UseConnection"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "elasticbeanstalk:*",
+                                "ec2:*",
+                                "elasticloadbalancing:*",
+                                "autoscaling:*",
+                                "cloudwatch:*",
+                                "s3:*",
+                                "sns:*",
+                                "cloudformation:*",
+                                "rds:*",
+                                "sqs:*",
+                                "ecs:*"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "lambda:InvokeFunction",
+                                "lambda:ListFunctions"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "opsworks:CreateDeployment",
+                                "opsworks:DescribeApps",
+                                "opsworks:DescribeCommands",
+                                "opsworks:DescribeDeployments",
+                                "opsworks:DescribeInstances",
+                                "opsworks:DescribeStacks",
+                                "opsworks:UpdateApp",
+                                "opsworks:UpdateStack"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "cloudformation:CreateStack",
+                                "cloudformation:DeleteStack",
+                                "cloudformation:DescribeStacks",
+                                "cloudformation:UpdateStack",
+                                "cloudformation:CreateChangeSet",
+                                "cloudformation:DeleteChangeSet",
+                                "cloudformation:DescribeChangeSet",
+                                "cloudformation:ExecuteChangeSet",
+                                "cloudformation:SetStackPolicy",
+                                "cloudformation:ValidateTemplate"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Action": [
+                                "codebuild:BatchGetBuilds",
+                                "codebuild:StartBuild",
+                                "codebuild:BatchGetBuildBatches",
+                                "codebuild:StartBuildBatch"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "devicefarm:ListProjects",
+                                "devicefarm:ListDevicePools",
+                                "devicefarm:GetRun",
+                                "devicefarm:GetUpload",
+                                "devicefarm:CreateUpload",
+                                "devicefarm:ScheduleRun"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "servicecatalog:ListProvisioningArtifacts",
+                                "servicecatalog:CreateProvisioningArtifact",
+                                "servicecatalog:DescribeProvisioningArtifact",
+                                "servicecatalog:DeleteProvisioningArtifact",
+                                "servicecatalog:UpdateProduct"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "cloudformation:ValidateTemplate"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ecr:DescribeImages"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "states:DescribeExecution",
+                                "states:DescribeStateMachine",
+                                "states:StartExecution"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "appconfig:StartDeployment",
+                                "appconfig:StopDeployment",
+                                "appconfig:GetDeployment"
+                            ],
+                            "Resource": "*"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+
+    IAMManagedPolicy6:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: !Sub "CodeBuildBasePolicy-${CodeBuildProject2}-${AWS::Region}"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject2}",
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProject2}:*"
+                            ],
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:s3:::codepipeline-${AWS::Region}-*"
+                            ],
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:GetObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "codebuild:CreateReportGroup",
+                                "codebuild:CreateReport",
+                                "codebuild:UpdateReport",
+                                "codebuild:BatchPut${IAMGroup}Cases",
+                                "codebuild:BatchPutCodeCoverages"
+                            ],
+                            "Resource": [
+                                "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${CodeBuildProject2}-*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMPolicy:
+        Type: "AWS::IAM::Policy"
+        Properties:
+            PolicyDocument: |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                          "Action": [
+                            "ecr:BatchCheckLayerAvailability",
+                            "ecr:CompleteLayerUpload",
+                            "ecr:GetAuthorizationToken",
+                            "ecr:InitiateLayerUpload",
+                            "ecr:PutImage",
+                            "ecr:UploadLayerPart"
+                          ],
+                          "Resource": "*",
+                          "Effect": "Allow"
+                        }
+                    ]
+                }
+            Roles:
+              - !Ref IAMRole6
+            PolicyName: "ecr-for-code-build"
+
+    IAMInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Path: "/"
+            InstanceProfileName: !Ref IAMRole9
+            Roles:
+              - !Ref IAMRole9
+
+    IAMAccessKey:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "brainboard"
+
+    IAMAccessKey2:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "erickrtiddle"
+
+    IAMAccessKey3:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "github-user"
+
+    IAMAccessKey4:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "terraform-user"
+
+    IAMVirtualMFADevice:
+        Type: "AWS::IAM::VirtualMFADevice"
+        Properties:
+            SerialNumber: !Sub "arn:aws:iam::${AWS::AccountId}:mfa/root-account-mfa-device"
+            Users:
+              - !Sub "arn:aws:iam::${AWS::AccountId}:root"
+
+    EC2DHCPOptions:
+        Type: "AWS::EC2::DHCPOptions"
+        Properties:
+            DomainName: !Sub "${AWS::Region}.compute.internal"
+
+    EC2NetworkInsightsPath:
+        Type: "AWS::EC2::NetworkInsightsPath"
+        Properties:
+            Destination: "eni-0962325fbe819bdbf"
+            Protocol: "tcp"
+            Source: "igw-092d9657230b8e1b8"
+            Tags:
+              -
+                Key: "Name"
+                Value: "test-path"
+
+    EC2NetworkInsightsAnalysis:
+        Type: "AWS::EC2::NetworkInsightsAnalysis"
+        Properties:
+            NetworkInsightsPathId: !Ref EC2NetworkInsightsPath
+
+    EC2NetworkInterface:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: "RDSNetworkInterface"
+            PrivateIpAddress: "172.31.28.215"
+            PrivateIpAddresses:
+              -
+                PrivateIpAddress: "172.31.28.215"
+                Primary: true
+            SubnetId: "subnet-01674cabc7ddde2ad"
+            SourceDestCheck: true
+            GroupSet:
+              - "sg-0463d228441e8fd1d"
+
+    EC2NetworkInterface2:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:attachment/3c605594-8552-4d90-9979-5d1ed683ea47"
+            PrivateIpAddress: "172.31.3.191"
+            PrivateIpAddresses:
+              -
+                PrivateIpAddress: "172.31.3.191"
+                Primary: true
+            SubnetId: "subnet-05520d457420fc77a"
+            SourceDestCheck: true
+            GroupSet:
+              - "sg-0463d228441e8fd1d"
+
+    S3Bucket:
+        Type: "AWS::S3::Bucket"
+        Properties:
+            BucketName: !Sub "codepipeline-${AWS::Region}-313101613254"
+
+    S3Bucket2:
+        Type: "AWS::S3::Bucket"
+        Properties:
+            BucketName: "terraform-up-and-running-state-eeee"
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                  -
+                    ServerSideEncryptionByDefault:
+                        SSEAlgorithm: "AES256"
+                    BucketKeyEnabled: false
+            VersioningConfiguration:
+                Status: "Enabled"
+
+    S3BucketPolicy:
+        Type: "AWS::S3::BucketPolicy"
+        Properties:
+            Bucket: !Ref S3Bucket
+            PolicyDocument:
+                Version: "2012-10-17"
+                Id: "SSEAndSSLPolicy"
+                Statement:
+                  -
+                    Sid: "DenyUnEncryptedObjectUploads"
+                    Effect: "Deny"
+                    Principal: "*"
+                    Action: "s3:PutObject"
+                    Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+                    Condition:
+                        StringNotEquals:
+                            "s3:x-amz-server-side-encryption": "aws:kms"
+                  -
+                    Sid: "DenyInsecureConnections"
+                    Effect: "Deny"
+                    Principal: "*"
+                    Action: "s3:*"
+                    Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+                    Condition:
+                        Bool:
+                            "aws:SecureTransport": "false"
+
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: "database-1"
+            AllocatedStorage: 20
+            DBInstanceClass: "db.t3.micro"
+            Engine: "postgres"
+            MasterUsername: "postgres"
+            MasterUserPassword: "REPLACEME"
+            PreferredBackupWindow: "10:43-11:13"
+            BackupRetentionPeriod: 7
+            AvailabilityZone: !Sub "${AWS::Region}c"
+            PreferredMaintenanceWindow: "mon:12:31-mon:13:01"
+            MultiAZ: false
+            EngineVersion: "13.7"
+            AutoMinorVersionUpgrade: true
+            LicenseModel: "postgresql-license"
+            PubliclyAccessible: true
+            StorageType: "gp2"
+            Port: 5432
+            StorageEncrypted: false
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 60
+            EnableIAMDatabaseAuthentication: true
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: "default-vpc-0ff5fe12f3f26b3e7"
+            VPCSecurityGroups:
+              - "sg-0463d228441e8fd1d"
+            MaxAllocatedStorage: 1000
+            DBParameterGroupName: "default.postgres13"
+            OptionGroupName: "default:postgres-13"
+            MonitoringRoleArn: !GetAtt IAMRole8.Arn
+            CACertificateIdentifier: "rds-ca-2019"
+
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            DBSubnetGroupName: "default-vpc-0ff5fe12f3f26b3e7"
+            SubnetIds:
+              - "subnet-01674cabc7ddde2ad"
+              - "subnet-05520d457420fc77a"
+
+    ElastiCacheUser:
+        Type: "AWS::ElastiCache::User"
+        Properties:
+            UserId: "default"
+            UserName: "default"
+            Engine: "redis"
+            AccessString: "on ~* +@all"
+            NoPasswordRequired: true
+
+    OpsWorksUserProfile:
+        Type: "AWS::OpsWorks::UserProfile"
+        Properties:
+            AllowSelfManagement: false
+            IamUserArn: !Sub "arn:aws:iam::${AWS::AccountId}:user/brainboard"
+            SshUsername: "brainboard"
+
+    DynamoDBTable:
+        Type: "AWS::DynamoDB::Table"
+        Properties:
+            AttributeDefinitions:
+              -
+                AttributeName: "LockID"
+                AttributeType: "S"
+            BillingMode: "PAY_PER_REQUEST"
+            TableName: "terraform-up-and-running-locks"
+            KeySchema:
+              -
+                AttributeName: "LockID"
+                KeyType: "HASH"
+
+    ECRRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: "eklie-repo"
+            LifecyclePolicy:
+                RegistryId: !Ref AWS::AccountId
+
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "eklie-cluster"
+            CapacityProviders:
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "eklie-service"
+            Cluster: !GetAtt ECSCluster.Arn
+            DesiredCount: 1
+            PlatformVersion: "1.4.0"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration:
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker:
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration:
+                AwsvpcConfiguration:
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups:
+                      - "sg-0463d228441e8fd1d"
+                    Subnets:
+                      - "subnet-05520d457420fc77a"
+                      - "subnet-01674cabc7ddde2ad"
+            SchedulingStrategy: "REPLICA"
+            CapacityProviderStrategy:
+              -
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions:
+              -
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/eklie-repo:Latest"
+                LogConfiguration:
+                    LogDriver: "awslogs"
+                    Options:
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/eklie-task"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: "eklie-container"
+                PortMappings:
+                  -
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "eklie-task"
+            TaskRoleArn: !GetAtt IAMRole9.Arn
+            ExecutionRoleArn: !GetAtt IAMRole7.Arn
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities:
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    NeptuneDBSubnetGroup:
+        Type: "AWS::Neptune::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupName: "default-vpc-0ff5fe12f3f26b3e7"
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            SubnetIds:
+              - "subnet-01674cabc7ddde2ad"
+              - "subnet-05520d457420fc77a"
+
+    CodeBuildProject:
+        Type: "AWS::CodeBuild::Project"
+        Properties:
+            Name: !Sub "${CodeBuildProject3}-3"
+            Source:
+                InsecureSsl: false
+                Type: "CODEPIPELINE"
+            Artifacts:
+                EncryptionDisabled: false
+                Name: !Sub "${CodeBuildProject3}-3"
+                Packaging: "NONE"
+                Type: "CODEPIPELINE"
+            Cache:
+                Type: "NO_CACHE"
+            Environment:
+                ComputeType: "BUILD_GENERAL1_SMALL"
+                EnvironmentVariables:
+                  -
+                    Name: "AWS_DEFAULT_REGION"
+                    Type: "PLAINTEXT"
+                    Value: !Ref AWS::Region
+                  -
+                    Name: "AWS_ACCOUNT_ID "
+                    Type: "PLAINTEXT"
+                    Value: !Ref AWS::AccountId
+                  -
+                    Name: "IMAGE_TAG"
+                    Type: "PLAINTEXT"
+                    Value: "Latest"
+                  -
+                    Name: "IMAGE_REPO_NAME"
+                    Type: "PLAINTEXT"
+                    Value: "eklie-repo"
+                Image: "aws/codebuild/standard:4.0"
+                ImagePullCredentialsType: "CODEBUILD"
+                PrivilegedMode: true
+                Type: "LINUX_CONTAINER"
+            ServiceRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codebuild-${CodeBuildProject3}-3-service-role"
+            TimeoutInMinutes: 60
+            QueuedTimeoutInMinutes: 480
+            EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+            BadgeEnabled: false
+            LogsConfig:
+                CloudWatchLogs:
+                    Status: "ENABLED"
+                S3Logs:
+                    Status: "DISABLED"
+                    EncryptionDisabled: false
+            Visibility: "PRIVATE"
+
+    CodeBuildProject2:
+        Type: "AWS::CodeBuild::Project"
+        Properties:
+            Name: !Sub "${CodeBuildProject3}-2"
+            Source:
+                InsecureSsl: false
+                Type: "CODEPIPELINE"
+            Artifacts:
+                EncryptionDisabled: false
+                Name: !Sub "${CodeBuildProject3}-2"
+                Packaging: "NONE"
+                Type: "CODEPIPELINE"
+            Cache:
+                Type: "NO_CACHE"
+            Environment:
+                ComputeType: "BUILD_GENERAL1_SMALL"
+                Image: "aws/codebuild/standard:6.0"
+                ImagePullCredentialsType: "CODEBUILD"
+                PrivilegedMode: true
+                Type: "LINUX_CONTAINER"
+            ServiceRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codebuild-${CodeBuildProject3}-2-service-role"
+            TimeoutInMinutes: 60
+            QueuedTimeoutInMinutes: 480
+            EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+            BadgeEnabled: false
+            LogsConfig:
+                CloudWatchLogs:
+                    Status: "ENABLED"
+                S3Logs:
+                    Status: "DISABLED"
+                    EncryptionDisabled: false
+            Visibility: "PRIVATE"
+
+    CodeBuildProject3:
+        Type: "AWS::CodeBuild::Project"
+        Properties:
+            Name: "test-project"
+            Source:
+                InsecureSsl: false
+                Type: "CODEPIPELINE"
+            Artifacts:
+                EncryptionDisabled: false
+                Name: "test-project"
+                Packaging: "NONE"
+                Type: "CODEPIPELINE"
+            Cache:
+                Type: "NO_CACHE"
+            Environment:
+                ComputeType: "BUILD_GENERAL1_SMALL"
+                Image: "aws/codebuild/standard:6.0"
+                ImagePullCredentialsType: "CODEBUILD"
+                PrivilegedMode: true
+                Type: "LINUX_CONTAINER"
+            ServiceRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codebuild-test-project-service-role"
+            TimeoutInMinutes: 60
+            QueuedTimeoutInMinutes: 480
+            EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+            BadgeEnabled: false
+            LogsConfig:
+                CloudWatchLogs:
+                    Status: "ENABLED"
+                S3Logs:
+                    Status: "DISABLED"
+                    EncryptionDisabled: false
+            Visibility: "PRIVATE"
+
+    CodeDeployApplication:
+        Type: "AWS::CodeDeploy::Application"
+        Properties:
+            ApplicationName: "eklie-app"
+            ComputePlatform: "ECS"
+
+    CodePipelinePipeline:
+        Type: "AWS::CodePipeline::Pipeline"
+        Properties:
+            Name: "test-pipeline-2-clone"
+            RoleArn: !GetAtt IAMRole.Arn
+            ArtifactStore:
+                Location: !Ref S3Bucket
+                Type: "S3"
+            Stages:
+              -
+                Name: "Source"
+                Actions:
+                  -
+                    Name: "Source"
+                    ActionTypeId:
+                        Category: "Source"
+                        Owner: "AWS"
+                        Provider: "CodeStarSourceConnection"
+                        Version: "1"
+                    Configuration:
+                        BranchName: "main"
+                        ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/ae80476f-5cee-48d5-bd66-171de7f37ef3"
+                        FullRepositoryId: "renadvent/eklie"
+                        OutputArtifactFormat: "CODE_ZIP"
+                    OutputArtifacts:
+                      -
+                        Name: "SourceArtifact"
+                    Region: !Ref AWS::Region
+                    Namespace: "SourceVariables"
+                    RunOrder: 1
+              -
+                Name: "Build"
+                Actions:
+                  -
+                    Name: "Build"
+                    ActionTypeId:
+                        Category: "Build"
+                        Owner: "AWS"
+                        Provider: "CodeBuild"
+                        Version: "1"
+                    Configuration:
+                        EnvironmentVariables: !Sub "[{\"name\":\"AWS_DEFAULT_REGION\",\"value\":\"${AWS::Region}\",\"type\":\"PLAINTEXT\"},{\"name\":\"AWS_ACCOUNT_ID\",\"value\":\"${AWS::AccountId}\",\"type\":\"PLAINTEXT\"},{\"name\":\"IMAGE_TAG\",\"value\":\"Latest\",\"type\":\"PLAINTEXT\"},{\"name\":\"IMAGE_REPO_NAME\",\"value\":\"eklie-repo\",\"type\":\"PLAINTEXT\"}]"
+                        ProjectName: !Ref CodeBuildProject
+                    InputArtifacts:
+                      -
+                        Name: "SourceArtifact"
+                    OutputArtifacts:
+                      -
+                        Name: "BuildArtifact"
+                    Region: !Ref AWS::Region
+                    Namespace: "BuildVariables"
+                    RunOrder: 1
+              -
+                Name: "Deploy"
+                Actions:
+                  -
+                    Name: "Deploy"
+                    ActionTypeId:
+                        Category: "Deploy"
+                        Owner: "AWS"
+                        Provider: "ECS"
+                        Version: "1"
+                    Configuration:
+                        ClusterName: !Ref ECSCluster
+                        ServiceName: !GetAtt ECSService.Name
+                    InputArtifacts:
+                      -
+                        Name: "BuildArtifact"
+                    Region: !Ref AWS::Region
+                    Namespace: "DeployVariables"
+                    RunOrder: 1
+
+    SecretsManagerSecret:
+        Type: "AWS::SecretsManager::Secret"
+        Properties:
+            Name: "prod/eklie"
+            SecretString: "REPLACEME"
+
+    XRayGroup:
+        Type: "AWS::XRay::Group"
+        Properties:
+            GroupName: "Default"
+            InsightsConfiguration:
+                InsightsEnabled: false
+                NotificationsEnabled: false
+

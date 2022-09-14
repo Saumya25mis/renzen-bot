@@ -1,5 +1,11 @@
 version: 0.2
 
+env:
+  secrets-manager:
+    LOCAL_SECRET_VAR: "DISCORD_TOKEN:DISCORD_TOKEN"
+  variables:
+
+
 phases:
   pre_build:
     commands:
