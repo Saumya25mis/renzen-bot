@@ -7,7 +7,8 @@ setup:
 	./bash_setup.sh
 
 delete:
-	aws cloudformation delete-stack --stack-name bot-stack
+	aws cloudformation delete-stack --stack-name bot-stack; \
+	aws cloudformation delete-stack --stack-name pipeline-stack
 
 update:
 	aws cloudformation update-stack \
@@ -18,11 +19,33 @@ update:
 		ParameterKey="GitHubRepoName",ParameterValue="eklie" \
 		--capabilities CAPABILITY_NAMED_IAM
 
-create: delete
+bot:
+	aws cloudformation delete-stack --stack-name bot-stack; sleep 2 \
 	aws cloudformation create-stack \
 		--stack-name bot-stack \
 		--template-body file://cloudformation/stack.yml \
 		--parameters \
 		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
-		ParameterKey="GitHubRepoName",ParameterValue="eklie" \
+		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
 		--capabilities CAPABILITY_NAMED_IAM
+
+pipeline:
+	aws cloudformation delete-stack --stack-name pipeline-stack; sleep 2; \
+	aws cloudformation create-stack \
+		--stack-name pipeline-stack \
+		--template-body file://cloudformation/pipeline.yml \
+		--parameters \
+		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
+		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
+		--capabilities CAPABILITY_NAMED_IAM; \
+	echo "Activate connection https://us-west-1.console.aws.amazon.com/codesuite/settings/connections"
+
+update-pipeline:
+	aws cloudformation update-stack \
+		--stack-name pipeline-stack \
+		--template-body file://cloudformation/pipeline.yml \
+		--parameters \
+		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
+		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
+		--capabilities CAPABILITY_NAMED_IAM; \
+	echo "Activate connection https://us-west-1.console.aws.amazon.com/codesuite/settings/connections"
