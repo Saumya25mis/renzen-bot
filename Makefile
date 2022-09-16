@@ -10,8 +10,20 @@ delete:
 	aws cloudformation delete-stack --stack-name bot-stack; \
 
 bot:
-	aws cloudformation delete-stack --stack-name bot-stack; sleep 2; \
 	aws cloudformation create-stack \
+		--stack-name bot-stack \
+		--template-body file://cloudformation/stack.yml \
+		--parameters \
+		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
+		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
+		--capabilities CAPABILITY_NAMED_IAM
+
+clean:
+	aws cloudformation delete-stack --stack-name bot-stack \
+	--retain-resources BotS3Bucket ECRRepository; \
+
+update:
+	aws cloudformation update-stack \
 		--stack-name bot-stack \
 		--template-body file://cloudformation/stack.yml \
 		--parameters \

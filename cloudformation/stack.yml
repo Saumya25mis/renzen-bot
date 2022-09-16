@@ -17,6 +17,9 @@ Parameters:
     Default: "main"
     Description: Parameter to set up Bot
 
+  # SUBNETS:
+  #   Type: CommaDelimitedList
+
 
 Resources:
   # SecretsManagerSecret:
@@ -24,6 +27,31 @@ Resources:
   #     Properties:
   #         Name: "BotDiscordToken"
   #         SecretString: !Ref DiscordTokenParameter
+
+  IAMServiceLinkedRole:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "autoscaling.amazonaws.com"
+      Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
+
+  IAMServiceLinkedRole2:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "ecs.amazonaws.com"
+      Description: "Role to enable Amazon ECS to manage your cluster."
+
+  IAMServiceLinkedRole3:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "elasticloadbalancing.amazonaws.com"
+      Description: "Allows ELB to call AWS services on your behalf."
+
+  IAMServiceLinkedRole4:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "rds.amazonaws.com"
+      Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
 
   ECSCluster:
     Type: "AWS::ECS::Cluster"
@@ -42,6 +70,13 @@ Resources:
       DesiredCount: 1
       TaskDefinition:
         Ref: "ECSTaskDefinition"
+      # DeploymentConfiguration:
+      #   MaximumPercent: 200
+      #   MinimumHealthyPercent: 100
+      #   DeploymentCircuitBreaker:
+      #     Enable: true
+      #     Rollback: true
+      # Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
@@ -52,10 +87,44 @@ Resources:
             - !Ref mySubnet2
       SchedulingStrategy: "REPLICA"
       CapacityProviderStrategy:
-        -
-          CapacityProvider: "FARGATE"
+        - CapacityProvider: "FARGATE"
           Weight: 1
           Base: 0
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: myVPC
+      Tags:
+      - Key: stack
+        Value: production
+
+  mySubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnet1
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnet2
+      RouteTableId:
+        Ref: myRouteTable
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+       RouteTableId:
+         Ref: myRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId:
+         Ref: myInternetGateway
 
   myVPC:
     Type: AWS::EC2::VPC
@@ -67,9 +136,25 @@ Resources:
       - Key: stack
         Value: production
 
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: stack
+        Value: production
+
   mySubnet1:
     Type: AWS::EC2::Subnet
     Properties:
+      MapPublicIpOnLaunch: true
       VpcId:
         Ref: myVPC
       CidrBlock: 10.0.0.0/24
@@ -81,6 +166,7 @@ Resources:
   mySubnet2:
     Type: AWS::EC2::Subnet
     Properties:
+      MapPublicIpOnLaunch: true
       VpcId:
         Ref: myVPC
       CidrBlock: 10.0.100.0/24
@@ -96,12 +182,12 @@ Resources:
       VpcId:
         Ref: myVPC
       SecurityGroupIngress:
-        - IpProtocol: tcp
+        - IpProtocol: -1
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-        - IpProtocol: tcp
+        - IpProtocol: -1
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0

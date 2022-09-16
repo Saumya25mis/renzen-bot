@@ -9,6 +9,17 @@ read -p "Enter Discord Bot Token (https://discord.com/developers/applications): 
 
 # DISCORD_TOKEN="MTAxMzk4NjQ1MDY5MTMzMDA1OA.GV3Qi8.Yal7EreHMiWICrvd0Czd0_ICNbs-rjAxCEnUsA"
 
+
+# aws ec2 describe-security-groups --group-names default --query SecurityGroups[0].VpcId
+# aws ec2 describe-subnets --query Subnets[?DefaultForAz].SubnetArn
+# SUBNETS=$(aws ec2 describe-subnets --query Subnets[?DefaultForAz].SubnetArn)
+# SECURITY_GROUP =$(aws ec2 describe-security-groups --group-names default --query SecurityGroups[0].VpcId)
+
+
+
+#     ParameterKey="SUBNETS",ParameterValue="$SUBNETS" \
+#     ParameterKey="SECURITY_GROUP",ParameterValue="$SECURITY_GROUP"
+
 # create stack bot will use to run
 aws cloudformation create-stack \
     --stack-name bot-stack \
