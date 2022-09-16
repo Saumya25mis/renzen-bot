@@ -1,5 +1,3 @@
-# bash_setup.sh
-
 DISCORD_TOKEN="MTAxMzk4NjQ1MDY5MTMzMDA1OA.GV3Qi8.Yal7EreHMiWICrvd0Czd0_ICNbs-rjAxCEnUsA"
 
 setup:
@@ -16,11 +14,8 @@ bot:
 		--parameters \
 		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
 		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
-		--capabilities CAPABILITY_NAMED_IAM
-
-clean:
-	aws cloudformation delete-stack --stack-name bot-stack \
-	--retain-resources BotS3Bucket ECRRepository; \
+		--capabilities CAPABILITY_NAMED_IAM; \
+		echo "Activate Github Connection here: console.aws.amazon.com/codesuite/settings/connections"
 
 update:
 	aws cloudformation update-stack \
@@ -30,3 +25,6 @@ update:
 		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
 		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
 		--capabilities CAPABILITY_NAMED_IAM
+
+pipeline:
+	aws codepipeline start-pipeline-execution --name BotCodePipeline

@@ -6,7 +6,8 @@ import discord
 from discord.ext import commands
 
 from src import secret_utils
-from src import db_utils
+
+# from src import db_utils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -44,7 +45,7 @@ async def on_message(message: discord.Message):
     await message.channel.send("ping!!!")
 
     # save to db
-    db_utils.save_message_to_db(message=message)
+    # db_utils.save_message_to_db(message=message)
 
     # process commands
     await bot.process_commands(message)

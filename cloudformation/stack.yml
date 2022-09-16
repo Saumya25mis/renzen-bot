@@ -17,10 +17,6 @@ Parameters:
     Default: "main"
     Description: Parameter to set up Bot
 
-  # SUBNETS:
-  #   Type: CommaDelimitedList
-
-
 Resources:
   myLogGroup:
     Type: AWS::Logs::LogGroup
@@ -28,11 +24,11 @@ Resources:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
 
-  SecretsManagerSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-          Name: "BotDiscordToken"
-          SecretString: !Ref DiscordTokenParameter
+  # SecretsManagerSecret:
+  #     Type: "AWS::SecretsManager::Secret"
+  #     Properties:
+  #         Name: "BotDiscordToken"
+  #         SecretString: !Ref DiscordTokenParameter
 
   IAMServiceLinkedRole:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -356,23 +352,6 @@ Resources:
         Type: "NO_CACHE"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
-        # EnvironmentVariables:
-        #   -
-        #     Name: "AWS_DEFAULT_REGION"
-        #     Type: "PLAINTEXT"
-        #     Value: !Ref AWS::Region
-        #   -
-        #     Name: "AWS_ACCOUNT_ID "
-        #     Type: "PLAINTEXT"
-        #     Value: !Ref AWS::AccountId
-        #   -
-        #     Name: "IMAGE_TAG"
-        #     Type: "PLAINTEXT"
-        #     Value: "Latest"
-        #   -
-        #     Name: "IMAGE_REPO_NAME"
-        #     Type: "PLAINTEXT"
-        #     Value: "eklie-repo"
         Image: "aws/codebuild/standard:4.0"
         ImagePullCredentialsType: "CODEBUILD"
         PrivilegedMode: true
@@ -380,8 +359,6 @@ Resources:
       ServiceRole: !GetAtt BotCodeBuildRole.Arn
       TimeoutInMinutes: 60
       QueuedTimeoutInMinutes: 480
-      # EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
-      # BadgeEnabled: false
       LogsConfig:
         CloudWatchLogs:
           Status: "ENABLED"
@@ -608,7 +585,6 @@ Resources:
     Properties:
       ManagedPolicyName: BotCodeBuildIAMManagedPolicy
       Path: "/service-role/"
-      # "codebuild:BatchPut${IAMGroup}Cases",
       PolicyDocument: !Sub |
         {
             "Version": "2012-10-17",
