@@ -15,7 +15,8 @@ from botocore.exceptions import ClientError
 def get_secret():
     """Get discord secrets."""
 
-    secret_name = "prod/eklie"
+    secret_name = "BotDiscordToken"
+    # secret_name = "prod/eklie"
     region_name = "us-west-1"
 
     # Create a Secrets Manager client
@@ -63,11 +64,12 @@ def get_secret():
 
 
 SECRETS = get_secret()
-TOKEN = SECRETS["eklie-token"]
-GUILD = SECRETS["eklie-guild"]
+TOKEN = SECRETS
+# TOKEN = SECRETS["eklie-token"]
+# GUILD = SECRETS["eklie-guild"]
 
 
-DB_PASSWORD = SECRETS["postgres-password"]
-DB_USERNAME = SECRETS["postgres-username"]
-DB_PORT = SECRETS["postgres-port"]
-DB_ENDPOINT = SECRETS["postgres-endpoint"]
+# DB_PASSWORD = SECRETS["postgres-password"]
+# DB_USERNAME = SECRETS["postgres-username"]
+# DB_PORT = SECRETS["postgres-port"]
+# DB_ENDPOINT = SECRETS["postgres-endpoint"]

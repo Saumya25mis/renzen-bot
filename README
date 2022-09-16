@@ -4,9 +4,10 @@ Before beginning, you must already have the following:
   - Github Acccount
   - AWS account (recommend a dedicated AWS account)
   - Discord Personal Account
+  - Discord Application
 
 To avoid problems with local environments and setup, we will be utilizing Github Codespaces. By opening this template in Codespaces, Github will create the environment using the information in the `.devcontainer` folder. This will also setup our pre-hook checks for us to check our code is valid before pushing.
 
-After this we run `. bash_setup.sh` at the root of the folder to setup our AWS resources and connect our AWS account to our Github account.
+After this we run `make bot` at the root of the folder to setup our AWS resources and connect our AWS account to our Github account.
 
 At this point our Bot should be running. To change bot functionality (it's responses etc), modify the file `src/bot.py`

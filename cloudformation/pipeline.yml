@@ -19,6 +19,11 @@ Parameters:
 
 Resources:
 
+  ECRRepository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+        RepositoryName: "bot-repo"
+
   SecretsManagerSecret:
       Type: "AWS::SecretsManager::Secret"
       Properties:
