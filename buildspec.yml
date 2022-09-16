@@ -3,6 +3,8 @@ version: 0.2
 env:
   secrets-manager:
     LOCAL_SECRET_VAR: "DISCORD_TOKEN:DISCORD_TOKEN"
+  variables:
+    IMAGE_TAG: "Latest"
 
 phases:
   pre_build:

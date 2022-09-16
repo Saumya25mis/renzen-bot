@@ -352,6 +352,7 @@ Resources:
       MaxSessionDuration: 3600
       ManagedPolicyArns:
         - !Ref BotCodeBuildIAMManagedPolicy
+        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 
   BotCodeBuildIAMManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
