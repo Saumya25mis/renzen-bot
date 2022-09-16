@@ -7,7 +7,8 @@
 # https://aws.amazon.com/developers/getting-started/python/
 
 import base64
-import json
+
+# import json
 import boto3
 from botocore.exceptions import ClientError
 
@@ -60,7 +61,8 @@ def get_secret():
             secret = base64.b64decode(get_secret_value_response["SecretBinary"])
 
     # Your code goes here.
-    return json.loads(secret)
+    return secret
+    # return json.loads(secret)
 
 
 SECRETS = get_secret()
