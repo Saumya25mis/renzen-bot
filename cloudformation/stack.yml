@@ -22,11 +22,17 @@ Parameters:
 
 
 Resources:
-  # SecretsManagerSecret:
-  #     Type: "AWS::SecretsManager::Secret"
-  #     Properties:
-  #         Name: "BotDiscordToken"
-  #         SecretString: !Ref DiscordTokenParameter
+  myLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/ecs/bot-task"
+      RetentionInDays: 7
+
+  SecretsManagerSecret:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotDiscordToken"
+          SecretString: !Ref DiscordTokenParameter
 
   IAMServiceLinkedRole:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -60,6 +66,7 @@ Resources:
         CapacityProviders:
         - "FARGATE"
         - "FARGATE_SPOT"
+    DependsOn: IAMServiceLinkedRole2
 
   ECSService:
     Type: AWS::ECS::Service
