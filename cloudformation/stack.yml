@@ -19,11 +19,11 @@ Parameters:
 
 
 Resources:
-  SecretsManagerSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-          Name: "BotDiscordToken"
-          SecretString: !Ref DiscordTokenParameter
+  # SecretsManagerSecret:
+  #     Type: "AWS::SecretsManager::Secret"
+  #     Properties:
+  #         Name: "BotDiscordToken"
+  #         SecretString: !Ref DiscordTokenParameter
 
   ECSCluster:
     Type: "AWS::ECS::Cluster"

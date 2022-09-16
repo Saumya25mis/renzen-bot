@@ -18,6 +18,13 @@ Parameters:
     Description: Parameter to set up Bot
 
 Resources:
+
+  SecretsManagerSecret:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotDiscordToken"
+          SecretString: !Ref DiscordTokenParameter
+
   BotS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
