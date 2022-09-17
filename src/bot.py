@@ -42,7 +42,7 @@ async def on_message(message: discord.Message):
         return
 
     # temp debug ack
-    await message.channel.send("ping!!!")
+    await message.channel.send("hazel is amazing!!!")
 
     # save to db
     # db_utils.save_message_to_db(message=message)
