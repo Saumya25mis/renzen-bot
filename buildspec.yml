@@ -1,12 +1,12 @@
 version: 0.2
 
 env:
-#   secrets-manager:
-#     LOCAL_SECRET_VAR: "DISCORD_TOKEN:DISCORD_TOKEN"
+  secrets-manager:
+    AWS_ACCOUNT_ID: "AWS_ACCOUNT_ID"
   variables:
     IMAGE_TAG: "Latest"
     IMAGE_REPO_NAME: "bot-repo"
-    AWS_ACCOUNT_ID: "103443233719"
+    # AWS_ACCOUNT_ID: "103443233719"
 
 phases:
   pre_build:

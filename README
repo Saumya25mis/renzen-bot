@@ -1,4 +1,4 @@
-The goal of this template is to create a full CI/CD pipeline for a Discord bot that is backed by AWS, and in as few steps as possible.
+The goal of this template is to create a full CI/CD pipeline for a Discord bot that is backed by AWS, and in as few steps as possible and with as little interaction with AWS as possible.
 
 Before beginning, you must already have the following:
   - Github Acccount

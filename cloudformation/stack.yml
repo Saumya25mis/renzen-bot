@@ -3,19 +3,22 @@ Metadata:
     Generator: "me-test"
 Description: ""
 
-Parameters:
-  DiscordTokenParameter:
-    Type: String
-    Description: Parameter to set up Bot
+# Parameters:
+  # DiscordTokenParameter:
+  #   Type: String
+  #   Description: Parameter to set up Bot
 
-  GitHubRepoName:
-    Type: String
-    Description: Parameter to set up Bot
+  # GitHubRepoName:
+  #   Type: String
+  #   Description: Parameter to set up Bot
 
-  GitHubBranchName:
-    Type: String
-    Default: "main"
-    Description: Parameter to set up Bot
+  # GitHubBranchName:
+  #   Type: String
+  #   Default: "main"
+  #   Description: Parameter to set up Bot
+
+  # AWS_ACCOUNT_ID:
+  #   Type: String
 
 Resources:
   myLogGroup:
@@ -24,11 +27,11 @@ Resources:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
 
-  # SecretsManagerSecret:
+  # SecretsManagerSecretAccount:
   #     Type: "AWS::SecretsManager::Secret"
   #     Properties:
-  #         Name: "BotDiscordToken"
-  #         SecretString: !Ref DiscordTokenParameter
+  #         Name: "BotAWSAccountID"
+  #         SecretString: !Ref AWS_ACCOUNT_ID
 
   IAMServiceLinkedRole:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -36,11 +39,11 @@ Resources:
       AWSServiceName: "autoscaling.amazonaws.com"
       Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
 
-  IAMServiceLinkedRole2:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: "ecs.amazonaws.com"
-      Description: "Role to enable Amazon ECS to manage your cluster."
+  # AWSServiceRoleForECS:
+  #   Type: "AWS::IAM::ServiceLinkedRole"
+  #   Properties:
+  #     AWSServiceName: "ecs.amazonaws.com"
+  #     Description: "Role to enable Amazon ECS to manage your cluster."
 
   IAMServiceLinkedRole3:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -62,7 +65,7 @@ Resources:
         CapacityProviders:
         - "FARGATE"
         - "FARGATE_SPOT"
-    DependsOn: IAMServiceLinkedRole2
+    # DependsOn: AWSServiceRoleForECS
 
   ECSService:
     Type: AWS::ECS::Service
@@ -252,27 +255,27 @@ Resources:
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
   # ----------------------------------
-  ECRRepository:
-    Type: "AWS::ECR::Repository"
-    Properties:
-        RepositoryName: "bot-repo"
+  # ECRRepository:
+  #   Type: "AWS::ECR::Repository"
+  #   Properties:
+  #       RepositoryName: "bot-repo"
 
-  SecretsManagerSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-          Name: "BotDiscordToken"
-          SecretString: !Ref DiscordTokenParameter
+  # SecretsManagerSecret:
+  #     Type: "AWS::SecretsManager::Secret"
+  #     Properties:
+  #         Name: "BotDiscordToken"
+  #         SecretString: !Ref DiscordTokenParameter
 
-  BotS3Bucket:
-    Type: "AWS::S3::Bucket"
-    Properties:
-      BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
+  # BotS3Bucket:
+  #   Type: "AWS::S3::Bucket"
+  #   Properties:
+  #     BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
 
-  BotGithubConnection:
-    Type: "AWS::CodeStarConnections::Connection"
-    Properties:
-      ConnectionName: GithubConnection
-      ProviderType: GitHub
+  # BotGithubConnection:
+  #   Type: "AWS::CodeStarConnections::Connection"
+  #   Properties:
+  #     ConnectionName: GithubConnection
+  #     ProviderType: GitHub
 
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -280,7 +283,7 @@ Resources:
       Name: BotCodePipeline
       RoleArn: !GetAtt BotPipelineRole.Arn
       ArtifactStore:
-        Location: !Ref BotS3Bucket
+        Location: !ImportValue BotS3Bucket
         Type: "S3"
       Stages:
         - Name: Source
@@ -292,9 +295,9 @@ Resources:
                 Version: 1
                 Provider: CodeStarSourceConnection
               Configuration:
-                BranchName: !Ref GitHubBranchName
-                ConnectionArn: !Ref BotGithubConnection
-                FullRepositoryId: !Ref GitHubRepoName
+                BranchName: !ImportValue GitHubBranchName
+                ConnectionArn: !ImportValue BotGithubConnection
+                FullRepositoryId: !ImportValue GitHubRepoName
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: SourceArtifact

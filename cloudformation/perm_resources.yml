@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "me-test"
+Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
+
+Parameters:
+  GitHubRepoName:
+    Type: String
+    Description: Parameter to set up Bot
+
+  GitHubBranchName:
+    Type: String
+    Default: "main"
+    Description: Parameter to set up Bot
+
+  DiscordTokenParameter:
+    Type: String
+    Description: Parameter to set up Bot
+
+  # AWS_ACCOUNT_ID:
+  #   Type: String
+
+Resources:
+  BotS3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
+
+  BotGithubConnection:
+    Type: "AWS::CodeStarConnections::Connection"
+    Properties:
+      ConnectionName: GithubConnection
+      ProviderType: GitHub
+
+  ECRRepository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+        RepositoryName: "bot-repo"
+
+  AWSServiceRoleForECS:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "ecs.amazonaws.com"
+      Description: "Role to enable Amazon ECS to manage your cluster."
+
+  # SecretsManagerSecret:
+  #     Type: "AWS::SecretsManager::Secret"
+  #     Properties:
+  #         Name: "BotDiscordToken"
+  #         SecretString: !Ref DiscordTokenParameter
+
+Outputs:
+
+  BotS3Bucket:
+    Value: !Ref BotS3Bucket
+    Export:
+      Name: BotS3Bucket
+
+  GitHubRepoName:
+    Value: !Ref GitHubRepoName
+    Export:
+      Name: GitHubRepoName
+
+  GitHubBranchName:
+    Value: !Ref GitHubBranchName
+    Export:
+      Name: GitHubBranchName
+
+  BotGithubConnection:
+    Value: !Ref BotGithubConnection
+    Export:
+      Name: BotGithubConnection
+
+  ECRRepository:
+    Value: !Ref ECRRepository
+    Export:
+      Name: ECRRepository
+
+  DiscordTokenParameter:
+    Value: !Ref DiscordTokenParameter
+    Export:
+      Name: DiscordTokenParameter
+
+  # SecretsManagerSecret:
+  #   Value: !Ref SecretsManagerSecret
+  #   Export:
+  #     Name: SecretsManagerSecret
