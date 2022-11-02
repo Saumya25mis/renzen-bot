@@ -17,8 +17,8 @@ Parameters:
     Type: String
     Description: Parameter to set up Bot
 
-  # AWS_ACCOUNT_ID:
-  #   Type: String
+  AWSACCOUNTID:
+    Type: String
 
 Resources:
   BotS3Bucket:
@@ -43,11 +43,17 @@ Resources:
       AWSServiceName: "ecs.amazonaws.com"
       Description: "Role to enable Amazon ECS to manage your cluster."
 
-  # SecretsManagerSecret:
-  #     Type: "AWS::SecretsManager::Secret"
-  #     Properties:
-  #         Name: "BotDiscordToken"
-  #         SecretString: !Ref DiscordTokenParameter
+  SecretsManagerSecret:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotDiscordToken"
+          SecretString: !Ref DiscordTokenParameter
+
+  SecretsManagerSecretAccount:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotAWSAccountID"
+          SecretString: !Ref AWSACCOUNTID
 
 Outputs:
 

@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   secrets-manager:
-    AWS_ACCOUNT_ID: "AWS_ACCOUNT_ID"
+    AWS_ACCOUNT_ID: "AWSACCOUNTID"
   variables:
     IMAGE_TAG: "Latest"
     IMAGE_REPO_NAME: "bot-repo"

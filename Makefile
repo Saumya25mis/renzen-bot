@@ -15,6 +15,7 @@ perm:
 		--parameters \
 		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
 		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
+		ParameterKey="AWSACCOUNTID",ParameterValue="103443233719" \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 		echo "Activate Github Connection here: console.aws.amazon.com/codesuite/settings/connections"
 
@@ -31,13 +32,14 @@ update:
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
 
 
-update-setup:
+update-perm:
 	aws cloudformation update-stack \
 		--stack-name perm-stack \
 		--template-body file://cloudformation/perm_resources.yml \
 		--parameters \
 		ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
 		ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
+		ParameterKey="AWSACCOUNTID",ParameterValue="103443233719" \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 pipeline:
