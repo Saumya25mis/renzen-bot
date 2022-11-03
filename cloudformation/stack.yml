@@ -3,23 +3,6 @@ Metadata:
     Generator: "me-test"
 Description: ""
 
-# Parameters:
-  # DiscordTokenParameter:
-  #   Type: String
-  #   Description: Parameter to set up Bot
-
-  # GitHubRepoName:
-  #   Type: String
-  #   Description: Parameter to set up Bot
-
-  # GitHubBranchName:
-  #   Type: String
-  #   Default: "main"
-  #   Description: Parameter to set up Bot
-
-  # AWS_ACCOUNT_ID:
-  #   Type: String
-
 Resources:
   myLogGroup:
     Type: AWS::Logs::LogGroup
