@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
     Generator: "me-test"
-Description: ""
+Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
   myLogGroup:
@@ -9,24 +9,6 @@ Resources:
     Properties:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
-
-  IAMServiceLinkedRole:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: "autoscaling.amazonaws.com"
-      Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
-
-  IAMServiceLinkedRole3:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: "elasticloadbalancing.amazonaws.com"
-      Description: "Allows ELB to call AWS services on your behalf."
-
-  IAMServiceLinkedRole4:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: "rds.amazonaws.com"
-      Description: "Allows Amazon RDS to manage AWS resources on your behalf"
 
   ECSCluster:
     Type: "AWS::ECS::Cluster"
@@ -189,29 +171,6 @@ Resources:
           Cpu: "1024"
           Memory: "3072"
 
-  # ROLES
-  botDeployTaskRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-          Path: "/"
-          RoleName: "botDeployTaskRole"
-          AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-          MaxSessionDuration: 3600
-          ManagedPolicyArns:
-            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-            - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
-          Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
-
-  botecsTaskExecutionRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-          Path: "/"
-          RoleName: "botecsTaskExecutionRole"
-          AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-          MaxSessionDuration: 3600
-          ManagedPolicyArns:
-            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -303,7 +262,42 @@ Resources:
           Status: "DISABLED"
           EncryptionDisabled: false
       Visibility: "PRIVATE"
-  #-------------------------------------------------
+
+
+
+
+
+
+  # ROLES AND POLICIES
+
+
+
+
+
+
+  botDeployTaskRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          RoleName: "botDeployTaskRole"
+          AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          MaxSessionDuration: 3600
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+          Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
+
+  botecsTaskExecutionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          RoleName: "botecsTaskExecutionRole"
+          AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          MaxSessionDuration: 3600
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+
   BotPipelineRole:
     Type: "AWS::IAM::Role"
     Properties:

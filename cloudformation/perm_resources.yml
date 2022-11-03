@@ -43,6 +43,24 @@ Resources:
       AWSServiceName: "ecs.amazonaws.com"
       Description: "Role to enable Amazon ECS to manage your cluster."
 
+  IAMServiceLinkedRole:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "autoscaling.amazonaws.com"
+      Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
+
+  IAMServiceLinkedRole3:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "elasticloadbalancing.amazonaws.com"
+      Description: "Allows ELB to call AWS services on your behalf."
+
+  IAMServiceLinkedRole4:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: "rds.amazonaws.com"
+      Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
   SecretsManagerSecret:
       Type: "AWS::SecretsManager::Secret"
       Properties:
