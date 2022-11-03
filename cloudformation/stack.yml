@@ -10,23 +10,11 @@ Resources:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
 
-  # SecretsManagerSecretAccount:
-  #     Type: "AWS::SecretsManager::Secret"
-  #     Properties:
-  #         Name: "BotAWSAccountID"
-  #         SecretString: !Ref AWS_ACCOUNT_ID
-
   IAMServiceLinkedRole:
     Type: "AWS::IAM::ServiceLinkedRole"
     Properties:
       AWSServiceName: "autoscaling.amazonaws.com"
       Description: "Default Service-Linked Role enables access to AWS Services and Resources used or managed by Auto Scaling"
-
-  # AWSServiceRoleForECS:
-  #   Type: "AWS::IAM::ServiceLinkedRole"
-  #   Properties:
-  #     AWSServiceName: "ecs.amazonaws.com"
-  #     Description: "Role to enable Amazon ECS to manage your cluster."
 
   IAMServiceLinkedRole3:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -40,7 +28,6 @@ Resources:
       AWSServiceName: "rds.amazonaws.com"
       Description: "Allows Amazon RDS to manage AWS resources on your behalf"
 
-
   ECSCluster:
     Type: "AWS::ECS::Cluster"
     Properties:
@@ -48,7 +35,6 @@ Resources:
         CapacityProviders:
         - "FARGATE"
         - "FARGATE_SPOT"
-    # DependsOn: AWSServiceRoleForECS
 
   ECSService:
     Type: AWS::ECS::Service
@@ -59,13 +45,6 @@ Resources:
       DesiredCount: 1
       TaskDefinition:
         Ref: "ECSTaskDefinition"
-      # DeploymentConfiguration:
-      #   MaximumPercent: 200
-      #   MinimumHealthyPercent: 100
-      #   DeploymentCircuitBreaker:
-      #     Enable: true
-      #     Rollback: true
-      # Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
@@ -181,11 +160,6 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
 
-  # ECRRepository:
-  #   Type: "AWS::ECR::Repository"
-  #   Properties:
-  #       RepositoryName: "bot-repo"
-
   ECSTaskDefinition:
       Type: "AWS::ECS::TaskDefinition"
       Properties:
@@ -237,28 +211,6 @@ Resources:
           MaxSessionDuration: 3600
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  # ----------------------------------
-  # ECRRepository:
-  #   Type: "AWS::ECR::Repository"
-  #   Properties:
-  #       RepositoryName: "bot-repo"
-
-  # SecretsManagerSecret:
-  #     Type: "AWS::SecretsManager::Secret"
-  #     Properties:
-  #         Name: "BotDiscordToken"
-  #         SecretString: !Ref DiscordTokenParameter
-
-  # BotS3Bucket:
-  #   Type: "AWS::S3::Bucket"
-  #   Properties:
-  #     BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
-
-  # BotGithubConnection:
-  #   Type: "AWS::CodeStarConnections::Connection"
-  #   Properties:
-  #     ConnectionName: GithubConnection
-  #     ProviderType: GitHub
 
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -296,7 +248,6 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                # EnvironmentVariables: !Sub "[{\"name\":\"AWS_DEFAULT_REGION\",\"value\":\"${AWS::Region}\",\"type\":\"PLAINTEXT\"},{\"name\":\"AWS_ACCOUNT_ID\",\"value\":\"${AWS::AccountId}\",\"type\":\"PLAINTEXT\"},{\"name\":\"IMAGE_TAG\",\"value\":\"Latest\",\"type\":\"PLAINTEXT\"},{\"name\":\"IMAGE_REPO_NAME\",\"value\":\"eklie-repo\",\"type\":\"PLAINTEXT\"}]"
                 ProjectName: !Ref CodeBuildProject
               InputArtifacts:
                 - Name: "SourceArtifact"

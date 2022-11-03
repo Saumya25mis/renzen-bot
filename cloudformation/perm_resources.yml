@@ -86,8 +86,3 @@ Outputs:
     Value: !Ref DiscordTokenParameter
     Export:
       Name: DiscordTokenParameter
-
-  # SecretsManagerSecret:
-  #   Value: !Ref SecretsManagerSecret
-  #   Export:
-  #     Name: SecretsManagerSecret
