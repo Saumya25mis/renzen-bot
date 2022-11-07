@@ -2,12 +2,11 @@ init:
 	chmod a+x scripts/init_setup.sh
 	./scripts/init_setup.sh
 
-setup-bot:
+configure-bot:
 	chmod a+x scripts/configure_setup.sh
 	./scripts/configure_setup.sh
 
-wipe-setup:
-	aws cloudformation delete-stack --stack-name secret-stack
+
 
 bot-on:
 	aws cloudformation create-stack \
@@ -15,8 +14,15 @@ bot-on:
 		--template-body file://cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
 
+
+
 bot-off:
 	aws cloudformation delete-stack --stack-name bot-stack; \
+
+wipe-configure:
+	aws cloudformation delete-stack --stack-name configure-stack
+
+
 
 start-pipeline:
 	aws codepipeline start-pipeline-execution --name BotCodePipeline

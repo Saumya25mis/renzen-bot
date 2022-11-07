@@ -13,7 +13,7 @@ read -p "Branch Name: " BranchName
 
 # create stack bot will use to run
 aws cloudformation create-stack \
-    --stack-name secret-stack \
+    --stack-name configure-stack \
     --template-body file://cloudformation/configure_stack.yml \
     --parameters \
     ParameterKey="DiscordTokenParameter",ParameterValue=$DISCORD_TOKEN \
@@ -23,5 +23,4 @@ aws cloudformation create-stack \
     echo "Activate Github Connection here: console.aws.amazon.com/codesuite/settings/connections"
 
 echo "Change git connection to Available. Bot will not be able to deploy until this is done."
-echo "Afterwards run `make pipeline` to manually run it if it has failed"
 echo "Add bot to guild!"
