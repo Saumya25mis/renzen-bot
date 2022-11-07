@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "me-test"
+Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "me-test"
+Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
+
+
+Parameters:
+  GitHubRepoName:
+    Type: String
+    Description: Parameter to set up Bot
+
+  GitHubBranchName:
+    Type: String
+    Default: "main"
+    Description: Parameter to set up Bot
+
+  DiscordTokenParameter:
+    Type: String
+    Description: Parameter to set up Bot
+
+  AWSACCOUNTID:
+    Type: String
+
+Resources:
+
+  SecretsManagerSecret:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotDiscordToken"
+          SecretString: !Ref DiscordTokenParameter
+
+  SecretsManagerSecretAccount:
+      Type: "AWS::SecretsManager::Secret"
+      Properties:
+          Name: "BotAWSAccountID"
+          SecretString: !Ref AWSACCOUNTID
+
+Outputs:
+
+  GitHubRepoName:
+    Value: !Ref GitHubRepoName
+    Export:
+      Name: GitHubRepoName
+
+  GitHubBranchName:
+    Value: !Ref GitHubBranchName
+    Export:
+      Name: GitHubBranchName
+
+  DiscordTokenParameter:
+    Value: !Ref DiscordTokenParameter
+    Export:
+      Name: DiscordTokenParameter

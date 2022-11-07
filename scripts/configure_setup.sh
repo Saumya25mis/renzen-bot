@@ -9,15 +9,16 @@ read -p "Provide Discord Bot Token (https://discord.com/developers/applications)
 read -p "AWS_ACCOUNT_ID: " AWS_ACCOUNT_ID
 read -p "Github Repository name: " GitHubRepoName
 read -p "Bot name: " BotName
+read -p "Branch Name: " BranchName
 
 # create stack bot will use to run
 aws cloudformation create-stack \
-    --stack-name perm-stack \
-    --template-body file://cloudformation/perm_resources.yml \
+    --stack-name secret-stack \
+    --template-body file://cloudformation/configure_stack.yml \
     --parameters \
-    ParameterKey="DiscordTokenParameter",ParameterValue="$(DISCORD_TOKEN)" \
-    ParameterKey="GitHubRepoName",ParameterValue="renadvent/eklie" \
-    ParameterKey="AWSACCOUNTID",ParameterValue="103443233719" \
+    ParameterKey="DiscordTokenParameter",ParameterValue=$DISCORD_TOKEN \
+    ParameterKey="GitHubRepoName",ParameterValue=$GitHubRepoName \
+    ParameterKey="AWSACCOUNTID",ParameterValue=$AWS_ACCOUNT_ID \
     --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
     echo "Activate Github Connection here: console.aws.amazon.com/codesuite/settings/connections"
 
