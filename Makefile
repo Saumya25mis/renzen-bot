@@ -1,4 +1,4 @@
-init:
+init-aws:
 	chmod a+x scripts/init_setup.sh
 	./scripts/init_setup.sh
 
@@ -8,7 +8,7 @@ configure-bot:
 
 
 
-bot-on:
+start-bot:
 	aws cloudformation create-stack \
 		--stack-name bot-stack \
 		--template-body file://cloudformation/bot_stack.yml \
@@ -16,7 +16,7 @@ bot-on:
 
 
 
-bot-off:
+stop-bot:
 	aws cloudformation delete-stack --stack-name bot-stack; \
 
 wipe-configure:
