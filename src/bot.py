@@ -7,8 +7,6 @@ from discord.ext import commands
 
 from src import secret_utils
 
-# from src import db_utils
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -16,21 +14,17 @@ intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
 
-bot_activity = discord.Activity(
-    state="being developed at https://github.com/renadvent/eklie"
-)
-
 bot = commands.Bot(
     command_prefix="!",
     intents=intents,
-    activity=bot_activity,
 )
 
 
 @bot.command()
 async def test(ctx, arg):
-    """Test command."""
+    """Test command. Prints what follows `!test`. ex: `!test hi`"""
     logger.info("Received test command.")
+    await ctx.sent("Received test command.")
     await ctx.send(arg)
 
 
