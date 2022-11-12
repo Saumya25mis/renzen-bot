@@ -19,4 +19,3 @@ If the Codepipeline fails before you have setup the Github connection, run `make
 At this point our Bot should be running. To change bot functionality (it's responses etc), modify the file `src/bot.py`, and commit and push to Github. The changes will deploy automatically.
 
 test codespace commit
-
