@@ -5,54 +5,6 @@ Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
 
-  # if using a custom domain name for loadbalancer
-
-  # HostedZoneResource:
-  #   Type: "AWS::Route53::HostedZone"
-  #   Properties:
-  #     HostedZoneConfig:
-  #       Comment: 'My hosted zone for renadvent.io'
-  #     Name: 'renadvent.io'
-  #     VPCs:
-  #       -
-  #         VPCId: !Ref myVPC
-  #         VPCRegion: 'us-west-1'
-
-
-
-        # -
-        #   VPCId: 'vpc-abcd1234'
-        #   VPCRegion: 'ap-northeast-1'
-      #   -
-      #     VPCId: 'vpc-efgh5678'
-      #     VPCRegion: 'us-west-2'
-      # HostedZoneTags:
-      #   -
-      #     Key: 'SampleKey1'
-      #     Value: 'SampleValue1'
-      #   -
-      #     Key: 'SampleKey2'
-      #     Value: 'SampleValue2'
-
-  # myDNSRecord:
-  #   Type: AWS::Route53::RecordSet
-  #   # DependsOn: HostedZoneResource
-  #   Properties:
-  #     HostedZoneId: !Ref 'HostedZoneResource'
-  #     Comment: DNS name for my instance.
-  #     Name: myDNSRecord
-  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
-  #     Type: A
-  #     # TTL: 60
-  #     AliasTarget:
-  #       DNSName: !GetAtt myLoadBalancer.DNSName
-  #       # HostedZoneId: !Ref 'HostedZoneResource'
-  #       HostedZoneId: !GetAtt myLoadBalancer.CanonicalHostedZoneID
-  #     # ResourceRecords:
-  #     # - !GetAtt myLoadBalancer.PublicIp
-
-  # -------------------------------------------------
-
   myLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -79,7 +31,7 @@ Resources:
   myTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      # HealthCheckEnabled: Boolean
+      HealthCheckEnabled: true
       # HealthCheckIntervalSeconds: Integer
       # HealthCheckPath: String
       # HealthCheckPort: String
@@ -372,3 +324,20 @@ Resources:
     Properties:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
+
+Outputs:
+
+  myLoadBalancerDNSName:
+    Value: !GetAtt myLoadBalancer.DNSName
+    Export:
+      Name: myLoadBalancerDNSName
+
+  myLoadBalancerCanonicalHostedZoneID:
+    Value: !GetAtt myLoadBalancer.CanonicalHostedZoneID
+    Export:
+      Name: myLoadBalancerCanonicalHostedZoneID
+
+  myVPC:
+    Value: !Ref myVPC
+    Export:
+      Name: myVPC

@@ -14,7 +14,18 @@ start-bot:
 		--template-body file://cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
 
+update-bot:
+	aws cloudformation update-stack \
+		--stack-name bot-stack \
+		--template-body file://cloudformation/bot_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
 
+
+domain:
+	aws cloudformation create-stack \
+		--stack-name domain-stack \
+		--template-body file://cloudformation/domain_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
 
 stop-bot:
 	aws cloudformation delete-stack --stack-name bot-stack; \
