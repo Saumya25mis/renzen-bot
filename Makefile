@@ -21,6 +21,12 @@ update-bot:
 		--capabilities CAPABILITY_NAMED_IAM; \
 
 
+update-domain:
+	aws cloudformation update-stack \
+		--stack-name domain-stack \
+		--template-body file://cloudformation/domain_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
+
 domain:
 	aws cloudformation create-stack \
 		--stack-name domain-stack \

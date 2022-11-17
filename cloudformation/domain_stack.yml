@@ -42,7 +42,7 @@ Resources:
       HostedZoneId: Z07096223ERVZ2460AEFE  # FROM CONSOLE
       # HostedZoneId: !Ref 'HostedZoneResource'
       Comment: DNS name for my instance.
-      Name: 'api.renzen.io'
+      Name: 'api2.renzen.io'
       # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
       Type: A
       # TTL: 60
