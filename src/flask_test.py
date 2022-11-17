@@ -13,7 +13,14 @@ def hello_world():
     return "<h1>Hello World</h1>", 200
 
 
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def catch_all(path):  # pylint: disable=unused-argument
+    """Catch all requests."""
+    return "<h1>Caught It!</h1>", 200
+
+
 if __name__ == "__main__":
-    WEBSITE_URL = "api2.renzen.io:80"  # for subdomain support
-    app.config["SERVER_NAME"] = WEBSITE_URL
+    # WEBSITE_URL = "renzen.io:80"  # for subdomain support
+    # app.config["SERVER_NAME"] = WEBSITE_URL
     app.run(debug=True, port=80)
