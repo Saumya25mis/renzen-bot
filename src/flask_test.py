@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "temp--secret--key"
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def hello_world():
     """Return Hello World."""
     return "<h1>Hello World</h1>", 200
