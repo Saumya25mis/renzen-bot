@@ -14,4 +14,6 @@ def hello_world():
 
 
 if __name__ == "__main__":
+    WEBSITE_URL = "api2.renzen.io:80"  # for subdomain support
+    app.config["SERVER_NAME"] = WEBSITE_URL
     app.run(debug=True, port=80)
