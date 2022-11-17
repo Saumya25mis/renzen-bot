@@ -23,4 +23,4 @@ def catch_all(path):  # pylint: disable=unused-argument
 if __name__ == "__main__":
     # WEBSITE_URL = "renzen.io:80"  # for subdomain support
     # app.config["SERVER_NAME"] = WEBSITE_URL
-    app.run(debug=True, port=80)
+    app.run(debug=True, port=80, host="0.0.0.0")
