@@ -58,10 +58,27 @@ Resources:
       #   - LoadBalancerAttribute
       Name: myLoadBalancer
       SecurityGroups:
-        - !Ref InstanceSecurityGroup
+        - !Ref LoadBalancerSecurityGroup
       Subnets:
         - !Ref mySubnet1
         - !Ref mySubnet2
+
+
+  LoadBalancerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
 
   myListener:
       Type: AWS::ElasticLoadBalancingV2::Listener
@@ -79,7 +96,7 @@ Resources:
       HealthCheckEnabled: true
       # HealthCheckIntervalSeconds: Integer
       # HealthCheckPath: String
-      # HealthCheckPort: String
+      HealthCheckPort: 80
       # HealthCheckProtocol: String
       # HealthCheckTimeoutSeconds: Integer
       # HealthyThresholdCount: Integer
@@ -235,7 +252,7 @@ Resources:
         - IpProtocol: -1
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
         #   SourceSecurityGroupId: !Select
         #     - 0
         #     - !GetAtt
@@ -244,11 +261,11 @@ Resources:
         # - IpProtocol: tcp
         #   FromPort: '22'
         #   ToPort: '22'
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
+      # SecurityGroupEgress:
+      #   - IpProtocol: -1
+      #     FromPort: 80
+      #     ToPort: 80
+      #     CidrIp: 0.0.0.0/0
 
   ECSTaskDefinition:
       Type: "AWS::ECS::TaskDefinition"
@@ -268,8 +285,8 @@ Resources:
               PortMappings:
                 -
                   ContainerPort: 80
-                  HostPort: 80
-                  Protocol: "tcp"
+                  # HostPort: 80
+                  # Protocol: "tcp"
           Family: "bot-task"
           TaskRoleArn: !ImportValue botDeployTaskRole
           ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
