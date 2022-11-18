@@ -72,12 +72,12 @@ Resources:
       SecurityGroupIngress:
         - IpProtocol: -1
           FromPort: '80'
-          ToPort: '80'
+          ToPort: '81'
           CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           FromPort: '80'
-          ToPort: '80'
+          ToPort: '81'
           CidrIp: 0.0.0.0/0
 
   myListener:
@@ -94,27 +94,34 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckEnabled: true
-      # HealthCheckIntervalSeconds: Integer
-      # HealthCheckPath: String
       HealthCheckPort: 80
-      # HealthCheckProtocol: String
-      # HealthCheckTimeoutSeconds: Integer
-      # HealthyThresholdCount: Integer
-      # IpAddressType: String
-      # Matcher:
-      #   Matcher
       Name: myTargetGroup
       Port: 80
       Protocol: HTTP
-      # ProtocolVersion: String
-      # Tags:
-      #   - Tag
-      # TargetGroupAttributes:
-      #   - TargetGroupAttribute
-      # Targets:
-      #   - Id: !Ref ECSService
       TargetType: ip
-      # UnhealthyThresholdCount: Integer
+      VpcId:
+        Ref: myVPC
+
+
+  myListenerSite:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      Properties:
+          LoadBalancerArn: !Ref myLoadBalancer
+          Port: 81
+          Protocol: HTTP
+          DefaultActions:
+              - Type: forward
+                TargetGroupArn: !Ref myTargetGroupSite
+
+  myTargetGroupSite:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckPort: 80
+      Name: myTargetGroupSite
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
       VpcId:
         Ref: myVPC
 
@@ -157,6 +164,36 @@ Resources:
           Ref: myTargetGroup
         ContainerPort: 80
         ContainerName: bot-container
+
+  ECSServiceSite:
+    Type: AWS::ECS::Service
+    DependsOn: myListenerSite
+    Properties:
+      ServiceName: "site-service"
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: "ECSTaskDefinitionSite"
+      # LaunchType: EC2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups:
+            - !Ref InstanceSecurityGroup
+          Subnets:
+            - !Ref mySubnet1
+            - !Ref mySubnet2
+      SchedulingStrategy: "REPLICA"
+      CapacityProviderStrategy:
+        - CapacityProvider: "FARGATE"
+          Weight: 1
+          Base: 0
+      LoadBalancers:
+      - TargetGroupArn:
+          Ref: myTargetGroupSite
+        ContainerPort: 80
+        ContainerName: site-container
 
   myRouteTable:
     Type: AWS::EC2::RouteTable
@@ -296,9 +333,40 @@ Resources:
           Cpu: "1024"
           Memory: "3072"
 
+  ECSTaskDefinitionSite:
+      Type: "AWS::ECS::TaskDefinition"
+      Properties:
+          ContainerDefinitions:
+            -
+              Essential: true
+              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:LatestSite"
+              LogConfiguration:
+                  LogDriver: "awslogs"
+                  Options:
+                      awslogs-create-group: "true"
+                      awslogs-group: "/ecs/bot-task"
+                      awslogs-region: !Ref AWS::Region
+                      awslogs-stream-prefix: "ecs"
+              Name: "site-container"
+              PortMappings:
+                -
+                  ContainerPort: 80
+                  # HostPort: 80
+                  # Protocol: "tcp"
+          Family: "bot-task"
+          TaskRoleArn: !ImportValue botDeployTaskRole
+          ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
+          NetworkMode: "awsvpc"
+          RequiresCompatibilities:
+            - "FARGATE"
+          Cpu: "1024"
+          Memory: "3072"
+
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
-    DependsOn: ECSService
+    # DependsOn:
+      # - ECSService
+      # - ECSServiceSite
     Properties:
       Name: BotCodePipeline
       RoleArn: !ImportValue BotPipelineRole
@@ -337,13 +405,15 @@ Resources:
               InputArtifacts:
                 - Name: "SourceArtifact"
               OutputArtifacts:
-                - Name: "BuildArtifact"
+                # - Name: "BuildArtifact"
+                - Name: "secondary_artifact_name_1"
+                - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
               Namespace: "BuildVariables"
               RunOrder: 1
-        - Name: "Deploy"
+        - Name: "DeployBot"
           Actions:
-            - Name: "Deploy"
+            - Name: "DeployMyBot"
               ActionTypeId:
                 Category: "Deploy"
                 Owner: "AWS"
@@ -353,9 +423,27 @@ Resources:
                 ClusterName: bot-cluster #!Ref ECSCluster
                 ServiceName: bot-service #!GetAtt ECSService.Name
               InputArtifacts:
-                - Name: "BuildArtifact"
+                - Name: "secondary_artifact_name_1"
+                # - Name: "BuildArtifact"
               Region: !Ref AWS::Region
               Namespace: "DeployVariables"
+              RunOrder: 1
+        # - Name: "DeploySite"
+        #   Actions:
+            - Name: "DeployMySite"
+              ActionTypeId:
+                Category: "Deploy"
+                Owner: "AWS"
+                Provider: "ECS"
+                Version: "1"
+              Configuration:
+                ClusterName: bot-cluster #!Ref ECSCluster
+                ServiceName: site-service #!GetAtt ECSService.Name
+              InputArtifacts:
+                - Name: "secondary_artifact_name_2"
+                # - Name: "BuildArtifact"
+              Region: !Ref AWS::Region
+              Namespace: "DeployVariablesSite"
               RunOrder: 1
 
   CodeBuildProject:
