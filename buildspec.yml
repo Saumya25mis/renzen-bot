@@ -17,10 +17,12 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image bot...
+
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
       - echo Building the Docker image site...
-      - docker build -f DockerfileSite .
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f DockerfileSite .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
   post_build:
     commands:
