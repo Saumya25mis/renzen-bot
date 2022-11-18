@@ -40,11 +40,11 @@ artifacts:
   files:
     - '**/*'
   secondary-artifacts:
-    artifact1:
+    secondary_artifact_name_1:
       files:
         - imagedefinitions.json
-      name: secondary_artifact_name-1
-    artifact2:
+      name: secondary_artifact_name_1
+    secondary_artifact_name_2:
       files:
         - imagedefinitions-site.json
-      name: secondary_artifact_name-2
+      name: secondary_artifact_name_2
