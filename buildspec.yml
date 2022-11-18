@@ -32,6 +32,19 @@ phases:
       - echo Pushing the Docker image site...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
       - echo Writing image definitions file...
-      - printf '[{"name":"bot-container","imageUri":"%s"}, {"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
+      - printf '[{"name":"bot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions-site.json
+      # - printf '[{"name":"bot-container","imageUri":"%s"}, {"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
 artifacts:
-    files: imagedefinitions.json
+    # files: imagedefinitions.json
+  files:
+    - '**/*'
+  secondary-artifacts:
+    artifact1:
+      files:
+        - imagedefinitions.json
+      name: secondary-artifact-name-1
+    artifact2:
+      files:
+        - imagedefinitions-site.json
+      name: secondary-artifact-name-2
