@@ -52,7 +52,7 @@ artifacts:
         - imagedefinitions.json
       name: secondary_artifact_name_1
     secondary_artifact_name_2:
-    base-directory: site
+      base-directory: site
       files:
         - imagedefinitions.json
       name: secondary_artifact_name_2
