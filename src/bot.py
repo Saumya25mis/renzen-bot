@@ -18,7 +18,7 @@ app.config["SECRET_KEY"] = "temp--secret--key"
 @celery_app.task
 async def run_flask_health_check():  # pylint: disable=unused-argument
     """Flask app for health check."""
-    app.run(debug=True, port=80, host="0.0.0.0")
+    app.run(debug=True, port=80)
 
 
 @app.route("/")
@@ -80,5 +80,13 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-run_flask_health_check.apply_async()
-bot.run(secret_utils.TOKEN)
+async def async_bot_run():
+    """Try."""
+    bot.run(secret_utils.TOKEN)
+
+
+async_bot_run()
+
+# run_flask_health_check.apply_async()
+
+app.run(debug=True, port=80, host="0.0.0.0")
