@@ -5,7 +5,27 @@ import logging
 import discord
 from discord.ext import commands
 
+from flask import Flask
+from celery import Celery
+
 from src import secret_utils
+
+app = Flask(__name__)
+celery_app = Celery()
+app.config["SECRET_KEY"] = "temp--secret--key"
+
+
+@celery_app.task
+def run_flask_health_check():  # pylint: disable=unused-argument
+    """Flask app for health check."""
+    app.run(debug=True, port=80, host="0.0.0.0")
+
+
+@app.route("/")
+def health_check():
+    """Return Hello World."""
+    return "<h1>Health Check Success</h1>", 200
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -60,6 +80,5 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
+run_flask_health_check.apply_async()
 bot.run(secret_utils.TOKEN)
-
-# test pre-commit
