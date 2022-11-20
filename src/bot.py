@@ -3,30 +3,33 @@
 
 import logging
 
-import asyncio
+# import asyncio
+# from aiohttp import web
 import discord
+
+# import json
 from discord.ext import commands
 
-from flask import Flask
-from celery import Celery
+# from flask import Flask
+# from celery import Celery
 
 from src import secret_utils
 
-app = Flask(__name__)
-celery_app = Celery()
-app.config["SECRET_KEY"] = "temp--secret--key"
+# app = Flask(__name__)
+# celery_app = Celery()
+# app.config["SECRET_KEY"] = "temp--secret--key"
 
 
-@celery_app.task
-async def run_flask_health_check():  # pylint: disable=unused-argument
-    """Flask app for health check."""
-    app.run(debug=True, port=80)
+# @celery_app.task
+# async def run_flask_health_check():  # pylint: disable=unused-argument
+#     """Flask app for health check."""
+#     app.run(debug=True, port=80)
 
 
-@app.route("/")
-def health_check():
-    """Return Hello World."""
-    return "<h1>Health Check Success</h1>", 200
+# @app.route("/")
+# def health_check():
+#     """Return Hello World."""
+#     return "<h1>Health Check Success</h1>", 200
 
 
 logger = logging.getLogger(__name__)
@@ -82,13 +85,22 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-async def async_bot_run():
-    """Try."""
-    bot.run(secret_utils.TOKEN)
+# async def async_bot_run():
+#     """Try."""
+#     bot.run(secret_utils.TOKEN)
 
 
-asyncio.run(async_bot_run())
-# bot.start(secret_utils.TOKEN)
+# async def handle(request):
+#     response_obj = { 'status' : 'success' }
+#     return web.Response(text=json.dumps(response_obj))
+
+# app = web.Application()
+# app.router.add_get('/', handle)
+
+# web.run_app(app)
+
+# asyncio.run(async_bot_run())
+bot.run(secret_utils.TOKEN)
 # run_flask_health_check.apply_async()
 
-app.run(debug=True, port=80, host="0.0.0.0")
+# app.run(debug=True, port=80, host="0.0.0.0")
