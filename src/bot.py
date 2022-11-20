@@ -84,7 +84,7 @@ async def _bot(ctx):
 
 async def async_bot_run():
     """Try."""
-    await bot.start(secret_utils.TOKEN)
+    bot.run(secret_utils.TOKEN)
 
 
 asyncio.run(async_bot_run())
