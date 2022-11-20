@@ -3,7 +3,7 @@
 
 import logging
 
-# import asyncio
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -82,13 +82,13 @@ async def _bot(ctx):
     await ctx.send("Yes, the bot is cool.")
 
 
-# async def async_bot_run():
-#     """Try."""
-#     bot.start(secret_utils.TOKEN)
+async def async_bot_run():
+    """Try."""
+    await bot.start(secret_utils.TOKEN)
 
 
-# asyncio.run(async_bot_run())
-bot.start(secret_utils.TOKEN)
+asyncio.run(async_bot_run())
+# bot.start(secret_utils.TOKEN)
 # run_flask_health_check.apply_async()
 
 app.run(debug=True, port=80, host="0.0.0.0")
