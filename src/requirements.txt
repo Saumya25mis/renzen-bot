@@ -28,4 +28,3 @@ wrapt==1.14.1
 yarl==1.8.1
 Flask==2.2.2
 celery
-aiohttp
