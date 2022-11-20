@@ -2,6 +2,7 @@
 """Discord Bot."""
 
 import logging
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -85,7 +86,7 @@ async def async_bot_run():
     bot.run(secret_utils.TOKEN)
 
 
-async_bot_run()
+asyncio.run(async_bot_run())
 
 # run_flask_health_check.apply_async()
 
