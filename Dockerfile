@@ -10,7 +10,7 @@ RUN pip3 install --no-cache-dir -r src/requirements.txt
 # install module
 RUN pip3 install -e .
 
-CMD . scripts/my_wrapper_script.sh
+CMD ./scripts/my_wrapper_script.sh
 
 # CMD [ "python3", "src/bot.py" ]
 # CMD [ "python3", "src/flask_test.py" ]

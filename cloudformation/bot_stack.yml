@@ -24,6 +24,21 @@ Resources:
           - !Ref ECSCluster
           - !GetAtt ECSService.Name
 
+  ECSScalableTargetSite:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 6
+      MinCapacity: 1
+      RoleARN:
+        Fn::Sub: 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      ServiceNamespace: ecs
+      ScalableDimension: 'ecs:service:DesiredCount'
+      ResourceId: !Join
+        - /
+        - - service
+          - !Ref ECSCluster
+          - !GetAtt ECSServiceSite.Name
+
   ServiceScalingPolicyCPU:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -63,6 +78,18 @@ Resources:
         - !Ref mySubnet1
         - !Ref mySubnet2
 
+  myLoadBalancerSite:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      # IpAddressType: String
+      # LoadBalancerAttributes:
+      #   - LoadBalancerAttribute
+      Name: myLoadBalancerSite
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      Subnets:
+        - !Ref mySubnet1
+        - !Ref mySubnet2
 
   LoadBalancerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -72,12 +99,12 @@ Resources:
       SecurityGroupIngress:
         - IpProtocol: -1
           FromPort: '80'
-          ToPort: '81'
+          ToPort: '80'
           CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           FromPort: '80'
-          ToPort: '81'
+          ToPort: '80'
           CidrIp: 0.0.0.0/0
 
   myListener:
@@ -106,8 +133,8 @@ Resources:
   myListenerSite:
       Type: AWS::ElasticLoadBalancingV2::Listener
       Properties:
-          LoadBalancerArn: !Ref myLoadBalancer
-          Port: 81
+          LoadBalancerArn: !Ref myLoadBalancerSite
+          Port: 80
           Protocol: HTTP
           DefaultActions:
               - Type: forward
