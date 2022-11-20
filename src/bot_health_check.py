@@ -14,4 +14,4 @@ async def handle(request):  # pylint:disable=unused-argument
 app = web.Application()
 app.router.add_get("/", handle)
 
-web.run_app(app)
+web.run_app(app, port=80)
