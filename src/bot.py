@@ -26,7 +26,7 @@ bot = commands.Bot(
     intents=intents,
 )
 
-TEMP_ID = "273685734483820554"
+TEMP_ID = 273685734483820554
 temp_user = bot.get_user(TEMP_ID)
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
