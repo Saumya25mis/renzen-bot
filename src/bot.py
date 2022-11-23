@@ -27,7 +27,6 @@ bot = commands.Bot(
 )
 
 TEMP_ID = 273685734483820554
-temp_user = bot.get_user(TEMP_ID)
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
 
@@ -89,6 +88,8 @@ async def receive_message():
     )
 
     print(f"Number of messages received: {len(response.get('Messages', []))}")
+
+    temp_user = bot.get_user(TEMP_ID)
 
     for message in response.get("Messages", []):
         message_body = message["Body"]

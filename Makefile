@@ -9,7 +9,11 @@ configure-bot:
 	chmod a+x scripts/configure_setup.sh
 	./scripts/configure_setup.sh
 
-
+update-init:
+	aws cloudformation update-stack \
+		--stack-name init-stack \
+		--template-body file://cloudformation/init_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM;
 
 start-bot:
 	aws cloudformation create-stack \
