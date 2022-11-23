@@ -6,7 +6,7 @@ import uuid
 import boto3
 from aiohttp import web
 
-sqs_client = boto3.client("sqs", region_name="us-west-2")
+sqs_client = boto3.client("sqs", region_name="us-west-1")
 
 
 async def handle(request):  # pylint:disable=unused-argument
