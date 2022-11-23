@@ -35,7 +35,9 @@ def get_queue_url():
 def send_message(message):
     """Send message to queue."""
     response = sqs_client.send_message(
-        QueueUrl=get_queue_url(), MessageBody=json.dumps(message)
+        QueueUrl=get_queue_url(),
+        MessageBody=json.dumps(message),
+        MessageGroupId="MyTestId",
     )
     print(response)
 
