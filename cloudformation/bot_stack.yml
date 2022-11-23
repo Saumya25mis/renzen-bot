@@ -511,6 +511,15 @@ Resources:
       LogGroupName: "/ecs/bot-task"
       RetentionInDays: 7
 
+# -----------------QUEUE-----------------------------
+
+  MyQueue:
+    Properties:
+      QueueName: MyQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+    Type: 'AWS::SQS::Queue'
+
 Outputs:
 
   myLoadBalancerDNSName:
@@ -527,3 +536,26 @@ Outputs:
     Value: !Ref myVPC
     Export:
       Name: myVPC
+
+# # -----------------QUEUE-----------------------------
+
+#   MyQueue:
+#     Properties:
+#       QueueName: MyQueue.fifo
+#       FifoQueue: true
+#       ContentBasedDeduplication: true
+#     Type: 'AWS::SQS::Queue'
+# Outputs:
+#   QueueName:
+#     Description: The name of the queue
+#     Value: !GetAtt
+#       - MyQueue
+#       - QueueName
+#   QueueURL:
+#     Description: The URL of the queue
+#     Value: !Ref MyQueue
+#   QueueARN:
+#     Description: The ARN of the queue
+#     Value: !GetAtt
+#       - MyQueue
+#       - Arn

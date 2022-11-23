@@ -5,7 +5,6 @@ import logging
 
 import asyncio
 import json
-import time
 import boto3
 import discord
 
@@ -100,7 +99,7 @@ async def receive_message():
 
 async def poll():
     """Runs  async port."""
-    await time.sleep(3)
+    await asyncio.sleep(1)
     receive_message()
 
     # runner = web.AppRunner(app)
