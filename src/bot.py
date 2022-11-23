@@ -101,7 +101,7 @@ async def poll():
     """Runs  async port."""
     while True:
         await asyncio.sleep(1)
-        receive_message()
+        await receive_message()
 
     # runner = web.AppRunner(app)
     # await runner.setup()
