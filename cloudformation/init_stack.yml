@@ -59,6 +59,7 @@ Resources:
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
             - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+            - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
           Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
 
   botecsTaskExecutionRole:
@@ -70,6 +71,7 @@ Resources:
           MaxSessionDuration: 3600
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 
 
   BotPipelineRole:
@@ -346,6 +348,12 @@ Resources:
             ]
         }
 
+  MyQueue:
+    Properties:
+      QueueName: MyQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+    Type: 'AWS::SQS::Queue'
 
 Outputs:
 
@@ -393,3 +401,17 @@ Outputs:
     Value: !Ref BotCodeBuildIAMManagedPolicy
     Export:
       Name: BotCodeBuildIAMManagedPolicy
+
+  QueueName:
+    Description: The name of the queue
+    Value: !GetAtt
+      - MyQueue
+      - QueueName
+  QueueURL:
+    Description: The URL of the queue
+    Value: !Ref MyQueue
+  QueueARN:
+    Description: The ARN of the queue
+    Value: !GetAtt
+      - MyQueue
+      - Arn
