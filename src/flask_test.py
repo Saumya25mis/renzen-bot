@@ -6,6 +6,8 @@ import uuid
 import boto3
 from aiohttp import web
 
+sqs_client = boto3.client("sqs", region_name="us-west-2")
+
 
 async def handle(request):  # pylint:disable=unused-argument
     """Health check response."""
@@ -24,7 +26,6 @@ async def forward(request):  # pylint:disable=unused-argument
 
 def get_queue_url():
     """Get Queue Url."""
-    sqs_client = boto3.client("sqs", region_name="us-west-2")
     response = sqs_client.get_queue_url(
         QueueName="MyQueue.fifo",
     )
@@ -33,7 +34,6 @@ def get_queue_url():
 
 def send_message(message):
     """Send message to queue."""
-    sqs_client = boto3.client("sqs", region_name="us-west-2")
     response = sqs_client.send_message(
         QueueUrl=get_queue_url(), MessageBody=json.dumps(message)
     )
