@@ -28,7 +28,7 @@ bot = commands.Bot(
 
 TEMP_ID = "273685734483820554"
 temp_user = bot.get_user(TEMP_ID)
-sqs_client = boto3.client("sqs", region_name="us-west-2")
+sqs_client = boto3.client("sqs", region_name="us-west-1")
 
 
 @bot.command()
