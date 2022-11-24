@@ -2,25 +2,46 @@
 """DB utils."""
 
 # import logging
-# import psycopg2
+import uuid
+import psycopg2
+
 # import discord
-# from src import secret_utils
+from src import secret_utils
 
 # logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
-# conn = psycopg2.connect(
-#     database="postgres",
-#     user=secret_utils.DB_USERNAME,
-#     password=secret_utils.DB_PASSWORD,
-#     host=secret_utils.DB_ENDPOINT,
-#     port=secret_utils.DB_PORT,
-#     sslmode="require",
-# )
+conn = psycopg2.connect(
+    database="postgres",
+    user=secret_utils.DB_USERNAME,
+    password=secret_utils.DB_PASSWORD,
+    host=secret_utils.DB_ENDPOINT,
+    port=secret_utils.DB_PORT,
+    sslmode="require",
+)
 
-# conn.autocommit = True
+conn.autocommit = True
 
-# cur = conn.cursor()
+cur = conn.cursor()
+
+# check if table exists
+check_exists = cur.execute(
+    "select exists(select * from information_schema.tables where table_name=%s)",
+    ("codes",),
+)
+if not check_exists.fetchone()[0]:
+    # create table
+    cur.execute("CREATE TABLE codes (discord_user_id: int, code: varchar(255))")
+
+
+def create_code_key(user_id):
+    """Creates codes for users to confirm discord for chrome extension"""
+    key = str(uuid.uuid4())
+    cur.execute(
+        "INSERT INTO codes (discord_user_id, key) VALUES (%s, %s)",
+        (user_id, key),
+    )
+    return key
 
 
 # def save_message_to_db(message: discord.Message):

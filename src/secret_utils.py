@@ -13,10 +13,10 @@ import boto3
 from botocore.exceptions import ClientError
 
 
-def get_secret():
+def get_secret(secret_name):
     """Get discord secrets."""
 
-    secret_name = "BotDiscordToken"
+    # secret_name = "BotDiscordToken"
     # secret_name = "prod/eklie"
     region_name = "us-west-1"
 
@@ -65,13 +65,15 @@ def get_secret():
     # return json.loads(secret)
 
 
-SECRETS = get_secret()
-TOKEN = SECRETS
+TOKEN = get_secret("BotDiscordToken")
+
+DB_INFO = get_secret("DBPassword")
+
+DB_PASSWORD = DB_INFO["password"]
+DB_USERNAME = DB_INFO["username"]
+DB_PORT = DB_INFO["port"]
+DB_ENDPOINT = DB_INFO["host"]
+
+# DB_ENDPOINT = get_secret('DBEndpoint')
 # TOKEN = SECRETS["eklie-token"]
 # GUILD = SECRETS["eklie-guild"]
-
-
-# DB_PASSWORD = SECRETS["postgres-password"]
-# DB_USERNAME = SECRETS["postgres-username"]
-# DB_PORT = SECRETS["postgres-port"]
-# DB_ENDPOINT = SECRETS["postgres-endpoint"]

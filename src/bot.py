@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands, tasks
 
 from src import secret_utils
+from src import db_utils
 
 discord.utils.setup_logging()
 
@@ -76,7 +77,7 @@ class MyCog(commands.Cog):
 async def test(ctx, arg):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
     # logger.info("Received test command.")
-    await ctx.sent("Received test command.")
+    await ctx.send("Received test command.")
     await ctx.send(arg)
 
 
@@ -85,6 +86,14 @@ async def on_message(message: discord.Message):
     """On message test."""
     # logger.info("Received on_message event")
     if message.author == my_bot.user:
+        return
+
+    if message.content == "code":
+        # create a code and associate it with the user id
+        # this code can be used to subscribe in chrome extension
+        await message.channel.send("code command ack")
+        key = db_utils.create_code_key(message.author.id)
+        await message.channel.send(f"Your key is: {key}")
         return
 
     # temp debug ack

@@ -20,7 +20,7 @@ async def forward(request):  # pylint:disable=unused-argument
     request_id = str(uuid.uuid4())
     send_message(message={"request_content": request_id})
     # send_message(message = {"request_content": request.text()})
-    response_obj = {"status": "success forward"}
+    response_obj = {"status": f"success forward {request_id}"}
     return web.Response(text=json.dumps(response_obj))
 
 
