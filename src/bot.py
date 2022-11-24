@@ -25,7 +25,7 @@ my_bot = commands.Bot(
 TEMP_ID = 273685734483820554
 # sqs_client = boto3.client("sqs", region_name="us-west-1")
 sqs = boto3.resource("sqs", region_name="us-west-1")
-queue = sqs.get_queue_by_name(QueueName='"MyQueue.fifo"')
+queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
 
 class MyCog(commands.Cog):
