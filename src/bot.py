@@ -9,7 +9,6 @@ import boto3
 import discord
 
 
-# from aiohttp import web
 from discord.ext import commands
 
 from src import secret_utils
@@ -55,21 +54,6 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 
-@bot.group()
-async def cool(ctx):
-    """Says if a user is cool.
-    In reality this just checks if a subcommand is being invoked.
-    """
-    if ctx.invoked_subcommand is None:
-        await ctx.send(f"No, {ctx.subcommand_passed} is not cool")
-
-
-@cool.command(name="bot")
-async def _bot(ctx):
-    """Is the bot cool?"""
-    await ctx.send("Yes, the bot is cool.")
-
-
 def get_queue_url():
     """Get url."""
     # sqs_client = boto3.client("sqs", region_name="us-west-2")
@@ -101,11 +85,11 @@ async def receive_message():
 async def poll():
     """Runs  async port."""
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(10)
         await receive_message()
 
 
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(poll())
+loop = asyncio.get_event_loop()
+loop.run_until_complete(poll())
 
 bot.run(secret_utils.TOKEN)
