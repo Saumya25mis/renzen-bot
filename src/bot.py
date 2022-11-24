@@ -4,6 +4,7 @@
 import logging
 
 import json
+import asyncio
 import boto3
 import discord
 
@@ -98,10 +99,10 @@ def get_queue_url():
     return response["QueueUrl"]
 
 
-async def main():
+async def main_async():
     """Main."""
     await my_bot.add_cog(MyCog(my_bot))
     my_bot.run(secret_utils.TOKEN)
 
 
-main()
+asyncio.run(main_async())
