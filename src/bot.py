@@ -1,7 +1,7 @@
 # pylint: disable=import-error, no-member
 """Discord Bot."""
 
-import json
+# import json
 import asyncio
 import boto3
 import discord
@@ -23,7 +23,9 @@ my_bot = commands.Bot(
 )
 
 TEMP_ID = 273685734483820554
-sqs_client = boto3.client("sqs", region_name="us-west-1")
+# sqs_client = boto3.client("sqs", region_name="us-west-1")
+sqs = boto3.resource("sqs", region_name="us-west-1")
+queue = sqs.get_queue_by_name(QueueName='"MyQueue.fifo"')
 
 
 class MyCog(commands.Cog):
@@ -40,13 +42,13 @@ class MyCog(commands.Cog):
     @tasks.loop(seconds=2)
     async def batch_update(self):
         """Receive message."""
-        response = sqs_client.receive_message(
-            QueueUrl=get_queue_url(),
-            MaxNumberOfMessages=1,
-            WaitTimeSeconds=10,
-        )
+        # response = sqs_client.receive_message(
+        #     QueueUrl=get_queue_url(),
+        #     MaxNumberOfMessages=1,
+        #     WaitTimeSeconds=10,
+        # )
 
-        print(f"Number of messages received: {len(response.get('Messages', []))}")
+        # print(f"Number of messages received: {len(response.get('Messages', []))}")
 
         temp_user = self.bot.get_user(TEMP_ID)
 
@@ -56,12 +58,18 @@ class MyCog(commands.Cog):
 
         print(f"{temp_user.name} was found!")
 
-        for message in response.get("Messages", []):
-            message_body = message["Body"]
-            print(f"Message body: {json.loads(message_body)}")
-            print(f"Receipt Handle: {message['ReceiptHandle']}")
-            # await temp_user.send({json.loads(message_body)})
-            await temp_user.send(message_body)
+        for message in queue.receive_messages():
+
+            print(message.body)
+            await temp_user.send(message.body)
+            message.delete()
+
+        # for message in response.get("Messages", []):
+        #     message_body = message["Body"]
+        #     print(f"Message body: {json.loads(message_body)}")
+        #     print(f"Receipt Handle: {message['ReceiptHandle']}")
+        #     # await temp_user.send({json.loads(message_body)})
+        #     await temp_user.send(message_body)
 
 
 @my_bot.command()
@@ -89,13 +97,13 @@ async def on_message(message: discord.Message):
     await my_bot.process_commands(message)
 
 
-def get_queue_url():
-    """Get url."""
-    # sqs_client = boto3.client("sqs", region_name="us-west-2")
-    response = sqs_client.get_queue_url(
-        QueueName="MyQueue.fifo",
-    )
-    return response["QueueUrl"]
+# def get_queue_url():
+#     """Get url."""
+#     # sqs_client = boto3.client("sqs", region_name="us-west-2")
+#     response = sqs_client.get_queue_url(
+#         QueueName="MyQueue.fifo",
+#     )
+#     return response["QueueUrl"]
 
 
 async def main_async():
