@@ -52,8 +52,9 @@ class MyCog(commands.Cog):
 
         if temp_user is None:
             print(f"USER {TEMP_ID} NOT FOUND")
-        else:
-            print(f"{temp_user.name} was found!")
+            return
+
+        print(f"{temp_user.name} was found!")
 
         for message in response.get("Messages", []):
             message_body = message["Body"]
