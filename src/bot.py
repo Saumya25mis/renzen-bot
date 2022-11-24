@@ -104,31 +104,8 @@ async def poll():
         await asyncio.sleep(1)
         await receive_message()
 
-    # runner = web.AppRunner(app)
-    # await runner.setup()
-    # site = web.TCPSite(runner, 'localhost', 80)
-    # await site.start()
-
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(poll())
-
-
-# async def forward(request):
-#     """Forwards request to bot."""
-#     pass
-
-# app = web.Application()
-# app.add_routes([web.get("/forward", forward)])
-
-# async def runner():
-#     """Runs  async port."""
-#     runner = web.AppRunner(app)
-#     await runner.setup()
-#     site = web.TCPSite(runner, 'localhost', 80)
-#     await site.start()
 
 # loop = asyncio.get_event_loop()
-# loop.run_until_complete(runner())
+# loop.run_until_complete(poll())
 
 bot.run(secret_utils.TOKEN)
