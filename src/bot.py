@@ -1,8 +1,6 @@
 # pylint: disable=import-error, no-member
 """Discord Bot."""
 
-import logging
-
 import json
 import asyncio
 import boto3
@@ -13,8 +11,7 @@ from discord.ext import commands, tasks
 
 from src import secret_utils
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+discord.utils.setup_logging()
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -68,7 +65,7 @@ class MyCog(commands.Cog):
 @my_bot.command()
 async def test(ctx, arg):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    logger.info("Received test command.")
+    # logger.info("Received test command.")
     await ctx.sent("Received test command.")
     await ctx.send(arg)
 
@@ -76,7 +73,7 @@ async def test(ctx, arg):
 @my_bot.event
 async def on_message(message: discord.Message):
     """On message test."""
-    logger.info("Received on_message event")
+    # logger.info("Received on_message event")
     if message.author == my_bot.user:
         return
 
@@ -102,7 +99,7 @@ def get_queue_url():
 async def main_async():
     """Main."""
     await my_bot.add_cog(MyCog(my_bot))
-    my_bot.start(secret_utils.TOKEN)
+    await my_bot.start(secret_utils.TOKEN)
 
 
 asyncio.run(main_async())
