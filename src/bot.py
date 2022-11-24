@@ -36,7 +36,7 @@ class MyCog(commands.Cog):
         self.bot = bot
         self.batch_update.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         """Unload cog."""
         self.batch_update.cancel()
 
