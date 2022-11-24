@@ -1,15 +1,14 @@
-# pylint: disable=import-error
+# pylint: disable=import-error, no-member
 """Discord Bot."""
 
 import logging
 
-import asyncio
 import json
 import boto3
 import discord
 
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from src import secret_utils
 
@@ -20,7 +19,7 @@ intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
 
-bot = commands.Bot(
+my_bot = commands.Bot(
     command_prefix="!",
     intents=intents,
 )
@@ -29,7 +28,43 @@ TEMP_ID = 273685734483820554
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
 
-@bot.command()
+class MyCog(commands.Cog):
+    """Cog to run sqs updates."""
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.batch_update.start()
+
+    def cog_unload(self):
+        """Unload cog."""
+        self.batch_update.cancel()
+
+    @tasks.loop(seconds=2)
+    async def batch_update(self):
+        """Receive message."""
+        response = sqs_client.receive_message(
+            QueueUrl=get_queue_url(),
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=10,
+        )
+
+        print(f"Number of messages received: {len(response.get('Messages', []))}")
+
+        temp_user = self.bot.get_user(TEMP_ID)
+
+        if temp_user is None:
+            print(f"USER {TEMP_ID} NOT FOUND")
+        else:
+            print(f"{temp_user.name} was found!")
+
+        for message in response.get("Messages", []):
+            message_body = message["Body"]
+            print(f"Message body: {json.loads(message_body)}")
+            print(f"Receipt Handle: {message['ReceiptHandle']}")
+            await temp_user.send({json.loads(message_body)})
+
+
+@my_bot.command()
 async def test(ctx, arg):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
     logger.info("Received test command.")
@@ -37,11 +72,11 @@ async def test(ctx, arg):
     await ctx.send(arg)
 
 
-@bot.event
+@my_bot.event
 async def on_message(message: discord.Message):
     """On message test."""
     logger.info("Received on_message event")
-    if message.author == bot.user:
+    if message.author == my_bot.user:
         return
 
     # temp debug ack
@@ -51,7 +86,7 @@ async def on_message(message: discord.Message):
     # db_utils.save_message_to_db(message=message)
 
     # process commands
-    await bot.process_commands(message)
+    await my_bot.process_commands(message)
 
 
 def get_queue_url():
@@ -63,33 +98,10 @@ def get_queue_url():
     return response["QueueUrl"]
 
 
-async def receive_message():
-    """Receive message."""
-    response = sqs_client.receive_message(
-        QueueUrl=get_queue_url(),
-        MaxNumberOfMessages=1,
-        WaitTimeSeconds=10,
-    )
-
-    print(f"Number of messages received: {len(response.get('Messages', []))}")
-
-    temp_user = bot.get_user(TEMP_ID)
-
-    for message in response.get("Messages", []):
-        message_body = message["Body"]
-        print(f"Message body: {json.loads(message_body)}")
-        print(f"Receipt Handle: {message['ReceiptHandle']}")
-        await temp_user.send({json.loads(message_body)})
+async def main():
+    """Main."""
+    await my_bot.add_cog(MyCog(my_bot))
+    my_bot.run(secret_utils.TOKEN)
 
 
-async def poll():
-    """Runs  async port."""
-    while True:
-        await asyncio.sleep(10)
-        await receive_message()
-
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(poll())
-
-bot.run(secret_utils.TOKEN)
+main()
