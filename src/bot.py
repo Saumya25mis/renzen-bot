@@ -102,7 +102,7 @@ def get_queue_url():
 async def main_async():
     """Main."""
     await my_bot.add_cog(MyCog(my_bot))
-    my_bot.run(secret_utils.TOKEN)
+    my_bot.start(secret_utils.TOKEN)
 
 
 asyncio.run(main_async())
