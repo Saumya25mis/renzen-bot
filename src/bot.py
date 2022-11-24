@@ -60,7 +60,8 @@ class MyCog(commands.Cog):
             message_body = message["Body"]
             print(f"Message body: {json.loads(message_body)}")
             print(f"Receipt Handle: {message['ReceiptHandle']}")
-            await temp_user.send({json.loads(message_body)})
+            # await temp_user.send({json.loads(message_body)})
+            await temp_user.send(message_body)
 
 
 @my_bot.command()
