@@ -7,13 +7,17 @@
     },
     "permissions": [
         "tabs",
-        "notifications"
+        "notifications",
+        "scripting", 
+        "activeTab"
+    ],
+    "host_permissions": [
+        // "https://www.example.com/*"
+        // "a.renzen.io/*"
+        "http://myLoadBalancerSite-2024255806.us-west-1.elb.amazonaws.com/*"
     ],
     "content_scripts": [
     {   "matches": ["<all_urls>"],
-        "js" : ["content.js"]}
-    ],
-    "background":
-    {
-    "service_worker": "background.js"
-    }}
+        "js" : ["index.js"]}
+    ]
+}
