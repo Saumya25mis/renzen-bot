@@ -25,17 +25,20 @@ conn.autocommit = True
 cur = conn.cursor()
 
 # check if table exists
-try:
-    cur.execute(
-        "select exists(select * from information_schema.tables where table_name=%s)",
-        ("codes",),
-    )
-    exists = cur.fetchone()[0]
-    print(f"table exists: {exists}")
-except psycopg2.Error as e:  # pylint:disable=invalid-name
-    # create table
-    cur.execute("CREATE TABLE codes (discord_user_id: int, code: varchar(255))")
-    print("Create table")
+# try:
+#     cur.execute(
+#         "select exists(select * from information_schema.tables where table_name=%s)",
+#         ("codes",),
+#     )
+#     exists = cur.fetchone()[0]
+#     print(f"table exists: {exists}")
+# except psycopg2.Error as e:  # pylint:disable=invalid-name
+#     # create table
+#     cur.execute("CREATE TABLE codes (discord_user_id: int, code: varchar(255))")
+#     print("Create table")
+cur.execute(
+    "CREATE TABLE IF NOT EXISTS codes (discord_user_id: int, code: varchar(255))"
+)
 
 
 def create_code_key(user_id):
