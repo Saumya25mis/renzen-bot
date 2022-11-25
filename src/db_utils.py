@@ -45,7 +45,7 @@ def create_code_key(user_id):
     """Creates codes for users to confirm discord for chrome extension"""
     key = str(uuid.uuid4())
     cur.execute(
-        "INSERT INTO codes (discord_user_id, key) VALUES (%s, %s)",
+        "INSERT INTO codes (discord_user_id, code) VALUES (%s, %s)",
         (user_id, key),
     )
     return key
