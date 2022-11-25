@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "version": "1.0",
+    "name": "test",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "permissions": [
+        "tabs",
+        "notifications"
+    ],
+    "content_scripts": [
+    {   "matches": ["<all_urls>"],
+        "js" : ["content.js"]}
+    ],
+    "background":
+    {
+    "service_worker": "background.js"
+    }}
