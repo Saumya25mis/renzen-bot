@@ -8,7 +8,7 @@
 
 import base64
 
-# import json
+import json
 import boto3
 from botocore.exceptions import ClientError
 
@@ -67,7 +67,7 @@ def get_secret(secret_name):
 
 TOKEN = get_secret("BotDiscordToken")
 
-DB_INFO = get_secret("DBPassword")
+DB_INFO = json.loads(get_secret("DBPassword"))
 
 DB_PASSWORD = DB_INFO["password"]
 DB_USERNAME = DB_INFO["username"]
