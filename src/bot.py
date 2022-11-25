@@ -72,7 +72,7 @@ class MyCog(commands.Cog):
 
             if temp_user is None:
                 print(f"USER {user_id} NOT FOUND")
-                return
+                continue
 
             print(f"{temp_user.name} was found!")
 
