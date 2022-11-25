@@ -62,9 +62,10 @@ class MyCog(commands.Cog):
         for message in queue.receive_messages():
 
             message_json = json.loads(message.body)
+            request_content = json.loads(message_json["request_content"])
 
             print(f"message_json: {str(message_json)}")
-            user_id = db_utils.query_db_by_code(message_json[0]["login-code"])
+            user_id = db_utils.query_db_by_code(request_content["login-code"])
             print(f"{user_id=}")
 
             temp_user = self.bot.get_user(user_id)
