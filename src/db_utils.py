@@ -37,7 +37,7 @@ cur = conn.cursor()
 #     cur.execute("CREATE TABLE codes (discord_user_id: int, code: varchar(255))")
 #     print("Create table")
 cur.execute(
-    "CREATE TABLE IF NOT EXISTS codes (code_id serial PRIMARY KEY, discord_user_id BIGINT NOT NULL, code varchar(255) UNIQUE)"
+    "CREATE TABLE IF NOT EXISTS login_codes (code_id serial PRIMARY KEY, discord_user_id BIGINT NOT NULL, code varchar(255) UNIQUE)"
 )
 
 
@@ -45,7 +45,7 @@ def create_code_key(user_id):
     """Creates codes for users to confirm discord for chrome extension"""
     key = str(uuid.uuid4())
     cur.execute(
-        "INSERT INTO codes (discord_user_id, code) VALUES (%s, %s)",
+        "INSERT INTO login_codes (discord_user_id, code) VALUES (%s, %s)",
         (user_id, key),
     )
     return key
