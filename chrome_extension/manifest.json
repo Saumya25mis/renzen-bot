@@ -8,14 +8,12 @@
     "permissions": [
         "tabs",
         "notifications",
-        "scripting", 
+        "scripting",
         "activeTab",
         "storage"
     ],
     "host_permissions": [
-        // "https://www.example.com/*"
-        // "a.renzen.io/*"
-        "http://myLoadBalancerSite-2024255806.us-west-1.elb.amazonaws.com/*"
+        "http://api.renzen.io/*",
     ],
     "content_scripts": [
     {   "matches": ["<all_urls>"],
