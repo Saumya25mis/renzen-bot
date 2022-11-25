@@ -60,6 +60,7 @@ Resources:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
             - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
             - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+            - "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
           Description: "Allows EC2 instances to call AWS services on your behalf. And get secrets"
 
   botecsTaskExecutionRole:
@@ -72,6 +73,7 @@ Resources:
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
             - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+            - "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
 
 
   BotPipelineRole:
