@@ -37,7 +37,7 @@ cur = conn.cursor()
 #     cur.execute("CREATE TABLE codes (discord_user_id: int, code: varchar(255))")
 #     print("Create table")
 cur.execute(
-    "CREATE TABLE [IF NOT EXISTS] codes (code_id serial PRIMARY KEY, discord_user_id INT NOT NULL, code varchar(255) UNIQUE)"
+    "CREATE TABLE IF NOT EXISTS codes (code_id serial PRIMARY KEY, discord_user_id INT NOT NULL, code varchar(255) UNIQUE)"
 )
 
 
