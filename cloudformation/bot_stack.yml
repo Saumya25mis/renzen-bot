@@ -122,8 +122,9 @@ Resources:
     Properties:
       HealthCheckEnabled: true
       HealthCheckPort: 80
-      HealthCheckIntervalSeconds: 5
-      HealthyThresholdCount: 3
+      HealthCheckTimeoutSeconds: 10
+      HealthCheckIntervalSeconds: 15
+      HealthyThresholdCount: 2
       Name: myTargetGroup
       Port: 80
       Protocol: HTTP
@@ -147,8 +148,9 @@ Resources:
     Properties:
       HealthCheckEnabled: true
       HealthCheckPort: 80
-      HealthCheckIntervalSeconds: 5
-      HealthyThresholdCount: 3
+      HealthCheckTimeoutSeconds: 10
+      HealthCheckIntervalSeconds: 15
+      HealthyThresholdCount: 2
       Name: myTargetGroupSite
       Port: 80
       Protocol: HTTP
