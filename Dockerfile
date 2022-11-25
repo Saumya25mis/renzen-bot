@@ -12,4 +12,4 @@ RUN pip3 install -e .
 
 RUN ["chmod", "+x", "scripts/my_wrapper_script.sh"]
 ENV PYTHONUNBUFFERED=1
-ENTRYPOINT ["/scripts/my_wrapper_script.sh"]
+ENTRYPOINT ["scripts/my_wrapper_script.sh"]
