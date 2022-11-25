@@ -13,7 +13,7 @@
         "storage"
     ],
     "host_permissions": [
-        "http://api.renzen.io/*",
+        "http://api.renzen.io/*"
     ],
     "content_scripts": [
         {
