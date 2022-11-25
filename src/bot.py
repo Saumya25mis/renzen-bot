@@ -70,7 +70,7 @@ class MyCog(commands.Cog):
             temp_user = self.bot.get_user(user_id)
 
             if temp_user is None:
-                print(f"USER {TEMP_ID} NOT FOUND")
+                print(f"USER {user_id} NOT FOUND")
                 return
 
             print(f"{temp_user.name} was found!")
