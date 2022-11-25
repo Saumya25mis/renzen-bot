@@ -50,6 +50,14 @@ def create_code_key(user_id):
     )
     return key
 
+def query_db_by_code(code):
+    """Queries the DB by code and returns discords user"""
+    cur.execute(
+        "SELECT discord_user_id FROM login_codes WHERE code=(code) VALUES (%s)",
+        (code),
+    )
+    return cur.fetchone()
+
 
 # def save_message_to_db(message: discord.Message):
 #     """Save message to db."""

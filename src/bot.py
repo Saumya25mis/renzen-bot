@@ -1,7 +1,7 @@
 # pylint: disable=import-error, no-member
 """Discord Bot."""
 
-# import json
+import json
 import asyncio
 import boto3
 import discord
@@ -51,15 +51,23 @@ class MyCog(commands.Cog):
 
         # print(f"Number of messages received: {len(response.get('Messages', []))}")
 
-        temp_user = self.bot.get_user(TEMP_ID)
+        # temp_user = self.bot.get_user(TEMP_ID)
 
-        if temp_user is None:
-            print(f"USER {TEMP_ID} NOT FOUND")
-            return
+        # if temp_user is None:
+        #     print(f"USER {TEMP_ID} NOT FOUND")
+        #     return
 
-        print(f"{temp_user.name} was found!")
+        # print(f"{temp_user.name} was found!")
 
         for message in queue.receive_messages():
+
+            message_json = json.loads(message.body)
+
+            print(f'message_json: {str(message_json)}')
+            user_id = db_utils.query_db_by_code(message_json['login-code'])
+            print(f'{user_id=}') 
+
+            temp_user = self.bot.get_user(user_id)
 
             print(message.body)
             await temp_user.send(message.body)
