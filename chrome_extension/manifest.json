@@ -9,7 +9,8 @@
         "tabs",
         "notifications",
         "scripting", 
-        "activeTab"
+        "activeTab",
+        "storage"
     ],
     "host_permissions": [
         // "https://www.example.com/*"
