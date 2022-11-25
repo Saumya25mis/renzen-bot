@@ -1,5 +1,5 @@
 chrome.storage.local.get(['login-code'], function (result) {
-  console.log('Value currently is ' + result.key);
+  console.log('Value currently is ' + result['login-code']);
   document.getElementById("login-code").value = result['login-code']
 });
 

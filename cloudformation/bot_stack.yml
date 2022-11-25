@@ -205,9 +205,9 @@ Resources:
             LogDriver: "awslogs"
             Options:
               awslogs-create-group: "true"
-              awslogs-group: "/ecs/bot-task"
+              awslogs-group: "bot-task"
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: "ecs"
+              awslogs-stream-prefix: "task"
           Name: "bot-container"
           PortMappings:
             - ContainerPort: 80
@@ -230,9 +230,9 @@ Resources:
             LogDriver: "awslogs"
             Options:
               awslogs-create-group: "true"
-              awslogs-group: "/ecs/bot-task"
+              awslogs-group: "bot-site"
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: "ecs"
+              awslogs-stream-prefix: "site"
           Name: "site-container"
           PortMappings:
             - ContainerPort: 80

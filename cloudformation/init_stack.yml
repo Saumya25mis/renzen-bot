@@ -35,10 +35,16 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !ImportValue myInternetGateway
 
-  myLogGroup:
+  myBotLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: "/ecs/bot-task"
+      LogGroupName: "bot-task"
+      RetentionInDays: 30
+
+  mySiteLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "bot-site"
       RetentionInDays: 30
 
   BotS3Bucket:

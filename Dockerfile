@@ -11,4 +11,5 @@ RUN pip3 install --no-cache-dir -r src/requirements.txt
 RUN pip3 install -e .
 
 RUN ["chmod", "+x", "scripts/my_wrapper_script.sh"]
-CMD ./scripts/my_wrapper_script.sh
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT ["/scripts/my_wrapper_script.sh"]
