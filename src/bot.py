@@ -44,24 +44,30 @@ class MyCog(commands.Cog):
 
         for message in queue.receive_messages():
 
-            message_json = json.loads(message.body)
-            request_content = json.loads(message_json["request_content"])
+            try:
 
-            print(f"message_json: {str(message_json)}")
-            user_id = db_utils.query_db_by_code(request_content["login-code"])
-            print(f"{user_id=}")
+                message_json = json.loads(message.body)
+                request_content = json.loads(message_json["request_content"])
 
-            temp_user = self.bot.get_user(user_id)
+                print(f"message_json: {str(message_json)}")
+                user_id = db_utils.query_db_by_code(request_content["login-code"])
+                print(f"{user_id=}")
 
-            if temp_user is None:
-                print(f"USER {user_id} NOT FOUND")
-                continue
+                temp_user = self.bot.get_user(user_id)
 
-            print(f"{temp_user.name} was found!")
+                if temp_user is None:
+                    print(f"USER {user_id} NOT FOUND")
+                    continue
 
-            print(message.body)
-            await temp_user.send(message.body)
-            message.delete()
+                print(f"{temp_user.name} was found!")
+
+                print(message.body)
+                await temp_user.send(message.body)
+                message.delete()
+
+            except Exception as e:  # pylint:disable=broad-except, invalid-name
+                print(f"Could not deliver message. Will not retry {e}")
+                message.delete()
 
 
 @my_bot.command()
