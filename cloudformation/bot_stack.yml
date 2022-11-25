@@ -216,36 +216,36 @@ Resources:
         ContainerPort: 80
         ContainerName: site-container
 
-  myRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !ImportValue myVPC
-      Tags:
-      - Key: stack
-        Value: production
+  # myRouteTable:
+  #   Type: AWS::EC2::RouteTable
+  #   Properties:
+  #     VpcId: !ImportValue myVPC
+  #     Tags:
+  #     - Key: stack
+  #       Value: production
 
-  mySubnetRouteTableAssociation1:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !ImportValue mySubnet1
-      RouteTableId:
-        Ref: myRouteTable
+  # mySubnetRouteTableAssociation1:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties:
+  #     SubnetId: !ImportValue mySubnet1
+  #     RouteTableId:
+  #       Ref: myRouteTable
 
-  mySubnetRouteTableAssociation2:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !ImportValue mySubnet2
-      RouteTableId:
-        Ref: myRouteTable
+  # mySubnetRouteTableAssociation2:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties:
+  #     SubnetId: !ImportValue mySubnet2
+  #     RouteTableId:
+  #       Ref: myRouteTable
 
-  myRoute:
-    Type: AWS::EC2::Route
-    # DependsOn: GatewayToInternet
-    Properties:
-       RouteTableId:
-         Ref: myRouteTable
-       DestinationCidrBlock: 0.0.0.0/0
-       GatewayId: !ImportValue myInternetGateway
+  # myRoute:
+  #   Type: AWS::EC2::Route
+  #   # DependsOn: GatewayToInternet
+  #   Properties:
+  #      RouteTableId:
+  #        Ref: myRouteTable
+  #      DestinationCidrBlock: 0.0.0.0/0
+  #      GatewayId: !ImportValue myInternetGateway
 
 
 
@@ -427,11 +427,11 @@ Resources:
       Visibility: "PRIVATE"
 
 
-  myLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: "/ecs/bot-task"
-      RetentionInDays: 7
+  # myLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   Properties:
+  #     LogGroupName: "/ecs/bot-task"
+  #     RetentionInDays: 7
 
 # -----------------QUEUE-----------------------------
 
@@ -441,6 +441,25 @@ Resources:
   #     FifoQueue: true
   #     ContentBasedDeduplication: true
   #   Type: 'AWS::SQS::Queue'
+
+  myDNSRecord:
+    Type: AWS::Route53::RecordSet
+    # DependsOn: HostedZoneResource
+    Properties:
+      #HostedZoneName: 'renzen.io'
+      HostedZoneId: Z07096223ERVZ2460AEFE  # FROM CONSOLE
+      # HostedZoneId: !Ref 'HostedZoneResource'
+      Comment: DNS name for my instance.
+      Name: 'api.renzen.io'
+      # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
+      Type: A
+      # TTL: 60
+      AliasTarget:
+        DNSName: !GetAtt myLoadBalancerSite.DNSName
+        # HostedZoneId: !Ref 'HostedZoneResource'
+        HostedZoneId: !GetAtt myLoadBalancerSite.CanonicalHostedZoneID
+      # ResourceRecords:
+      # - !GetAtt myLoadBalancer.PublicIp
 
 Outputs:
 

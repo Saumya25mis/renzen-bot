@@ -5,6 +5,45 @@ Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports 
 
 
 Resources:
+
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+      - Key: stack
+        Value: production
+
+  mySubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet1
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet2
+      RouteTableId:
+        Ref: myRouteTable
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+       RouteTableId:
+         Ref: myRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId: !ImportValue myInternetGateway
+
+  myLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/ecs/bot-task"
+      RetentionInDays: 30
+
   BotS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
