@@ -395,6 +395,54 @@ Resources:
       MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSInstanceRotationSecret, ':SecretString:password}}' ]]
       BackupRetentionPeriod: 0
       DBInstanceIdentifier: 'rotation-instance'
+      DBSubnetGroupName: !Ref DataSourceSubtNetGroup
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId
+
+  DataSourceSubtNetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Created by CF
+      SubnetIds:
+        - !Ref mySubnet1
+        - !Ref mySubnet2
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "us-west-1b"
+      Tags:
+      - Key: stack
+        Value: production
+
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.100.0/24
+      AvailabilityZone: "us-west-1c"
+      Tags:
+      - Key: stack
+        Value: production
+  # DataSourceSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupName: DataSourceSecurityGroup
+  #     GroupDescription: Open database for access
+  #     # VpcId: !Ref Vpc
+  # DSSGIngressRule:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     FromPort: "5432"
+  #     ToPort: "5432"
+  #     GroupId: !Ref DataSourceSecurityGroup
+  #     IpProtocol: tcp
+  #     CidrIp: 0.0.0.0/0
 
   # Update the referenced secret with properties of the RDS database.
   # This is required to enable rotation. To learn more, visit our documentation
@@ -424,6 +472,81 @@ Resources:
     #     RotationRules:
     #       AutomaticallyAfterDays: 30
 
+
+
+
+
+#------------------Security Groups--------------------
+
+
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: stack
+        Value: production
+
+  LoadBalancerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow fargate service attach to RDS
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt InstanceSecurityGroup.GroupId
+
+
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: stack
+        Value: production
+
 # ----------------OUTPUTS-----------------------------------
 
 Outputs:
@@ -433,10 +556,46 @@ Outputs:
   #   Export:
   #     Name: DBEndpoint
 
+
+  GatewayToInternet:
+    Value: !Ref GatewayToInternet
+    Export:
+      Name: GatewayToInternet
+
+  myInternetGateway:
+    Value: !Ref myInternetGateway
+    Export:
+      Name: myInternetGateway
+
+  InstanceSecurityGroup:
+    Value: !Ref InstanceSecurityGroup
+    Export:
+      Name: InstanceSecurityGroup
+
+  LoadBalancerSecurityGroup:
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: LoadBalancerSecurityGroup
+
   BotS3Bucket:
     Value: !Ref BotS3Bucket
     Export:
       Name: BotS3Bucket
+
+  myVPC:
+    Value: !Ref myVPC
+    Export:
+      Name: myVPC
+
+  mySubnet1:
+    Value: !Ref mySubnet1
+    Export:
+      Name: mySubnet1
+
+  mySubnet2:
+    Value: !Ref mySubnet2
+    Export:
+      Name: mySubnet2
 
   BotGithubConnection:
     Value: !Ref BotGithubConnection

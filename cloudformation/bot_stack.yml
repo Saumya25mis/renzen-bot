@@ -66,6 +66,9 @@ Resources:
           PredefinedMetricType: ECSServiceAverageMemoryUtilization
 
   myLoadBalancer:
+    # DependsOn:
+      # - GatewayToInternet
+      # - myInternetGateway
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       # IpAddressType: String
@@ -73,39 +76,26 @@ Resources:
       #   - LoadBalancerAttribute
       Name: myLoadBalancer
       SecurityGroups:
-        - !Ref LoadBalancerSecurityGroup
+        - !ImportValue LoadBalancerSecurityGroup
       Subnets:
-        - !Ref mySubnet1
-        - !Ref mySubnet2
+        - !ImportValue mySubnet1
+        - !ImportValue mySubnet2
 
   myLoadBalancerSite:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    # DependsOn:
+      # - GatewayToInternet
+      # - myInternetGateway
     Properties:
       # IpAddressType: String
       # LoadBalancerAttributes:
       #   - LoadBalancerAttribute
       Name: myLoadBalancerSite
       SecurityGroups:
-        - !Ref LoadBalancerSecurityGroup
+        - !ImportValue LoadBalancerSecurityGroup
       Subnets:
-        - !Ref mySubnet1
-        - !Ref mySubnet2
-
-  LoadBalancerSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
-    Properties:
-      GroupDescription: Enable HTTP access on port 80
-      VpcId: !Ref myVPC
-      SecurityGroupIngress:
-        - IpProtocol: -1
-          FromPort: '80'
-          ToPort: '80'
-          CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          FromPort: '80'
-          ToPort: '80'
-          CidrIp: 0.0.0.0/0
+        - !ImportValue mySubnet1
+        - !ImportValue mySubnet2
 
   myListener:
       Type: AWS::ElasticLoadBalancingV2::Listener
@@ -129,8 +119,7 @@ Resources:
       Port: 80
       Protocol: HTTP
       TargetType: ip
-      VpcId:
-        Ref: myVPC
+      VpcId: !ImportValue myVPC
 
 
   myListenerSite:
@@ -155,8 +144,7 @@ Resources:
       Port: 80
       Protocol: HTTP
       TargetType: ip
-      VpcId:
-        Ref: myVPC
+      VpcId: !ImportValue myVPC
 
 # ---------------------------------------------------------------------------
 
@@ -183,10 +171,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
           SecurityGroups:
-            - !Ref InstanceSecurityGroup
+            - !ImportValue InstanceSecurityGroup
           Subnets:
-            - !Ref mySubnet1
-            - !Ref mySubnet2
+            - !ImportValue mySubnet1
+            - !ImportValue mySubnet2
       SchedulingStrategy: "REPLICA"
       CapacityProviderStrategy:
         - CapacityProvider: "FARGATE"
@@ -213,10 +201,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
           SecurityGroups:
-            - !Ref InstanceSecurityGroup
+            - !ImportValue InstanceSecurityGroup
           Subnets:
-            - !Ref mySubnet1
-            - !Ref mySubnet2
+            - !ImportValue mySubnet1
+            - !ImportValue mySubnet2
       SchedulingStrategy: "REPLICA"
       CapacityProviderStrategy:
         - CapacityProvider: "FARGATE"
@@ -231,8 +219,7 @@ Resources:
   myRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId:
-        Ref: myVPC
+      VpcId: !ImportValue myVPC
       Tags:
       - Key: stack
         Value: production
@@ -240,102 +227,31 @@ Resources:
   mySubnetRouteTableAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: mySubnet1
+      SubnetId: !ImportValue mySubnet1
       RouteTableId:
         Ref: myRouteTable
 
   mySubnetRouteTableAssociation2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: mySubnet2
+      SubnetId: !ImportValue mySubnet2
       RouteTableId:
         Ref: myRouteTable
 
   myRoute:
     Type: AWS::EC2::Route
-    DependsOn: GatewayToInternet
+    # DependsOn: GatewayToInternet
     Properties:
        RouteTableId:
          Ref: myRouteTable
        DestinationCidrBlock: 0.0.0.0/0
-       GatewayId:
-         Ref: myInternetGateway
+       GatewayId: !ImportValue myInternetGateway
 
-  myVPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'true'
-      Tags:
-      - Key: stack
-        Value: production
 
-  GatewayToInternet:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId:
-        Ref: myVPC
-      InternetGatewayId:
-        Ref: myInternetGateway
 
-  myInternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-      - Key: stack
-        Value: production
 
-  mySubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      MapPublicIpOnLaunch: true
-      VpcId:
-        Ref: myVPC
-      CidrBlock: 10.0.0.0/24
-      AvailabilityZone: "us-west-1b"
-      Tags:
-      - Key: stack
-        Value: production
 
-  mySubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      MapPublicIpOnLaunch: true
-      VpcId:
-        Ref: myVPC
-      CidrBlock: 10.0.100.0/24
-      AvailabilityZone: "us-west-1c"
-      Tags:
-      - Key: stack
-        Value: production
 
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow http to client host
-      VpcId:
-        Ref: myVPC
-      SecurityGroupIngress:
-        - IpProtocol: -1
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
-        #   SourceSecurityGroupId: !Select
-        #     - 0
-        #     - !GetAtt
-        #       - myLoadBalancer
-        #       - SecurityGroups
-        # - IpProtocol: tcp
-        #   FromPort: '22'
-        #   ToPort: '22'
-      # SecurityGroupEgress:
-      #   - IpProtocol: -1
-      #     FromPort: 80
-      #     ToPort: 80
-      #     CidrIp: 0.0.0.0/0
 
   ECSTaskDefinition:
       Type: "AWS::ECS::TaskDefinition"
@@ -538,10 +454,6 @@ Outputs:
     Export:
       Name: myLoadBalancerCanonicalHostedZoneID
 
-  myVPC:
-    Value: !Ref myVPC
-    Export:
-      Name: myVPC
 
 # # -----------------QUEUE-----------------------------
 
