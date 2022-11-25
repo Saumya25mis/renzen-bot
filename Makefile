@@ -15,6 +15,11 @@ update-init:
 		--template-body file://cloudformation/init_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM;
 
+aws cloudformation delete-stack \
+	--stack-name init-stack \
+	--template-body file://cloudformation/init_stack.yml \
+	--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM;
+
 start-bot:
 	aws cloudformation create-stack \
 		--stack-name bot-stack \
