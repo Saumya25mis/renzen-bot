@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
-    Generator: "me-test"
+  Generator: "me-test"
 Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
 
 Parameters:
@@ -21,21 +21,19 @@ Parameters:
     Type: String
 
 Resources:
-
   SecretsManagerSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-          Name: "BotDiscordToken"
-          SecretString: !Ref DiscordTokenParameter
+    Type: "AWS::SecretsManager::Secret"
+    Properties:
+      Name: "BotDiscordToken"
+      SecretString: !Ref DiscordTokenParameter
 
   SecretsManagerSecretAccount:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-          Name: "BotAWSAccountID"
-          SecretString: !Ref AWSACCOUNTID
+    Type: "AWS::SecretsManager::Secret"
+    Properties:
+      Name: "BotAWSAccountID"
+      SecretString: !Ref AWSACCOUNTID
 
 Outputs:
-
   GitHubRepoName:
     Value: !Ref GitHubRepoName
     Export:

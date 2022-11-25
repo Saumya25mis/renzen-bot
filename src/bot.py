@@ -23,8 +23,6 @@ my_bot = commands.Bot(
     intents=intents,
 )
 
-TEMP_ID = 273685734483820554
-# sqs_client = boto3.client("sqs", region_name="us-west-1")
 sqs = boto3.resource("sqs", region_name="us-west-1")
 queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
@@ -43,21 +41,6 @@ class MyCog(commands.Cog):
     @tasks.loop(seconds=2)
     async def batch_update(self):
         """Receive message."""
-        # response = sqs_client.receive_message(
-        #     QueueUrl=get_queue_url(),
-        #     MaxNumberOfMessages=1,
-        #     WaitTimeSeconds=10,
-        # )
-
-        # print(f"Number of messages received: {len(response.get('Messages', []))}")
-
-        # temp_user = self.bot.get_user(TEMP_ID)
-
-        # if temp_user is None:
-        #     print(f"USER {TEMP_ID} NOT FOUND")
-        #     return
-
-        # print(f"{temp_user.name} was found!")
 
         for message in queue.receive_messages():
 
@@ -80,18 +63,10 @@ class MyCog(commands.Cog):
             await temp_user.send(message.body)
             message.delete()
 
-        # for message in response.get("Messages", []):
-        #     message_body = message["Body"]
-        #     print(f"Message body: {json.loads(message_body)}")
-        #     print(f"Receipt Handle: {message['ReceiptHandle']}")
-        #     # await temp_user.send({json.loads(message_body)})
-        #     await temp_user.send(message_body)
-
 
 @my_bot.command()
 async def test(ctx, arg):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    # logger.info("Received test command.")
     await ctx.send("Received test command.")
     await ctx.send(arg)
 
@@ -99,7 +74,6 @@ async def test(ctx, arg):
 @my_bot.event
 async def on_message(message: discord.Message):
     """On message test."""
-    # logger.info("Received on_message event")
     if message.author == my_bot.user:
         return
 
@@ -114,20 +88,8 @@ async def on_message(message: discord.Message):
     # temp debug ack
     await message.channel.send("hazel is amazing!!!")
 
-    # save to db
-    # db_utils.save_message_to_db(message=message)
-
     # process commands
     await my_bot.process_commands(message)
-
-
-# def get_queue_url():
-#     """Get url."""
-#     # sqs_client = boto3.client("sqs", region_name="us-west-2")
-#     response = sqs_client.get_queue_url(
-#         QueueName="MyQueue.fifo",
-#     )
-#     return response["QueueUrl"]
 
 
 async def main_async():

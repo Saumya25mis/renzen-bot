@@ -16,7 +16,13 @@
         "http://api.renzen.io/*",
     ],
     "content_scripts": [
-    {   "matches": ["<all_urls>"],
-        "js" : ["index.js"]}
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "index.js"
+            ]
+        }
     ]
 }

@@ -1,23 +1,18 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
-    Generator: "me-test"
+  Generator: "me-test"
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
-
-  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-autoscaling.html
-  # https://stackoverflow.com/questions/48529074/how-is-target-groups-different-from-auto-scaling-groups-in-aws
-
-
   ECSScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
       MaxCapacity: 1
       MinCapacity: 1
       RoleARN:
-        Fn::Sub: 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
       ServiceNamespace: ecs
-      ScalableDimension: 'ecs:service:DesiredCount'
+      ScalableDimension: "ecs:service:DesiredCount"
       ResourceId: !Join
         - /
         - - service
@@ -30,9 +25,9 @@ Resources:
       MaxCapacity: 6
       MinCapacity: 1
       RoleARN:
-        Fn::Sub: 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
       ServiceNamespace: ecs
-      ScalableDimension: 'ecs:service:DesiredCount'
+      ScalableDimension: "ecs:service:DesiredCount"
       ResourceId: !Join
         - /
         - - service
@@ -66,14 +61,8 @@ Resources:
           PredefinedMetricType: ECSServiceAverageMemoryUtilization
 
   myLoadBalancer:
-    # DependsOn:
-      # - GatewayToInternet
-      # - myInternetGateway
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      # IpAddressType: String
-      # LoadBalancerAttributes:
-      #   - LoadBalancerAttribute
       Name: myLoadBalancer
       SecurityGroups:
         - !ImportValue LoadBalancerSecurityGroup
@@ -83,13 +72,7 @@ Resources:
 
   myLoadBalancerSite:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    # DependsOn:
-      # - GatewayToInternet
-      # - myInternetGateway
     Properties:
-      # IpAddressType: String
-      # LoadBalancerAttributes:
-      #   - LoadBalancerAttribute
       Name: myLoadBalancerSite
       SecurityGroups:
         - !ImportValue LoadBalancerSecurityGroup
@@ -98,14 +81,14 @@ Resources:
         - !ImportValue mySubnet2
 
   myListener:
-      Type: AWS::ElasticLoadBalancingV2::Listener
-      Properties:
-          LoadBalancerArn: !Ref myLoadBalancer
-          Port: 80
-          Protocol: HTTP
-          DefaultActions:
-              - Type: forward
-                TargetGroupArn: !Ref myTargetGroup
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref myLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref myTargetGroup
 
   myTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -121,16 +104,15 @@ Resources:
       TargetType: ip
       VpcId: !ImportValue myVPC
 
-
   myListenerSite:
-      Type: AWS::ElasticLoadBalancingV2::Listener
-      Properties:
-          LoadBalancerArn: !Ref myLoadBalancerSite
-          Port: 80
-          Protocol: HTTP
-          DefaultActions:
-              - Type: forward
-                TargetGroupArn: !Ref myTargetGroupSite
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref myLoadBalancerSite
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref myTargetGroupSite
 
   myTargetGroupSite:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -146,13 +128,11 @@ Resources:
       TargetType: ip
       VpcId: !ImportValue myVPC
 
-# ---------------------------------------------------------------------------
-
   ECSCluster:
     Type: "AWS::ECS::Cluster"
     Properties:
-        ClusterName: "bot-cluster"
-        CapacityProviders:
+      ClusterName: "bot-cluster"
+      CapacityProviders:
         - "FARGATE"
         - "FARGATE_SPOT"
 
@@ -166,7 +146,6 @@ Resources:
       DesiredCount: 1
       TaskDefinition:
         Ref: "ECSTaskDefinition"
-      # LaunchType: EC2
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
@@ -181,10 +160,10 @@ Resources:
           Weight: 1
           Base: 0
       LoadBalancers:
-      - TargetGroupArn:
-          Ref: myTargetGroup
-        ContainerPort: 80
-        ContainerName: bot-container
+        - TargetGroupArn:
+            Ref: myTargetGroup
+          ContainerPort: 80
+          ContainerName: bot-container
 
   ECSServiceSite:
     Type: AWS::ECS::Service
@@ -211,111 +190,63 @@ Resources:
           Weight: 1
           Base: 0
       LoadBalancers:
-      - TargetGroupArn:
-          Ref: myTargetGroupSite
-        ContainerPort: 80
-        ContainerName: site-container
-
-  # myRouteTable:
-  #   Type: AWS::EC2::RouteTable
-  #   Properties:
-  #     VpcId: !ImportValue myVPC
-  #     Tags:
-  #     - Key: stack
-  #       Value: production
-
-  # mySubnetRouteTableAssociation1:
-  #   Type: AWS::EC2::SubnetRouteTableAssociation
-  #   Properties:
-  #     SubnetId: !ImportValue mySubnet1
-  #     RouteTableId:
-  #       Ref: myRouteTable
-
-  # mySubnetRouteTableAssociation2:
-  #   Type: AWS::EC2::SubnetRouteTableAssociation
-  #   Properties:
-  #     SubnetId: !ImportValue mySubnet2
-  #     RouteTableId:
-  #       Ref: myRouteTable
-
-  # myRoute:
-  #   Type: AWS::EC2::Route
-  #   # DependsOn: GatewayToInternet
-  #   Properties:
-  #      RouteTableId:
-  #        Ref: myRouteTable
-  #      DestinationCidrBlock: 0.0.0.0/0
-  #      GatewayId: !ImportValue myInternetGateway
-
-
-
-
-
-
+        - TargetGroupArn:
+            Ref: myTargetGroupSite
+          ContainerPort: 80
+          ContainerName: site-container
 
   ECSTaskDefinition:
-      Type: "AWS::ECS::TaskDefinition"
-      Properties:
-          ContainerDefinitions:
-            -
-              Essential: true
-              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:Latest"
-              LogConfiguration:
-                  LogDriver: "awslogs"
-                  Options:
-                      awslogs-create-group: "true"
-                      awslogs-group: "/ecs/bot-task"
-                      awslogs-region: !Ref AWS::Region
-                      awslogs-stream-prefix: "ecs"
-              Name: "bot-container"
-              PortMappings:
-                -
-                  ContainerPort: 80
-                  # HostPort: 80
-                  # Protocol: "tcp"
-          Family: "bot-task"
-          TaskRoleArn: !ImportValue botDeployTaskRole
-          ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
-          NetworkMode: "awsvpc"
-          RequiresCompatibilities:
-            - "FARGATE"
-          Cpu: "1024"
-          Memory: "3072"
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:Latest"
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: "/ecs/bot-task"
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: "ecs"
+          Name: "bot-container"
+          PortMappings:
+            - ContainerPort: 80
+      Family: "bot-task"
+      TaskRoleArn: !ImportValue botDeployTaskRole
+      ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities:
+        - "FARGATE"
+      Cpu: "1024"
+      Memory: "3072"
 
   ECSTaskDefinitionSite:
-      Type: "AWS::ECS::TaskDefinition"
-      Properties:
-          ContainerDefinitions:
-            -
-              Essential: true
-              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:LatestSite"
-              LogConfiguration:
-                  LogDriver: "awslogs"
-                  Options:
-                      awslogs-create-group: "true"
-                      awslogs-group: "/ecs/bot-task"
-                      awslogs-region: !Ref AWS::Region
-                      awslogs-stream-prefix: "ecs"
-              Name: "site-container"
-              PortMappings:
-                -
-                  ContainerPort: 80
-                  # HostPort: 80
-                  # Protocol: "tcp"
-          Family: "bot-task"
-          TaskRoleArn: !ImportValue botDeployTaskRole
-          ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
-          NetworkMode: "awsvpc"
-          RequiresCompatibilities:
-            - "FARGATE"
-          Cpu: "1024"
-          Memory: "3072"
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:LatestSite"
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: "/ecs/bot-task"
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: "ecs"
+          Name: "site-container"
+          PortMappings:
+            - ContainerPort: 80
+      Family: "bot-task"
+      TaskRoleArn: !ImportValue botDeployTaskRole
+      ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities:
+        - "FARGATE"
+      Cpu: "1024"
+      Memory: "3072"
 
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
-    # DependsOn:
-      # - ECSService
-      # - ECSServiceSite
     Properties:
       Name: BotCodePipeline
       RoleArn: !ImportValue BotPipelineRole
@@ -354,7 +285,6 @@ Resources:
               InputArtifacts:
                 - Name: "SourceArtifact"
               OutputArtifacts:
-                # - Name: "BuildArtifact"
                 - Name: "secondary_artifact_name_1"
                 - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
@@ -373,12 +303,9 @@ Resources:
                 ServiceName: bot-service #!GetAtt ECSService.Name
               InputArtifacts:
                 - Name: "secondary_artifact_name_1"
-                # - Name: "BuildArtifact"
               Region: !Ref AWS::Region
               Namespace: "DeployVariables"
               RunOrder: 1
-        # - Name: "DeploySite"
-        #   Actions:
             - Name: "DeployMySite"
               ActionTypeId:
                 Category: "Deploy"
@@ -390,7 +317,6 @@ Resources:
                 ServiceName: site-service #!GetAtt ECSService.Name
               InputArtifacts:
                 - Name: "secondary_artifact_name_2"
-                # - Name: "BuildArtifact"
               Region: !Ref AWS::Region
               Namespace: "DeployVariablesSite"
               RunOrder: 1
@@ -426,43 +352,18 @@ Resources:
           EncryptionDisabled: false
       Visibility: "PRIVATE"
 
-
-  # myLogGroup:
-  #   Type: AWS::Logs::LogGroup
-  #   Properties:
-  #     LogGroupName: "/ecs/bot-task"
-  #     RetentionInDays: 7
-
-# -----------------QUEUE-----------------------------
-
-  # MyQueue:
-  #   Properties:
-  #     QueueName: MyQueue.fifo
-  #     FifoQueue: true
-  #     ContentBasedDeduplication: true
-  #   Type: 'AWS::SQS::Queue'
-
   myDNSRecord:
     Type: AWS::Route53::RecordSet
-    # DependsOn: HostedZoneResource
     Properties:
-      #HostedZoneName: 'renzen.io'
-      HostedZoneId: Z07096223ERVZ2460AEFE  # FROM CONSOLE
-      # HostedZoneId: !Ref 'HostedZoneResource'
+      HostedZoneId: Z07096223ERVZ2460AEFE # FROM CONSOLE
       Comment: DNS name for my instance.
-      Name: 'api.renzen.io'
-      # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
+      Name: "api.renzen.io"
       Type: A
-      # TTL: 60
       AliasTarget:
         DNSName: !GetAtt myLoadBalancerSite.DNSName
-        # HostedZoneId: !Ref 'HostedZoneResource'
         HostedZoneId: !GetAtt myLoadBalancerSite.CanonicalHostedZoneID
-      # ResourceRecords:
-      # - !GetAtt myLoadBalancer.PublicIp
 
 Outputs:
-
   myLoadBalancerDNSName:
     Value: !GetAtt myLoadBalancer.DNSName
     Export:
@@ -472,27 +373,3 @@ Outputs:
     Value: !GetAtt myLoadBalancer.CanonicalHostedZoneID
     Export:
       Name: myLoadBalancerCanonicalHostedZoneID
-
-
-# # -----------------QUEUE-----------------------------
-
-#   MyQueue:
-#     Properties:
-#       QueueName: MyQueue.fifo
-#       FifoQueue: true
-#       ContentBasedDeduplication: true
-#     Type: 'AWS::SQS::Queue'
-# Outputs:
-  # QueueName:
-  #   Description: The name of the queue
-  #   Value: !GetAtt
-  #     - MyQueue
-  #     - QueueName
-  # QueueURL:
-  #   Description: The URL of the queue
-  #   Value: !Ref MyQueue
-  # QueueARN:
-  #   Description: The ARN of the queue
-  #   Value: !GetAtt
-  #     - MyQueue
-  #     - Arn
