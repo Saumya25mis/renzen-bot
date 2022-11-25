@@ -18,7 +18,7 @@ async def handle(request):  # pylint:disable=unused-argument
 async def forward(request):  # pylint:disable=unused-argument
     """forward check response."""
     request_id = str(uuid.uuid4())
-    send_message(message={"request_content": request_id})
+    send_message(message={"request_content": request.text()})
     # send_message(message = {"request_content": request.text()})
     response_obj = {"status": f"success forward {request_id}"}
     return web.Response(text=json.dumps(response_obj))
@@ -45,5 +45,6 @@ def send_message(message):
 app = web.Application()
 app.router.add_get("/", handle)
 app.router.add_get("/forward", forward)
+app.router.add_route("POST","/forward", forward)
 
 web.run_app(app, port=80, host="0.0.0.0")
