@@ -62,13 +62,19 @@ class MyCog(commands.Cog):
                 print(f"{temp_user.name} was found!")
 
                 print(message.body)
-                await temp_user.send(message.body)
+                await send_formatted_discord_message(temp_user, request_content)
+                # await temp_user.send(message.body)
                 message.delete()
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 print(f"Could not deliver message. Will not retry {e}")
                 print(f"{message.body=}")
                 message.delete()
+
+
+async def send_formatted_discord_message(temp_user, request_content):
+    """Sends message formatted."""
+    await temp_user.send(f"{request_content['snippet']} \n {request_content['URL']}")
 
 
 @my_bot.command()
