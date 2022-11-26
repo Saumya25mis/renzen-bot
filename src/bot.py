@@ -33,9 +33,7 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 async def tree_code(interaction: discord.Interaction):
     """Slash command to get chrome extension code."""
     await interaction.channel.send("code command ack")
-    key = db_utils.create_code_key(
-        interaction.author.id, interaction.author.display_name
-    )
+    key = db_utils.create_code_key(interaction.user.id, interaction.user.display_name)
     await interaction.channel.send(f"Your key is: {key}")
     return
 
