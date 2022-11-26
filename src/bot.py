@@ -30,11 +30,20 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
 
 @my_bot.tree.command()
-async def tree_code(interaction: discord.Interaction):
+async def get_code(interaction: discord.Interaction):
     """Slash command to get chrome extension code."""
     await interaction.channel.send("code command ack")
     key = db_utils.create_code_key(interaction.user.id, interaction.user.display_name)
     await interaction.channel.send(f"Your key is: {key}")
+    return
+
+
+@my_bot.tree.command()
+async def invalidate_codes(interaction: discord.Interaction):
+    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    await interaction.channel.send("invalidate_codes command ack")
+    db_utils.invalidate_codes(interaction.user.id)
+    await interaction.channel.send("All codes have been invalidated")
     return
 
 
@@ -93,24 +102,6 @@ class MyCog(commands.Cog):
 async def send_formatted_discord_message(temp_user, request_content):
     """Sends message formatted."""
     await temp_user.send(f"{request_content['snippet']} \n {request_content['URL']}")
-
-
-# @my_bot.command()
-# async def code(ctx, arg):
-#     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-#     await ctx.channel.send("code command ack")
-#     key = db_utils.create_code_key(ctx.author.id, ctx.author.display_name)
-#     await ctx.channel.send(f"Your key is: {key}")
-#     return
-
-
-@my_bot.command()
-async def invalidate_codes(ctx, arg):
-    """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await ctx.channel.send("invalidate_codes command ack")
-    db_utils.invalidate_codes(ctx.author.id)
-    await ctx.channel.send("All codes have been invalidated")
-    return
 
 
 @my_bot.event
