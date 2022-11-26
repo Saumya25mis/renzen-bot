@@ -6,6 +6,8 @@ import uuid
 import boto3
 from aiohttp import web
 
+from src import db_utils
+
 
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
@@ -30,6 +32,17 @@ async def forward(request):  # pylint:disable=unused-argument
     return web.Response(text=json.dumps(response_obj))
 
 
+async def check_valid_code(request):
+    """Used by chrome extension to check if user can login with code."""
+
+    request_text = await request.text()
+    result = db_utils.query_db_by_code(str(request_text))
+
+    if result:
+        return web.Response(text="valid")
+    return web.Response(text="invalid")
+
+
 def get_queue_url():
     """Get Queue Url."""
     response = sqs_client.get_queue_url(
@@ -52,5 +65,6 @@ app = web.Application()
 app.router.add_get("/", handle)
 app.router.add_get("/forward", forward)
 app.router.add_route("POST", "/forward", forward)
+app.router.add_route("GET", "/valid_code", check_valid_code)
 
 web.run_app(app, port=80, host="0.0.0.0")

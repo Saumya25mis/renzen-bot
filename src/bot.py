@@ -1,4 +1,4 @@
-# pylint: disable=import-error, no-member
+# pylint: disable=import-error, no-member, unused-argument
 """Discord Bot."""
 
 import json
@@ -78,10 +78,21 @@ async def send_formatted_discord_message(temp_user, request_content):
 
 
 @my_bot.command()
-async def test(ctx, arg):
+async def code(ctx, arg):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await ctx.send("Received test command.")
-    await ctx.send(arg)
+    await ctx.channel.send("code command ack")
+    key = db_utils.create_code_key(ctx.author.id, ctx.author.display_name)
+    await ctx.channel.send(f"Your key is: {key}")
+    return
+
+
+@my_bot.command()
+async def invalidate_codes(ctx, arg):
+    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    await ctx.channel.send("invalidate_codes command ack")
+    db_utils.invalidate_codes(ctx.author.id)
+    await ctx.channel.send("All codes have been invalidated")
+    return
 
 
 @my_bot.event
@@ -90,16 +101,8 @@ async def on_message(message: discord.Message):
     if message.author == my_bot.user:
         return
 
-    if message.content == "code":
-        # create a code and associate it with the user id
-        # this code can be used to subscribe in chrome extension
-        await message.channel.send("code command ack")
-        key = db_utils.create_code_key(message.author.id)
-        await message.channel.send(f"Your key is: {key}")
-        return
-
     # temp debug ack
-    await message.channel.send("hazel is amazing!!!")
+    await message.channel.send("on_message ack")
 
     # process commands
     await my_bot.process_commands(message)
