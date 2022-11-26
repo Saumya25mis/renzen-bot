@@ -19,8 +19,12 @@ async def handle(request):  # pylint:disable=unused-argument
 async def forward(request):  # pylint:disable=unused-argument
     """forward check response."""
     request_id = str(uuid.uuid4())
+
     print(f"Received request to forward: {request_id}")
+
     request_text = await request.text()
+    print(f"{request_text=}")
+
     send_message(message={"request_content": request_text})
     response_obj = {"status": f"success forward {request_id}"}
     return web.Response(text=json.dumps(response_obj))
@@ -41,7 +45,7 @@ def send_message(message):
         MessageBody=json.dumps(message),
         MessageGroupId="MyTestId",
     )
-    print(response)
+    print(f"{response=}")
 
 
 app = web.Application()

@@ -11,4 +11,4 @@ RUN pip3 install --no-cache-dir -r src/requirements.txt
 RUN pip3 install -e .
 
 ENV PYTHONUNBUFFERED=1
-ENTRYPOINT [ "python3", "src/flask_test.py" ]
+ENTRYPOINT [ "python3", "src/site.py" ]

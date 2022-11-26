@@ -33,20 +33,10 @@ class MyCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.batch_update.start()
-        self.log_user = bot.get_user(273685734483820554)
 
     async def cog_unload(self):
         """Unload cog."""
         self.batch_update.cancel()
-
-    def log_d(self, msg):
-        """Send log info to discord."""
-        print(msg)
-        if not self.log_user:
-            self.log_user = self.bot.get_user(273685734483820554)
-
-        if self.log_user:
-            self.log_user.send(msg)
 
     @tasks.loop(seconds=2)
     async def batch_update(self):
@@ -76,8 +66,8 @@ class MyCog(commands.Cog):
                 message.delete()
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
-                self.log_d(f"Could not deliver message. Will not retry {e}")
-                self.log_d(message.body)
+                print(f"Could not deliver message. Will not retry {e}")
+                print(f"{message.body=}")
                 message.delete()
 
 
