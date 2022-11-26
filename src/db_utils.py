@@ -25,7 +25,7 @@ cur.execute(
         code_id serial PRIMARY KEY,
         code varchar(255) UNIQUE,
         discord_user_id BIGINT NOT NULL,
-        discord_user_name varchar(255)) NOT NULL"""
+        discord_user_name varchar(255))"""
 )
 
 
