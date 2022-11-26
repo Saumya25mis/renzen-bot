@@ -5,7 +5,8 @@ import json
 import asyncio
 import boto3
 import discord
-from discord import app_commands
+
+# from discord import app_commands
 
 
 from discord.ext import commands, tasks
@@ -24,13 +25,11 @@ my_bot = commands.Bot(
     intents=intents,
 )
 
-tree = app_commands.CommandTree(my_bot)
-
 sqs = boto3.resource("sqs", region_name="us-west-1")
 queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
 
-@tree.command()
+@my_bot.tree.command()
 async def tree_code(interaction: discord.Interaction):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
     await interaction.channel.send("code command ack")
@@ -44,7 +43,7 @@ async def tree_code(interaction: discord.Interaction):
 @my_bot.event
 async def on_ready():
     """Sync slash tree"""
-    await tree.sync()
+    await my_bot.tree.sync()
     print("Commands Synced!!")
 
 
