@@ -1,5 +1,5 @@
 # pylint: disable=import-error
-"""Expose endpoint for flask server"""
+"""Expose endpoint for aiohttp server"""
 
 import json
 import uuid
