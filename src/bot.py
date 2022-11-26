@@ -31,7 +31,7 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
 @my_bot.tree.command()
 async def tree_code(interaction: discord.Interaction):
-    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    """Slash command to get chrome extension code."""
     await interaction.channel.send("code command ack")
     key = db_utils.create_code_key(
         interaction.author.id, interaction.author.display_name
@@ -97,13 +97,13 @@ async def send_formatted_discord_message(temp_user, request_content):
     await temp_user.send(f"{request_content['snippet']} \n {request_content['URL']}")
 
 
-@my_bot.command()
-async def code(ctx, arg):
-    """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await ctx.channel.send("code command ack")
-    key = db_utils.create_code_key(ctx.author.id, ctx.author.display_name)
-    await ctx.channel.send(f"Your key is: {key}")
-    return
+# @my_bot.command()
+# async def code(ctx, arg):
+#     """Test command. Prints what follows `!test`. ex: `!test hi`"""
+#     await ctx.channel.send("code command ack")
+#     key = db_utils.create_code_key(ctx.author.id, ctx.author.display_name)
+#     await ctx.channel.send(f"Your key is: {key}")
+#     return
 
 
 @my_bot.command()
