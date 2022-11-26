@@ -1,16 +1,21 @@
 {
     "manifest_version": 3,
     "version": "1.0",
-    "name": "test",
+    "name": "renzen",
     "action": {
         "default_popup": "index.html"
     },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+      },
     "permissions": [
         "tabs",
         "notifications",
         "scripting",
         "activeTab",
-        "storage"
+        "storage",
+        "contextMenus"
     ],
     "host_permissions": [
         "http://api.renzen.io/*"
