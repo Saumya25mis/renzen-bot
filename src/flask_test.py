@@ -2,15 +2,10 @@
 """Expose endpoint for flask server"""
 
 import json
-import logging
 import uuid
 import boto3
 from aiohttp import web
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
 
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
@@ -18,15 +13,12 @@ sqs_client = boto3.client("sqs", region_name="us-west-1")
 async def handle(request):  # pylint:disable=unused-argument
     """Health check response."""
     response_obj = {"status": "success"}
-    logger.info("Received request to base")
-    print("Received request to base")
     return web.Response(text=json.dumps(response_obj))
 
 
 async def forward(request):  # pylint:disable=unused-argument
     """forward check response."""
     request_id = str(uuid.uuid4())
-    logger.info("Received request to forward: %s", request_id)
     print(f"Received request to forward: {request_id}")
     request_text = await request.text()
     send_message(message={"request_content": request_text})
@@ -49,7 +41,7 @@ def send_message(message):
         MessageBody=json.dumps(message),
         MessageGroupId="MyTestId",
     )
-    logger.info(response)
+    print(response)
 
 
 app = web.Application()
