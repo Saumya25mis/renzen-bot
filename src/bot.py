@@ -68,7 +68,7 @@ def bold_substring(value: str, substring: str):
         bolded_list.insert(index, bold)
         bolded_list.insert(index + sub_length, bold)
 
-    bolded_string = str(bolded_list)
+    bolded_string = "".join(bolded_list)
 
     # debug
     print(locals())
