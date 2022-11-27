@@ -89,7 +89,7 @@ async def search(
         embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
-        # value = bold_substring(snippet[2], search_for)
+        value = snippet[2]
         embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
