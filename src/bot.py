@@ -51,12 +51,11 @@ async def invalidate_codes(interaction: discord.Interaction):
 @my_bot.tree.command()
 async def search(interaction: discord.Interaction, arg: str):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await interaction.response.send_message("search command ack")
     await interaction.response.send_message(f"{arg=}")
     snippet_matches = db_utils.search_snippets_by_str(arg, interaction.user.id)
+    await interaction.response.followup.send(f"{snippet_matches=}")
     url_matches = db_utils.search_urls_by_str(arg, interaction.user.id)
-    await interaction.response.send_message(f"{snippet_matches=}")
-    await interaction.response.send_message(f"{url_matches=}")
+    await interaction.response.followup.send(f"{url_matches=}")
     return
 
 
