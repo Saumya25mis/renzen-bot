@@ -56,7 +56,9 @@ def bold_substring(value: str, substring: str):
     """Bolds substring while keeping case."""
 
     # get indexes for occurrences case-insensitive
-    res = [i for i in range(len(value)) if value.startswith(substring, i)]
+    l_value = value.lower()
+    l_substring = substring.lower()
+    res = [i for i in range(len(l_value)) if l_value.startswith(l_substring, i)]
 
     sub_length = len(substring)
     bolded_list = list(value)
