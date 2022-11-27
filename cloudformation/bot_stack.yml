@@ -4,25 +4,25 @@ Metadata:
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
-  ECSScalableTarget:
-    Type: AWS::ApplicationAutoScaling::ScalableTarget
-    Properties:
-      MaxCapacity: 1
-      MinCapacity: 1
-      RoleARN:
-        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
-      ServiceNamespace: ecs
-      ScalableDimension: "ecs:service:DesiredCount"
-      ResourceId: !Join
-        - /
-        - - service
-          - !Ref ECSCluster
-          - !GetAtt ECSService.Name
+#   ECSScalableTarget:
+#     Type: AWS::ApplicationAutoScaling::ScalableTarget
+#     Properties:
+#       MaxCapacity: 1
+#       MinCapacity: 1
+#       RoleARN:
+#         Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+#       ServiceNamespace: ecs
+#       ScalableDimension: "ecs:service:DesiredCount"
+#       ResourceId: !Join
+#         - /
+#         - - service
+#           - !Ref ECSCluster
+#           - !GetAtt ECSService.Name
 
   ECSScalableTargetSite:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 6
+      MaxCapacity: 3
       MinCapacity: 1
       RoleARN:
         Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
@@ -34,41 +34,41 @@ Resources:
           - !Ref ECSCluster
           - !GetAtt ECSServiceSite.Name
 
-  ServiceScalingPolicyCPU:
-    Type: AWS::ApplicationAutoScaling::ScalingPolicy
-    Properties:
-      PolicyName: !Sub ${AWS::StackName}-target-tracking-cpu70
-      PolicyType: TargetTrackingScaling
-      ScalingTargetId: !Ref ECSScalableTarget
-      TargetTrackingScalingPolicyConfiguration:
-        TargetValue: 70.0
-        ScaleInCooldown: 180
-        ScaleOutCooldown: 60
-        PredefinedMetricSpecification:
-          PredefinedMetricType: ECSServiceAverageCPUUtilization
+  # ServiceScalingPolicyCPU:
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   Properties:
+  #     PolicyName: !Sub ${AWS::StackName}-target-tracking-cpu70
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref ECSScalableTarget
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       TargetValue: 70.0
+  #       ScaleInCooldown: 180
+  #       ScaleOutCooldown: 60
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageCPUUtilization
 
-  ServiceScalingPolicyMem:
-    Type: AWS::ApplicationAutoScaling::ScalingPolicy
-    Properties:
-      PolicyName: !Sub ${AWS::StackName}-target-tracking-mem90
-      PolicyType: TargetTrackingScaling
-      ScalingTargetId: !Ref ECSScalableTarget
-      TargetTrackingScalingPolicyConfiguration:
-        TargetValue: 90.0
-        ScaleInCooldown: 180
-        ScaleOutCooldown: 60
-        PredefinedMetricSpecification:
-          PredefinedMetricType: ECSServiceAverageMemoryUtilization
+  # ServiceScalingPolicyMem:
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   Properties:
+  #     PolicyName: !Sub ${AWS::StackName}-target-tracking-mem90
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref ECSScalableTarget
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       TargetValue: 90.0
+  #       ScaleInCooldown: 180
+  #       ScaleOutCooldown: 60
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageMemoryUtilization
 
-  myLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: myLoadBalancer
-      SecurityGroups:
-        - !ImportValue LoadBalancerSecurityGroup
-      Subnets:
-        - !ImportValue mySubnet1
-        - !ImportValue mySubnet2
+  # myLoadBalancer:
+  #   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  #   Properties:
+  #     Name: myLoadBalancer
+  #     SecurityGroups:
+  #       - !ImportValue LoadBalancerSecurityGroup
+  #     Subnets:
+  #       - !ImportValue mySubnet1
+  #       - !ImportValue mySubnet2
 
   myLoadBalancerSite:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -80,29 +80,29 @@ Resources:
         - !ImportValue mySubnet1
         - !ImportValue mySubnet2
 
-  myListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref myLoadBalancer
-      Port: 80
-      Protocol: HTTP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref myTargetGroup
+  # myListener:
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  #   Properties:
+  #     LoadBalancerArn: !Ref myLoadBalancer
+  #     Port: 80
+  #     Protocol: HTTP
+  #     DefaultActions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref myTargetGroup
 
-  myTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckEnabled: true
-      HealthCheckPort: 80
-      HealthCheckTimeoutSeconds: 10
-      HealthCheckIntervalSeconds: 15
-      HealthyThresholdCount: 2
-      Name: myTargetGroup
-      Port: 80
-      Protocol: HTTP
-      TargetType: ip
-      VpcId: !ImportValue myVPC
+  # myTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     HealthCheckEnabled: true
+  #     HealthCheckPort: 80
+  #     HealthCheckTimeoutSeconds: 10
+  #     HealthCheckIntervalSeconds: 15
+  #     HealthyThresholdCount: 2
+  #     Name: myTargetGroup
+  #     Port: 80
+  #     Protocol: HTTP
+  #     TargetType: ip
+  #     VpcId: !ImportValue myVPC
 
   myListenerSite:
     Type: AWS::ElasticLoadBalancingV2::Listener

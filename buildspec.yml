@@ -13,6 +13,8 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo attempt to stop service
+      - update-service --service bot-service -- cluster bot-cluster --desired-count 0
   build:
     commands:
       - echo Build started on `date`
@@ -40,6 +42,7 @@ phases:
       - cd site
       - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
+      - update-service --service bot-service -- cluster bot-cluster --desired-count 1
       # - printf '[{"name":"bot-container","imageUri":"%s"}, {"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
 artifacts:
     # files: imagedefinitions.json
