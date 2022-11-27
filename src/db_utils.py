@@ -80,7 +80,7 @@ def create_code(discord_user_id, discord_user_name) -> str:
     code = str(uuid.uuid4())  # create new code
 
     # add new code to login_codes table
-    sql = """INSERT INTO login_codes (discord_user_id, code) VALUES (%s, %s, %s)"""
+    sql = """INSERT INTO login_codes (discord_user_id, code) VALUES (%s, %s)"""
     cur.execute(sql, (discord_user_id, code))
 
     return code  # return code to be sent to user
