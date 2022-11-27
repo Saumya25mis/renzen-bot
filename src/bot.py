@@ -75,6 +75,8 @@ async def search(
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
 
+    print(snippet_matches)
+
     embed = discord.Embed(
         title="Search Results",
         description=f"Results for '{search_for}'",
@@ -87,7 +89,7 @@ async def search(
         embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
-        value = bold_substring(snippet[2], search_for)
+        # value = bold_substring(snippet[2], search_for)
         embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
