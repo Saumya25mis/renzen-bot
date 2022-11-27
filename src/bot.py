@@ -48,7 +48,7 @@ async def invalidate_codes(interaction: discord.Interaction):
 
 
 @my_bot.tree.command()
-async def search(interaction: discord.Interaction, arg):
+async def search(interaction: discord.Interaction, arg: str):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
     await interaction.response.send_message("search command ack")
     await interaction.response.send_message(f"{arg=}")
