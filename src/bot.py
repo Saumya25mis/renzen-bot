@@ -7,6 +7,10 @@ from urllib.parse import urlparse
 import boto3
 import discord
 
+# import os
+
+# import requests
+
 # from discord import app_commands
 
 
@@ -28,6 +32,12 @@ my_bot = commands.Bot(
 
 sqs = boto3.resource("sqs", region_name="us-west-1")
 queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
+
+# ECS_CONTAINER_METADATA_URI_V4 = os.environ.get("ECS_CONTAINER_METADATA_URI_V4")
+
+
+# def get_container_metadata():
+#     res = requests.get(f"{ECS_CONTAINER_METADATA_URI_V4}/task").json()
 
 
 @my_bot.tree.command()
