@@ -138,7 +138,7 @@ Resources:
 
   ECSService:
     Type: AWS::ECS::Service
-    DependsOn: myListener
+    # DependsOn: myListener
     Properties:
       ServiceName: "bot-service"
       Cluster:
@@ -159,11 +159,11 @@ Resources:
         - CapacityProvider: "FARGATE"
           Weight: 1
           Base: 0
-      LoadBalancers:
-        - TargetGroupArn:
-            Ref: myTargetGroup
-          ContainerPort: 80
-          ContainerName: bot-container
+      # LoadBalancers:
+      #   - TargetGroupArn:
+      #       Ref: myTargetGroup
+      #     ContainerPort: 80
+      #     ContainerName: bot-container
 
   ECSServiceSite:
     Type: AWS::ECS::Service
@@ -363,13 +363,13 @@ Resources:
         DNSName: !GetAtt myLoadBalancerSite.DNSName
         HostedZoneId: !GetAtt myLoadBalancerSite.CanonicalHostedZoneID
 
-Outputs:
-  myLoadBalancerDNSName:
-    Value: !GetAtt myLoadBalancer.DNSName
-    Export:
-      Name: myLoadBalancerDNSName
+# Outputs:
+  # myLoadBalancerDNSName:
+  #   Value: !GetAtt myLoadBalancer.DNSName
+  #   Export:
+  #     Name: myLoadBalancerDNSName
 
-  myLoadBalancerCanonicalHostedZoneID:
-    Value: !GetAtt myLoadBalancer.CanonicalHostedZoneID
-    Export:
-      Name: myLoadBalancerCanonicalHostedZoneID
+  # myLoadBalancerCanonicalHostedZoneID:
+  #   Value: !GetAtt myLoadBalancer.CanonicalHostedZoneID
+  #   Export:
+  #     Name: myLoadBalancerCanonicalHostedZoneID
