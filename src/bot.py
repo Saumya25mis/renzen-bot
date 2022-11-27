@@ -148,16 +148,20 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
     url = request_content["URL"]
     parsed_url = urlparse(url=url)
 
+    db_id = db_utils.save_snippet_to_db(url, snippet, user_id)
+
     embed = discord.Embed(
         url=url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(name="Saved Content", value=f"***{snippet}***")
-    embed.set_image(url=f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico")
+    embed.add_field(name=f"# {db_id}", value=f"**{snippet}**")
+    image_url = f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico"
+    print(f"{image_url=}")
+    embed.set_image(url=image_url)
+    embed.set_thumbnail(url=image_url)
     embed.set_footer(text=url)
 
     await temp_user.send(embed=embed)
-    db_utils.save_snippet_to_db(url, snippet, user_id)
 
 
 @my_bot.event

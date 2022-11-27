@@ -154,3 +154,5 @@ def save_snippet_to_db(url, snippet, discord_user_id):
                 (url, snippet, discord_user_id) VALUES (%s, %s, %s)
             """
     cur.execute(sql, (url, snippet, discord_user_id))
+
+    return cur.lastrowid
