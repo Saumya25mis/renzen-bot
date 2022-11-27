@@ -107,7 +107,9 @@ class MyCog(commands.Cog):
                 print(f"{temp_user.name} was found!")
 
                 print(message.body)
-                await send_formatted_discord_message(temp_user, request_content)
+                await send_formatted_discord_message(
+                    temp_user, request_content, user_id
+                )
                 # await temp_user.send(message.body)
                 # message.delete()
 
@@ -118,9 +120,12 @@ class MyCog(commands.Cog):
             message.delete()
 
 
-async def send_formatted_discord_message(temp_user, request_content):
+async def send_formatted_discord_message(temp_user, request_content, user_id):
     """Sends message formatted."""
-    await temp_user.send(f"{request_content['snippet']} \n {request_content['URL']}")
+    snippet = request_content["snippet"]
+    url = request_content["URL"]
+    await temp_user.send(f"{snippet} \n {url}")
+    db_utils.save_snippet_to_db(url, snippet, user_id)
 
 
 @my_bot.event
