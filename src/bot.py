@@ -89,13 +89,17 @@ async def search(
     )
     embed.set_author(name="renzen")
 
+    snippets_found = []
+
     for snippet in snippet_matches:
+        snippets_found.append(snippet[0])
         value = bold_substring(snippet[2], search_for)
         embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
-        value = snippet[2]
-        embed.add_field(name=snippet[1], value=value)
+        if not snippet[0] in snippets_found:
+            value = snippet[2]
+            embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
 
