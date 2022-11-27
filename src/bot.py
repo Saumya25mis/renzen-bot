@@ -152,8 +152,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
     )
 
     # embed.set_author(name="renzen")
-    embed.add_field(value=url, name=snippet, inline=True)
-    embed.add_field(value=url, name=snippet, inline=False)
+    embed.add_field(name=snippet, value=url)
 
     await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
