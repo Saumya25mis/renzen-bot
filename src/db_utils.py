@@ -123,7 +123,7 @@ def search_urls_by_str(search_string, discord_user_id):
 
     sql = """SELECT *
             FROM snippets
-            WHERE url LIKE %(search_string)s
+            WHERE url ILIKE %(search_string)s
             AND  discord_user_id =%(discord_user_id)s
         """
 
@@ -139,7 +139,7 @@ def search_snippets_by_str(search_string, discord_user_id):
 
     sql = """SELECT *
             FROM snippets
-            WHERE snippet LIKE %(search_string)s
+            WHERE snippet ILIKE %(search_string)s
             AND  discord_user_id =%(discord_user_id)s
         """
 
