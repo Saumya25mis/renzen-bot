@@ -19,7 +19,6 @@ conn.autocommit = True
 
 cur = conn.cursor()
 
-# timestamp: creation_timestamp timestamp NOT NULL DEFAULT NOW()
 
 # create user table if it does not exist.
 cur.execute(
@@ -36,6 +35,7 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS login_codes (
         code varchar(255) UNIQUE,
         discord_user_id BIGINT,
+        creation_timestamp timestamp NOT NULL DEFAULT NOW(),
         CONSTRAINT fk_login_codes_discord_user_info
             FOREIGN KEY (discord_user_id)
                 REFERENCES discord_user_info(discord_user_id)
@@ -51,6 +51,7 @@ cur.execute(
         url TEXT,
         snippet TEXT,
         discord_user_id BIGINT,
+        creation_timestamp timestamp NOT NULL DEFAULT NOW(),
         CONSTRAINT fk_snippets_discord_user_info
             FOREIGN KEY (discord_user_id)
                 REFERENCES discord_user_info(discord_user_id)
