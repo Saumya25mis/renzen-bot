@@ -150,7 +150,7 @@ def search_snippets_by_str(search_string, discord_user_id):
 def save_snippet_to_db(url, snippet, discord_user_id):
     """Saves snippet to db."""
 
-    sql = """INSERT INTO snippet
+    sql = """INSERT INTO snippets
                 (url, snippet, discord_user_id) VALUES (%s, %s, %s)
             """
     cur.execute(sql, (url, snippet, discord_user_id))

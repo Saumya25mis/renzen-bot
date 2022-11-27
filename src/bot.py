@@ -46,7 +46,16 @@ async def invalidate_codes(interaction: discord.Interaction):
 
 
 @my_bot.tree.command()
-async def search(interaction: discord.Interaction, search_for: str):
+async def erase_sinppets(interaction: discord.Interaction):
+    """Erases saved content from database (will not be able to search past content)."""
+    await interaction.response.send_message("Not yet implemented.")
+
+
+@my_bot.tree.command()
+async def search(
+    interaction: discord.Interaction,
+    search_for: str,
+):
     """Searches saved urls and content"""
     await interaction.response.send_message("Searching...")
 
