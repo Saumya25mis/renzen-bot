@@ -60,10 +60,14 @@ async def search(
     await interaction.response.send_message("Searching...")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
-    await interaction.followup.send(f"{snippet_matches=}")
+
+    for snippet in snippet_matches:
+        await interaction.followup.send(f"- {snippet[1]}\n \t{snippet[2]}")
 
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
-    await interaction.followup.send(f"{url_matches=}")
+
+    for snippet in url_matches:
+        await interaction.followup.send(f"- {snippet[1]}\n \t{snippet[2]}")
 
     return
 
