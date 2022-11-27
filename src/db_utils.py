@@ -19,6 +19,7 @@ conn.autocommit = True
 
 cur = conn.cursor()
 
+# timestamp: creation_timestamp timestamp NOT NULL DEFAULT NOW()
 
 # create user table if it does not exist.
 cur.execute(
@@ -156,4 +157,6 @@ def save_snippet_to_db(url, snippet, discord_user_id):
             """
     cur.execute(sql, (url, snippet, discord_user_id))
 
-    return cur.lastrowid
+    last_row_id = cur.fetchone()[0]
+
+    return last_row_id
