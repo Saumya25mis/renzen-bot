@@ -107,7 +107,9 @@ class MyCog(commands.Cog):
                 message.delete()
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
-                print(f"Could not deliver message. Will not retry {e}")
+                print(
+                    f"Could not deliver message. Will not retry\n{e.with_traceback()}"
+                )
                 print(f"{message.body=}")
                 message.delete()
 
