@@ -93,10 +93,16 @@ class MyCog(commands.Cog):
                 user_id = db_utils.query_db_by_code(request_content["login-code"])
                 print(f"{user_id=}")
 
+                if not user_id:
+                    print("NO USER FOUND TO MATCH CODE")
+                    message.delete()
+                    continue
+
                 temp_user = self.bot.get_user(user_id)
 
                 if temp_user is None:
                     print(f"USER {user_id} NOT FOUND")
+                    message.delete()
                     continue
 
                 print(f"{temp_user.name} was found!")
@@ -104,12 +110,13 @@ class MyCog(commands.Cog):
                 print(message.body)
                 await send_formatted_discord_message(temp_user, request_content)
                 # await temp_user.send(message.body)
-                message.delete()
+                # message.delete()
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 print(f"Could not deliver message. Will not retry\n{e}")
                 print(f"{message.body=}")
-                message.delete()
+
+            message.delete()
 
 
 async def send_formatted_discord_message(temp_user, request_content):

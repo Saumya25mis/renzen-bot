@@ -97,10 +97,10 @@ def query_db_by_code(code):
         {"value": code},
     )
 
-    response = cur.fetchone()[0]
-    print(f"{response=}")
-
-    return response
+    fetched = cur.fetchone()
+    if fetched:
+        return fetched[0]
+    return None
 
 
 def invalidate_codes(discord_user_id) -> None:
