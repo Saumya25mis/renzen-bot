@@ -68,16 +68,11 @@ async def search(
     )
     embed.set_author(name="renzen")
 
-    # response = "Snippet matches:\n"
-
     for snippet in snippet_matches:
         embed.add_field(name=snippet[1], value=snippet[2])
-        # response = f"{response}- {snippet[1]}\n{snippet[2]}"
 
-    # response = f'{response}\n\nURL matches:\n'
     for snippet in url_matches:
         embed.add_field(name=snippet[1], value=snippet[2])
-        # response = f"{response}- {snippet[1]}\n{snippet[2]}"
 
     await interaction.response.send_message(embed=embed)
 
@@ -147,9 +142,20 @@ class MyCog(commands.Cog):
 
 async def send_formatted_discord_message(temp_user, request_content, user_id):
     """Sends message formatted."""
+
     snippet = request_content["snippet"]
     url = request_content["URL"]
-    await temp_user.send(f"{snippet} \n {url}")
+
+    embed = discord.Embed(
+        title=url,
+        colour=discord.Colour.random(),
+    )
+
+    embed.set_author(name="renzen")
+
+    embed.add_field(name=url, value=snippet)
+
+    await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
 
 
