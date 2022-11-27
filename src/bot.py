@@ -31,7 +31,7 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
 @my_bot.tree.command()
 async def get_code(interaction: discord.Interaction):
-    """Slash command to get chrome extension code."""
+    """Creates code used to sign into chrome extension to save content to discord."""
     key = db_utils.create_code(interaction.user.id, interaction.user.display_name)
     await interaction.response.send_message(f"Your key is: {key}")
     return
@@ -39,7 +39,7 @@ async def get_code(interaction: discord.Interaction):
 
 @my_bot.tree.command()
 async def invalidate_codes(interaction: discord.Interaction):
-    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    """Invalidates previously created codes."""
     db_utils.invalidate_codes(interaction.user.id)
     await interaction.response.send_message("All codes have been invalidated")
     return
@@ -47,7 +47,9 @@ async def invalidate_codes(interaction: discord.Interaction):
 
 @my_bot.tree.command()
 async def search(interaction: discord.Interaction, search_for: str):
-    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    """Searches saved urls and content"""
+    await interaction.response.send_message("Searching...")
+
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     await interaction.followup.send(f"{snippet_matches=}")
 
