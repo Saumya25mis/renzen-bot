@@ -152,8 +152,9 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
         url=url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(name=snippet, value=snippet)
+    embed.add_field(name="Saved Content", value=f"***{snippet}***")
     embed.set_image(url=f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico")
+    embed.set_footer(text=url)
 
     await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
