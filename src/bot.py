@@ -155,7 +155,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
     # embed.set_author(name="renzen")
     embed.add_field(name=snippet, value=url)
-    embed.set_thumbnail(url=f"{parsed_url.netloc}/favicon.ico")
+    embed.set_thumbnail(url=f"{parsed_url.scheme}//{parsed_url.netloc}/favicon.ico")
 
     await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
