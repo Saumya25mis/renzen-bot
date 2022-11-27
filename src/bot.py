@@ -32,18 +32,30 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 @my_bot.tree.command()
 async def get_code(interaction: discord.Interaction):
     """Slash command to get chrome extension code."""
-    await interaction.channel.send("code command ack")
-    key = db_utils.create_code_key(interaction.user.id, interaction.user.display_name)
-    await interaction.channel.send(f"Your key is: {key}")
+    await interaction.response.send_message("code command ack")
+    key = db_utils.create_code(interaction.user.id, interaction.user.display_name)
+    await interaction.response.send_message(f"Your key is: {key}")
     return
 
 
 @my_bot.tree.command()
 async def invalidate_codes(interaction: discord.Interaction):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await interaction.channel.send("invalidate_codes command ack")
+    await interaction.response.send_messaged("invalidate_codes command ack")
     db_utils.invalidate_codes(interaction.user.id)
-    await interaction.channel.send("All codes have been invalidated")
+    await interaction.response.send_message("All codes have been invalidated")
+    return
+
+
+@my_bot.tree.command()
+async def search(interaction: discord.Interaction, arg):
+    """Test command. Prints what follows `!test`. ex: `!test hi`"""
+    await interaction.response.send_message("search command ack")
+    await interaction.response.send_message(f"{arg=}")
+    snippet_matches = db_utils.search_snippets_by_str(arg, interaction.user.id)
+    url_matches = db_utils.search_urls_by_str(arg, interaction.user.id)
+    await interaction.response.send_message(f"{snippet_matches=}")
+    await interaction.response.send_message(f"{url_matches=}")
     return
 
 
