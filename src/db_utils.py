@@ -152,6 +152,7 @@ def save_snippet_to_db(url, snippet, discord_user_id):
 
     sql = """INSERT INTO snippets
                 (url, snippet, discord_user_id) VALUES (%s, %s, %s)
+                RETURNING snippet_id
             """
     cur.execute(sql, (url, snippet, discord_user_id))
 

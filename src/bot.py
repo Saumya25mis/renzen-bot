@@ -77,8 +77,6 @@ async def search(
 
     await interaction.response.send_message(embed=embed)
 
-    return
-
 
 @my_bot.event
 async def on_ready():
@@ -154,11 +152,12 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
         url=url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(name=f"# {db_id}", value=f"**{snippet}**")
-    image_url = f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico"
-    print(f"{image_url=}")
-    embed.set_image(url=image_url)
-    embed.set_thumbnail(url=image_url)
+    embed.add_field(name=f"# {db_id}", value=f"{snippet}")
+    # embed.add_field(name=f"# {db_id}", value=f"\n**{snippet}**")
+    # image_url = f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico"
+    # print(f"{image_url=}")
+    # embed.set_image(url=image_url)
+    # embed.set_thumbnail(url=image_url)
     embed.set_footer(text=url)
 
     await temp_user.send(embed=embed)
