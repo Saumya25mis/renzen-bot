@@ -32,7 +32,7 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 @my_bot.tree.command()
 async def get_code(interaction: discord.Interaction):
     """Slash command to get chrome extension code."""
-    await interaction.followup.send("code command ack")
+    # await interaction.followup.send("code command ack")
     # await interaction.response.send_message("code command ack")
     key = db_utils.create_code(interaction.user.id, interaction.user.display_name)
     await interaction.response.send_message(f"Your key is: {key}")
