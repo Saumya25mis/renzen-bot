@@ -13,17 +13,20 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - echo attempt to stop service
+      # - echo attempt to stop service
       # - aws ecs update-service --service bot-service --cluster bot-cluster --desired-count 0
+      - echo deregistering tasks...
+      - python3 deregister_tasks.py
   build:
     commands:
       - echo Build started on `date`
+
       - echo Building the Docker image bot...
-
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      # Builds using Dockerfile named "Dockerfile" in root as context by default
+      # Name and optionally a tag in the 'name:tag' format
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .  # `-t tag .`
+      # tags built image with registry host name to push to private repository
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-
-      - python3 deregister_tasks.py
 
       - echo Building the Docker image site...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f DockerfileSite .
@@ -31,10 +34,13 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
+
       - echo Pushing the Docker image bot...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
       - echo Pushing the Docker image site...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
+
       - echo Writing image definitions file...
       - mkdir bot
       - cd bot
