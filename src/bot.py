@@ -3,6 +3,7 @@
 
 import json
 import asyncio
+from urllib.parse import urlparse
 import boto3
 import discord
 
@@ -145,6 +146,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
     snippet = request_content["snippet"]
     url = request_content["URL"]
+    parsed_url = urlparse(url=url)
 
     embed = discord.Embed(
         # title=url,
@@ -153,6 +155,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
     # embed.set_author(name="renzen")
     embed.add_field(name=snippet, value=url)
+    embed.set_thumbnail(url=f"{parsed_url}/favicon.ico")
 
     await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
