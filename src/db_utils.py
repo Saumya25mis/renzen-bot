@@ -24,7 +24,7 @@ cur = conn.cursor()
 cur.execute(
     """CREATE TABLE IF NOT EXISTS discord_user_info (
         discord_user_id BIGINT PRIMARY KEY,
-        discord_user_name varchar(255),
+        discord_user_name varchar(255)
     )
     """
 )
