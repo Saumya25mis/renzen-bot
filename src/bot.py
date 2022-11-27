@@ -52,6 +52,19 @@ async def erase_sinppets(interaction: discord.Interaction):
     await interaction.response.send_message("Not yet implemented.")
 
 
+def bold_substring(value: str, substring: str):
+    """Bolds substring."""
+
+    start_index = value.find(substring)
+    sub_length = len(substring)
+    end_index = start_index + sub_length
+
+    bolded_string = (
+        f"{value[0:start_index]}**{value[start_index:end_index]}**{value[end_index:]}"
+    )
+    return bolded_string
+
+
 @my_bot.tree.command()
 async def search(
     interaction: discord.Interaction,
@@ -70,10 +83,12 @@ async def search(
     embed.set_author(name="renzen")
 
     for snippet in snippet_matches:
-        embed.add_field(name=snippet[1], value=snippet[2])
+        value = bold_substring(snippet[2], search_for)
+        embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
-        embed.add_field(name=snippet[1], value=snippet[2])
+        value = bold_substring(snippet[2], search_for)
+        embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
 
