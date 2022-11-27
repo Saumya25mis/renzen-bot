@@ -340,7 +340,7 @@ Resources:
             {
                 "Effect": "Allow",
                 "Action": ["ecs:UpdateService","ecs:ListTaskDefinitions", "ecs:DeregisterTaskDefinition"],
-                "Resource": "arn:aws:ecs:*:103443233719:service/*/*"
+                "Resource": "*"
             },
             {
                 "Action": [
