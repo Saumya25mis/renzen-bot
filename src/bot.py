@@ -55,17 +55,23 @@ async def erase_sinppets(interaction: discord.Interaction):
 def bold_substring(value: str, substring: str):
     """Bolds substring while keeping case."""
 
-    # get indexes for occurrences
+    # get indexes for occurrences case-insensitive
     res = [i for i in range(len(value)) if value.startswith(substring, i)]
 
-    bolded_string = ""
     sub_length = len(substring)
+    bolded_list = list(value)
+
+    bold = "**"
 
     # use indexes to insert bold markers and keep case
     for index in res:
-        bolded_string = (
-            f"{value[:index]}**{value[index:sub_length]}**{value[index+sub_length:]}"
-        )
+        bolded_list.insert(index, bold)
+        bolded_list.insert(index + sub_length, bold)
+
+    bolded_string = str(bolded_list)
+
+    # debug
+    print(locals())
 
     return bolded_string
 
