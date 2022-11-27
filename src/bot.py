@@ -55,7 +55,10 @@ async def erase_sinppets(interaction: discord.Interaction):
 def bold_substring(value: str, substring: str):
     """Bolds substring."""
 
-    start_index = value.find(substring)
+    lowered_value = value.lower()
+    lowered_sub = substring.lower()
+
+    start_index = lowered_value.find(lowered_sub)
     sub_length = len(substring)
     end_index = start_index + sub_length
 
@@ -71,6 +74,8 @@ async def search(
     search_for: str,
 ):
     """Searches saved urls and content"""
+
+    print(f"{search=}")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
