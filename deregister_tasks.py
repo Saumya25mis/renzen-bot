@@ -6,7 +6,7 @@ import boto3
 
 client = boto3.client("ecs")
 
-families = ["bot-task"]
+families = ["bot-task", "site-task"]
 
 print("Getting task definitions to deregister.")
 

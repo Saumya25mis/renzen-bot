@@ -237,7 +237,7 @@ Resources:
           Name: "site-container"
           PortMappings:
             - ContainerPort: 80
-      Family: "bot-task"
+      Family: "site-task"
       TaskRoleArn: !ImportValue botDeployTaskRole
       ExecutionRoleArn: !ImportValue botecsTaskExecutionRole
       NetworkMode: "awsvpc"
