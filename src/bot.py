@@ -42,7 +42,7 @@ async def get_code(interaction: discord.Interaction):
 @my_bot.tree.command()
 async def invalidate_codes(interaction: discord.Interaction):
     """Test command. Prints what follows `!test`. ex: `!test hi`"""
-    await interaction.followup.send("invalidate_codes command ack")
+    # await interaction.followup.send("invalidate_codes command ack")
     db_utils.invalidate_codes(interaction.user.id)
     await interaction.response.send_message("All codes have been invalidated")
     return
