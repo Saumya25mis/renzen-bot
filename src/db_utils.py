@@ -34,11 +34,13 @@ cur.execute(
 cur.execute(
     """CREATE TABLE IF NOT EXISTS login_codes (
         code varchar(255) UNIQUE,
-        discord_user_id BIG INT,
+        discord_user_id BIGINT,
         CONSTRAINT fk_login_codes_discord_user_info
             FOREIGN KEY (discord_user_id)
                 REFERENCES discord_user_info(discord_user_id)
-"""
+                ON DELETE CASCADE
+    )
+    """
 )
 
 # create snippets table if it does not exist.
@@ -47,10 +49,12 @@ cur.execute(
         snippet_id serial PRIMARY KEY,
         url TEXT,
         snippet TEXT,
-        discord_user_id BIG INT,
+        discord_user_id BIGINT,
         CONSTRAINT fk_snippets_discord_user_info
             FOREIGN KEY (discord_user_id)
                 REFERENCES discord_user_info(discord_user_id)
+                ON DELETE CASCADE
+    )
     """
 )
 
