@@ -26,6 +26,12 @@ start-bot:
 		--template-body file://cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
 
+start-pipeline:
+	aws cloudformation create-stack \
+		--stack-name pipeline-stack \
+		--template-body file://cloudformation/pipeline_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
+
 update-bot:
 	aws cloudformation update-stack \
 		--stack-name bot-stack \
@@ -50,8 +56,3 @@ stop-bot:
 
 wipe-configure:
 	aws cloudformation delete-stack --stack-name configure-stack
-
-
-
-start-pipeline:
-	aws codepipeline start-pipeline-execution --name BotCodePipeline
