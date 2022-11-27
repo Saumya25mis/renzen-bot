@@ -147,13 +147,13 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
     url = request_content["URL"]
 
     embed = discord.Embed(
-        title=url,
+        # title=url,
         colour=discord.Colour.random(),
     )
 
-    embed.set_author(name="renzen")
-
-    embed.add_field(name=url, value=snippet)
+    # embed.set_author(name="renzen")
+    embed.add_field(name=url, value=snippet, inline=True)
+    embed.add_field(name=url, value=snippet, inline=False)
 
     await temp_user.send(embed=embed)
     db_utils.save_snippet_to_db(url, snippet, user_id)
