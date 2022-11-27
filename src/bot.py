@@ -68,7 +68,7 @@ def bold_substring(value: str, substring: str):
     # use indexes to insert bold markers and keep case
     for index in res:
         bolded_list.insert(index, bold)
-        bolded_list.insert(index + sub_length, bold)
+        bolded_list.insert(index + sub_length + 1, bold)
 
     bolded_string = "".join(bolded_list)
 
