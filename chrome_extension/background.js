@@ -22,7 +22,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
       let site = "http://api.renzen.io/forward";
 
-      chrome.storage.sync.get(["login-code"], function (login_result) {
+      chrome.storage.local.get(["login-code"], function (login_result) {
         fetch(site, {
           method: "POST",
           headers: {

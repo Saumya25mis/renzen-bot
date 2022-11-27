@@ -14,7 +14,7 @@ document.getElementById("save-btn").onclick = async () => {
 
     let site = "http://api.renzen.io/forward"
 
-    chrome.storage.sync.get(['login-code'], function (login_result) {
+    chrome.storage.local.get(['login-code'], function (login_result) {
       fetch(site, {
         method: 'POST', headers: {
           'Content-Type': 'application/json;charset=utf-8'
