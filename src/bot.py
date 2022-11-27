@@ -57,17 +57,29 @@ async def search(
     search_for: str,
 ):
     """Searches saved urls and content"""
-    await interaction.response.send_message("Searching...")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
-
-    for snippet in snippet_matches:
-        await interaction.followup.send(f"- {snippet[1]}\n \t{snippet[2]}")
-
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
 
+    embed = discord.Embed(
+        title="Search Results",
+        description=f"Results for '{search_for}'",
+        colour=discord.Colour.random(),
+    )
+    embed.set_author(name="renzen")
+
+    # response = "Snippet matches:\n"
+
+    for snippet in snippet_matches:
+        embed.add_field(name=snippet[1], value=snippet[2])
+        # response = f"{response}- {snippet[1]}\n{snippet[2]}"
+
+    # response = f'{response}\n\nURL matches:\n'
     for snippet in url_matches:
-        await interaction.followup.send(f"- {snippet[1]}\n \t{snippet[2]}")
+        embed.add_field(name=snippet[1], value=snippet[2])
+        # response = f"{response}- {snippet[1]}\n{snippet[2]}"
+
+    await interaction.response.send_message(embed=embed)
 
     return
 
