@@ -62,6 +62,12 @@ async def erase_sinppets(interaction: discord.Interaction):
     await interaction.response.send_message("Not yet implemented.")
 
 
+@my_bot.tree.command()
+async def color_words(interaction: discord.Interaction):
+    """Words to color or highlight in snippets."""
+    await interaction.response.send_message("Not yet implemented.")
+
+
 def bold_substring(value: str, substring: str):
     """Bolds substring while keeping case."""
 
@@ -115,15 +121,20 @@ async def search(
 
     for snippet in snippet_matches:
         snippets_found.append(snippet[0])
-        value = bold_substring(snippet[2], search_for)
+        value = bold_substring(trim_string(snippet[2]), search_for)
         embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
         if not snippet[0] in snippets_found:
-            value = snippet[2]
+            value = trim_string(snippet[2])
             embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
+
+
+def trim_string(string, max_chars=1000):
+    """Trims string."""
+    return string[0 : min(len(string), max_chars)]
 
 
 @my_bot.event
