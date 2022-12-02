@@ -3,7 +3,6 @@
 
 import json
 import asyncio
-import math
 from urllib.parse import urlparse
 import boto3
 import discord
@@ -42,6 +41,11 @@ queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 #     res = requests.get(f"{ECS_CONTAINER_METADATA_URI_V4}/task").json()
 
 
+def trim_string(string, max_chars=1000):
+    """Trims string."""
+    return string[0 : min(len(string), max_chars)]
+
+
 @my_bot.tree.command()
 async def get_code(interaction: discord.Interaction):
     """Creates code used to sign into chrome extension to save content to discord."""
@@ -77,35 +81,59 @@ FULL_MAX_SIZE = 5000
 async def today(interaction: discord.Interaction):
     """Words to color or highlight in snippets."""
 
-    embed = discord.Embed(
-        title="Snippet Summary",
-        description="Snippets saved today",
-        colour=discord.Colour.random(),
-    )
-
-    embed.set_author(name="renzen")
-
     snippet_matches = db_utils.query_db_by_date()
 
     print(f"{snippet_matches=}")
 
-    # leaves 1000 characters available for escaping
-    max_size = math.floor(FULL_MAX_SIZE / len(snippet_matches))
+    size = 6  # length of bot name
+    embeds = []  # all embeds to send
+
+    await interaction.response.send_message("Gathering snippets for today...")
 
     for snippet in snippet_matches:
-        pre_clean_length = len(snippet[2])
-        value = discord.utils.escape_markdown(snippet[2])
+        url = snippet[1]
+        original_value = snippet[2]
+
+        # get sized correctly
+
+        # do initail trim
+        trimmed_string = trim_string(original_value)
+        escaped_string = discord.utils.escape_markdown(trimmed_string)
+
+        if len(escaped_string) > 1000:
+            # re-trim string
+            value = discord.utils.escape_markdown(
+                trim_string(trimmed_string, 1000 - (len(escaped_string - 1000)))
+            )
+            print(f"length of str: {value=}")
+
         if not value:
             print("CLEANED SNIPPET HAS NO VALUE")
             print(f"Original: {snippet[2]=}")
             print(f"Final: {value=}")
             continue
-        print(f"cleaned and bolded text = {value=}")
-        value = trim_string(value, max_size + (len(value) - pre_clean_length))
+        print(f"cleaned = {value=}")
 
-        embed.add_field(name=snippet[1], value=value)
+        new_size = size + len(url) + len(value)
 
-    await interaction.response.send_message(embed=embed)
+        if not embed or new_size >= FULL_MAX_SIZE:
+            # create new embed
+            embed = discord.Embed(
+                title="Snippet Summary",
+                description="Snippets saved today",
+                colour=discord.Colour.random(),
+            )
+            embeds.append(embed)
+            embed.set_author(name="renzen")
+            size = 6
+
+        size += len(url) + len(snippet[2])
+        embed.add_field(name=url, value=value)
+
+    for embed in embeds:
+        await interaction.followup.send(embed=embed)
+
+    await interaction.followup.send(embed=embed)
 
 
 def bold_substring(value: str, substring: str):
@@ -184,11 +212,6 @@ async def search(
             embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
-
-
-def trim_string(string, max_chars=1000):
-    """Trims string."""
-    return string[0 : min(len(string), max_chars)]
 
 
 @my_bot.event
