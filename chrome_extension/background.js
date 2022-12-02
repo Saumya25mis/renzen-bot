@@ -20,6 +20,8 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         function: () => getSelection().toString(),
       });
 
+      console.log(tab.title)
+
       let site = "http://api.renzen.io/forward";
 
       chrome.storage.local.get(["login-code"], function (login_result) {
@@ -29,9 +31,10 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             "Content-Type": "application/json;charset=utf-8",
           },
           body: JSON.stringify({
-            snippet: result,
+            "snippet": result,
             "login-code": login_result["login-code"],
-            URL: tab.url,
+            "URL": tab.url,
+            "title": tab.title
           }),
         });
       });
