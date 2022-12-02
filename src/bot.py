@@ -124,6 +124,11 @@ async def search(
         snippets_found.append(snippet[0])
         cleaned_text = discord.utils.escape_markdown(snippet[2])
         value = bold_substring(trim_string(cleaned_text), search_for)
+        if not value:
+            print("CLEANED SNIPPET HAS NO VALUE")
+            print(f"Original: {snippet[2]=}")
+            print(f"Final: {value=}")
+            continue
         print(f"cleaned and bolded text = {value=}")
         embed.add_field(name=snippet[1], value=value)
 
@@ -131,6 +136,11 @@ async def search(
         if not snippet[0] in snippets_found:
             cleaned_text = discord.utils.escape_markdown(snippet[2])
             value = trim_string(cleaned_text)
+            if not value:
+                print("CLEANED SNIPPET HAS NO VALUE")
+                print(f"Original: {snippet[2]=}")
+                print(f"Final: {value=}")
+                continue
             print(f"cleanedtext = {value=}")
             embed.add_field(name=snippet[1], value=value)
 
