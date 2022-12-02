@@ -62,3 +62,6 @@ bot-logs:
 
 site-logs:
 	aws logs tail bot-site --follow
+
+codebuild-logs:
+	aws logs tail "/aws/codebuild/BotCodeBuildProject" --follow

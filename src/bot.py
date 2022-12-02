@@ -213,7 +213,7 @@ async def search(
                 print(f"Final: {value=}")
                 continue
             print(f"cleanedtext = {value=}")
-            title = f"**{snippet[3]}**\n\n"
+            title = f"**{snippet[3]}** \n\n"
             embed.add_field(name=snippet[1], value=title + value)
 
     await interaction.response.send_message(embed=embed)
