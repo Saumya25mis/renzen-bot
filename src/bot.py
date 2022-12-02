@@ -69,6 +69,35 @@ async def color_words(interaction: discord.Interaction):
     await interaction.response.send_message("Not yet implemented.")
 
 
+@my_bot.tree.command()
+async def today(interaction: discord.Interaction):
+    """Words to color or highlight in snippets."""
+
+    embed = discord.Embed(
+        title="Snippet Summary",
+        description="Snippets saved today",
+        colour=discord.Colour.random(),
+    )
+
+    embed.set_author(name="renzen")
+
+    snippet_matches = db_utils.query_db_by_date()
+
+    print(f"{snippet_matches=}")
+
+    for snippet in snippet_matches:
+        value = discord.utils.escape_markdown(snippet[2])
+        if not value:
+            print("CLEANED SNIPPET HAS NO VALUE")
+            print(f"Original: {snippet[2]=}")
+            print(f"Final: {value=}")
+            continue
+        print(f"cleaned and bolded text = {value=}")
+        embed.add_field(name=snippet[1], value=value)
+
+    await interaction.response.send_message(embed=embed)
+
+
 def bold_substring(value: str, substring: str):
     """Bolds substring while keeping case."""
 
