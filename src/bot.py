@@ -189,20 +189,6 @@ class MyCog(commands.Cog):
                     temp_user, request_content, user_id
                 )
 
-                # # attempt delete with emoji
-                # def check(reaction: discord.Reaction, user: discord.User):
-                #     """Checks that author is the one reacting"""
-                #     return str(reaction.emoji) == "👎"
-
-                # try:
-                #     reaction, user = await my_bot.wait_for("reaction_add", check=check)
-                #     await reaction.message.delete()
-                # except asyncio.TimeoutError:
-                #     await temp_user.send("Could not delete message")
-                # else:
-                #     await temp_user.send("Message was deleted")
-                #     continue
-
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 print(f"Could not deliver message. Will not retry\n{e}")
                 print(f"{message.body=}")
@@ -242,6 +228,19 @@ async def on_message(message: discord.Message):
 
     # temp debug ack
     await message.channel.send("on_message ack")
+
+    # attempt delete with emoji
+    def check(reaction: discord.Reaction, user: discord.User):
+        """Checks that author is the one reacting"""
+        return str(reaction.emoji) == "👎"
+
+    try:
+        reaction, user = await my_bot.wait_for("reaction_add", check=check)
+        await reaction.message.delete()
+    except asyncio.TimeoutError:
+        await message.channel.send("Could not delete message")
+    else:
+        await message.channel.send("Message was deleted")
 
     # process commands
     await my_bot.process_commands(message)
