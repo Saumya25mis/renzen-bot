@@ -286,9 +286,10 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
     snippet = request_content["snippet"]
     url = request_content["URL"]
+    title = request_content["title"]
     parsed_url = urlparse(url=url)
 
-    db_id = db_utils.save_snippet_to_db(url, snippet, user_id)
+    db_id = db_utils.save_snippet_to_db(url, snippet, user_id, title)
 
     embed = discord.Embed(
         url=url, colour=discord.Colour.random(), title=parsed_url.netloc

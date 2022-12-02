@@ -50,6 +50,7 @@ cur.execute(
 cur.execute(
     """CREATE TABLE IF NOT EXISTS snippets (
         snippet_id serial PRIMARY KEY,
+        title TEXT,
         url TEXT,
         snippet TEXT,
         discord_user_id BIGINT,
@@ -172,14 +173,14 @@ def search_snippets_by_str(search_string, discord_user_id):
     return cur.fetchall()
 
 
-def save_snippet_to_db(url, snippet, discord_user_id):
+def save_snippet_to_db(url, snippet, discord_user_id, title):
     """Saves snippet to db."""
 
     sql = """INSERT INTO snippets
-                (url, snippet, discord_user_id) VALUES (%s, %s, %s)
+                (url, snippet, discord_user_id, title) VALUES (%s, %s, %s, %s)
                 RETURNING snippet_id
             """
-    cur.execute(sql, (url, snippet, discord_user_id))
+    cur.execute(sql, (url, snippet, discord_user_id, title))
 
     last_row_id = cur.fetchone()[0]
 
