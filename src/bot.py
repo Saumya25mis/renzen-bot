@@ -119,6 +119,8 @@ async def search(
 
     snippets_found = []
 
+    search_for = discord.utils.escape_markdown(search_for)
+
     for snippet in snippet_matches:
         snippets_found.append(snippet[0])
         value = bold_substring(trim_string(snippet[2]), search_for)
