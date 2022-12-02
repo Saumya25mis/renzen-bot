@@ -87,6 +87,7 @@ async def today(interaction: discord.Interaction):
 
     size = 6  # length of bot name
     embeds = []  # all embeds to send
+    embed = None
 
     await interaction.response.send_message("Gathering snippets for today...")
 
