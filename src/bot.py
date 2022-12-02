@@ -234,11 +234,14 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     print("Reaction ack")
     await user.send("Reaction ack")
 
+    content = message.content
+
     # delete post on thumbs down
-    if str(message.content) == "👎":
-        content = message.content
+    if str(content) == "👎":
         await message.delete()
         print(f"Deleted message: {content}")
+
+    print(locals())
 
 
 @my_bot.event
