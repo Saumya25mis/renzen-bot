@@ -24,6 +24,7 @@ discord.utils.setup_logging()
 intents = discord.Intents.all()
 intents.message_content = True
 intents.guild_messages = True
+intents.members = True
 
 my_bot = commands.Bot(
     command_prefix="!",
