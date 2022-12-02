@@ -224,16 +224,20 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
 
 @my_bot.event
-async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
+# async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     """Processes reactions."""
 
+    user: discord.User = await my_bot.fetch_user(payload.user_id)
+    message: discord.Message = await user.fetch_message(payload.message_id)
+
     print("Reaction ack")
-    await reaction.message.channel.send("Reaction ack.")
+    await user.send("Reaction ack")
 
     # delete post on thumbs down
-    if str(reaction.emoji) == "👎":
-        content = reaction.message.content
-        await reaction.message.delete()
+    if str(message.content) == "👎":
+        content = message.content
+        await message.delete()
         print(f"Deleted message: {content}")
 
 
