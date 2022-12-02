@@ -187,6 +187,11 @@ async def on_ready():
     await my_bot.tree.sync()
     print("Commands Synced!!")
 
+    # get notification user
+    user: discord.User = await my_bot.fetch_user(273685734483820554)
+
+    await user.send("New Bot Deploy!")
+
 
 class MyCog(commands.Cog):
     """Cog to run sqs updates."""
