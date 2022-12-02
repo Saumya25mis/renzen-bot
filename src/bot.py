@@ -228,7 +228,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     """Processes reactions."""
 
     print("Reaction ack")
-    await reaction.message.channel.sent("Reaction ack.")
+    await reaction.message.channel.send("Reaction ack.")
 
     # delete post on thumbs down
     if str(reaction.emoji) == "👎":
