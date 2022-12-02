@@ -200,7 +200,8 @@ async def search(
             print(f"Final: {value=}")
             continue
         print(f"cleaned and bolded text = {value=}")
-        embed.add_field(name=snippet[1], value=value)
+        title = f"**{snippet[3]}**\n\n"
+        embed.add_field(name=title + snippet[1], value=value)
 
     for snippet in url_matches:
         if not snippet[0] in snippets_found:
@@ -212,7 +213,8 @@ async def search(
                 print(f"Final: {value=}")
                 continue
             print(f"cleanedtext = {value=}")
-            embed.add_field(name=snippet[1], value=value)
+            title = f"**{snippet[3]}**\n\n"
+            embed.add_field(name=title + snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
 
