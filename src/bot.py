@@ -106,6 +106,8 @@ async def today(interaction: discord.Interaction):
                 trim_string(trimmed_string, 1000 - (len(escaped_string - 1000)))
             )
             print(f"length of str: {value=}")
+        else:
+            value = escaped_string
 
         if not value:
             print("CLEANED SNIPPET HAS NO VALUE")
