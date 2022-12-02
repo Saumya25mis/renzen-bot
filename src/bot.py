@@ -223,7 +223,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
 
 
 @my_bot.event
-async def on_raw_reaction_add(reaction: discord.Reaction, user: discord.User):
+async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     """Processes reactions."""
 
     print("Reaction ack")
