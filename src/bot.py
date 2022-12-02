@@ -104,7 +104,7 @@ async def search(
 ):
     """Searches saved urls and content"""
 
-    print(f"{search=}")
+    print(f"{search_for=}")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
@@ -120,16 +120,18 @@ async def search(
 
     snippets_found = []
 
-    search_for = discord.utils.escape_markdown(search_for)
-
     for snippet in snippet_matches:
         snippets_found.append(snippet[0])
-        value = bold_substring(trim_string(snippet[2]), search_for)
+        cleaned_text = discord.utils.escape_markdown(snippet[2])
+        value = bold_substring(trim_string(cleaned_text), search_for)
+        print(f"cleaned and bolded text = {value=}")
         embed.add_field(name=snippet[1], value=value)
 
     for snippet in url_matches:
         if not snippet[0] in snippets_found:
-            value = trim_string(snippet[2])
+            cleaned_text = discord.utils.escape_markdown(snippet[2])
+            value = trim_string(cleaned_text)
+            print(f"cleanedtext = {value=}")
             embed.add_field(name=snippet[1], value=value)
 
     await interaction.response.send_message(embed=embed)
