@@ -1,4 +1,4 @@
-# pylint: disable=import-error, no-member, unused-argument
+# pylint: disable=import-error, no-member, unused-argument, unused-variable
 """Discord Bot."""
 
 import json
@@ -188,6 +188,23 @@ class MyCog(commands.Cog):
                 await send_formatted_discord_message(
                     temp_user, request_content, user_id
                 )
+
+                def check(reaction: discord.Reaction, user: discord.User):
+                    """Checks that author is the one reacting"""
+
+                    # if user == reaction.message.user
+                    # return user == temp_user and str(reaction.emoji) == '👎'
+                    # reaction.
+                    return str(reaction.emoji) == "👎"
+
+                try:
+                    reaction, user = await my_bot.wait_for("reaction_add", check=check)
+                    reaction.message.delete()
+                except asyncio.TimeoutError:
+                    await temp_user.send("👎")
+                else:
+                    await temp_user.send("👍")
+
                 # await temp_user.send(message.body)
                 # message.delete()
 
