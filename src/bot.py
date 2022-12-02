@@ -192,10 +192,6 @@ class MyCog(commands.Cog):
                 # attempt delete with emoji
                 def check(reaction: discord.Reaction, user: discord.User):
                     """Checks that author is the one reacting"""
-
-                    # if user == reaction.message.user
-                    # return user == temp_user and str(reaction.emoji) == '👎'
-                    # reaction.
                     return str(reaction.emoji) == "👎"
 
                 try:
@@ -205,9 +201,7 @@ class MyCog(commands.Cog):
                     await temp_user.send("Could not delete message")
                 else:
                     await temp_user.send("Message was deleted")
-
-                # await temp_user.send(message.body)
-                # message.delete()
+                    continue
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 print(f"Could not deliver message. Will not retry\n{e}")
