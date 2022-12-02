@@ -2,6 +2,7 @@
 """DB utils."""
 
 import uuid
+import datetime
 
 import psycopg2
 from src import secret_utils
@@ -87,6 +88,27 @@ def create_code(discord_user_id, discord_user_name) -> str:
     cur.execute(sql, (discord_user_id, code))
 
     return code  # return code to be sent to user
+
+
+def query_db_by_date(date=None):
+    """Query today."""
+
+    if not date:
+        date = str(datetime.datetime.now().date())
+
+    print(f"Searching for {date}")
+
+    sql = """select *
+        from   snippets
+        where  creation_timestamp >= (%(value)s::timestamp)
+        and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
+        """
+    cur.execute(
+        sql,
+        {"value": date},
+    )
+
+    return cur.fetchall()
 
 
 def query_db_by_code(code):

@@ -56,3 +56,9 @@ stop-bot:
 
 wipe-configure:
 	aws cloudformation delete-stack --stack-name configure-stack
+
+bot-logs:
+	aws logs tail bot-task --follow
+
+site-logs:
+	aws logs tail bot-site --follow
