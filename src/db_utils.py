@@ -100,8 +100,8 @@ def query_db_by_date(date=None):
 
     sql = """select *
         from   snippets
-        where  creation_timestamp >= (%(value)%s::timestamp)
-        and    creation_timestamp < ((%(value)%s::date)+1)::timestamp;
+        where  creation_timestamp >= (%(value)s::timestamp)
+        and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
         """
     cur.execute(
         sql,
