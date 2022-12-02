@@ -189,6 +189,7 @@ class MyCog(commands.Cog):
                     temp_user, request_content, user_id
                 )
 
+                # attempt delete with emoji
                 def check(reaction: discord.Reaction, user: discord.User):
                     """Checks that author is the one reacting"""
 
@@ -199,11 +200,11 @@ class MyCog(commands.Cog):
 
                 try:
                     reaction, user = await my_bot.wait_for("reaction_add", check=check)
-                    reaction.message.delete()
+                    await reaction.message.delete()
                 except asyncio.TimeoutError:
-                    await temp_user.send("👎")
+                    await temp_user.send("Could not delete message")
                 else:
-                    await temp_user.send("👍")
+                    await temp_user.send("Message was deleted")
 
                 # await temp_user.send(message.body)
                 # message.delete()
