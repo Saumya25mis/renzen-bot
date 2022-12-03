@@ -81,6 +81,8 @@ FULL_MAX_SIZE = 5000
 async def today(interaction: discord.Interaction):
     """Words to color or highlight in snippets."""
 
+    await interaction.response.send_message("Gathering snippets for today...")
+
     snippet_matches = db_utils.query_db_by_date()
     await format_search_embed(interaction, snippet_matches)
 
@@ -100,8 +102,6 @@ async def format_search_embed(
     embed = None
 
     found_message_ids = []
-
-    await interaction.response.send_message("Gathering snippets for today...")
 
     for snippet in snippet_matches:
         message_id = snippet[0]
