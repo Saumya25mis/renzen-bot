@@ -117,7 +117,14 @@ def trim_string(string, max_chars=1000):
 async def send_formatted_discord_message(temp_user, request_content, user_id):
     """Sends message formatted."""
 
+    truncate = 1000
+
     snippet = request_content["snippet"]
+
+    # truncate snippet
+    if len(snippet) >= truncate:
+        snippet = snippet[0 : truncate - 3] + "..."
+
     url = request_content["URL"]
     title = request_content["title"]
     parsed_url = urlparse(url=url)
@@ -129,11 +136,6 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
     )
 
     embed.add_field(name=f"# {db_id}: {title}", value=f"```{snippet}```")
-    # embed.add_field(name=f"# {db_id}", value=f"\n**{snippet}**")
-    # image_url = f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico"
-    # print(f"{image_url=}")
-    # embed.set_image(url=image_url)
-    # embed.set_thumbnail(url=image_url)
     embed.set_footer(text=url)
 
     await temp_user.send(embed=embed)
