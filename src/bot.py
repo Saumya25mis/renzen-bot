@@ -102,6 +102,8 @@ async def format_search_embed(
     embed = None
 
     found_message_ids = []
+    if not exclude_message_ids:
+        exclude_message_ids = []
 
     for snippet in snippet_matches:
         message_id = snippet[0]
