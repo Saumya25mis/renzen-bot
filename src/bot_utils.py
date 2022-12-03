@@ -10,14 +10,13 @@ FIELD_NAME_MAX_SIZE = 256
 
 
 async def format_search_embed(
-    interaction: discord.Interaction,
     snippet_matches: List[db_utils.Snippets],
     search_for: Optional[str] = None,
     exclude_message_ids: Optional[List[str]] = None,
     title: str = "Formatted",
     description: str = "Search Results",
     author: str = "renzen",
-) -> List[str]:
+) -> tuple[List[str], List[discord.Embed]]:
     """Format search return results."""
     print(f"{snippet_matches=}")
 
@@ -64,10 +63,7 @@ async def format_search_embed(
 
         embed.add_field(name=snippet.url, value=value)
 
-    for embed in embeds:
-        await interaction.followup.send(embed=embed)
-
-    return found_message_ids
+    return found_message_ids, embeds
 
 
 def bold_substring(value: str, substring: str) -> str:
@@ -96,8 +92,8 @@ def bold_substring(value: str, substring: str) -> str:
 
 
 async def send_formatted_discord_message(
-    temp_user: discord.User, request_content: Dict[str, str], user_id: Union[str, int]
-) -> None:
+    request_content: Dict[str, str], user_id: Union[str, int]
+) -> discord.Embed:
     """Sends message formatted."""
 
     snippet = request_content["snippet"]
@@ -119,4 +115,4 @@ async def send_formatted_discord_message(
     embed.add_field(name=f"# {db_id}: {title}", value=f"```{snippet}```")
     embed.set_footer(text=url)
 
-    await temp_user.send(embed=embed)
+    return embed

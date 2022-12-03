@@ -54,7 +54,12 @@ async def today(interaction: discord.Interaction) -> None:
     await interaction.response.send_message("Gathering snippets for today...")
 
     snippet_matches = db_utils.query_db_by_date()
-    await format_search_embed(interaction, snippet_matches, title="Today's Snippets")
+    found_message_ids, embeds = await format_search_embed(
+        snippet_matches=snippet_matches, title="Today's Snippets"
+    )
+
+    for embed in embeds:
+        await interaction.followup.send(embed=embed)
 
 
 @my_bot.tree.command()
@@ -68,21 +73,26 @@ async def search(
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
-    match_ids = await format_search_embed(
-        interaction,
-        snippet_matches,
+    match_ids, embeds = await format_search_embed(
+        snippet_matches=snippet_matches,
         search_for=search_for,
         title="Matching Snippet Content",
         description=f"Search Results for {search_for}",
     )
-    await format_search_embed(
-        interaction,
-        url_matches,
+
+    for embed in embeds:
+        await interaction.followup.send(embed=embed)
+
+    match_ids, embeds = await format_search_embed(
+        snippet_matches=url_matches,
         search_for=search_for,
         exclude_message_ids=match_ids,
         title="Matching URLS Only",
         description=f"Search Results for {search_for}",
     )
+
+    for embed in embeds:
+        await interaction.followup.send(embed=embed)
 
 
 @my_bot.event

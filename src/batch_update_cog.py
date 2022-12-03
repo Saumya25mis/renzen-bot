@@ -52,7 +52,7 @@ class BatchForwardSnippets(commands.Cog):
 
                 print(message.body)
                 await bot_utils.send_formatted_discord_message(
-                    temp_user, request_content, user.discord_user_id
+                    request_content=request_content, user_id=user.discord_user_id
                 )
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
