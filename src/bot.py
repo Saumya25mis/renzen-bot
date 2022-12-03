@@ -64,7 +64,7 @@ async def search(
 ) -> None:
     """Searches saved urls and content"""
 
-    await interaction.response.send_message("Searching...")
+    await interaction.response.send_message(f"Searching for {search_for}...")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
