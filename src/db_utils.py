@@ -1,9 +1,12 @@
 """DB utils."""
 
+from typing import List, Optional, Union
 import uuid
 import datetime
+from dataclasses import dataclass
 
 import psycopg2
+import psycopg2.extras
 from src import secret_utils
 
 conn = psycopg2.connect(
@@ -17,7 +20,16 @@ conn = psycopg2.connect(
 
 conn.autocommit = True
 
-cur = conn.cursor()
+cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+
+@dataclass(frozen=True)
+class DiscordUserInfo:
+    """Holds data from discord_user_info table"""
+
+    discord_user_id: str
+    discord_user_name: str
+    creation_timestamp: datetime.datetime
 
 
 # create user table if it does not exist.
@@ -29,6 +41,16 @@ cur.execute(
     )
     """
 )
+
+
+@dataclass(frozen=True)
+class LoginCodes:
+    """Data from login_codes table."""
+
+    code: str
+    discord_user_id: str
+    creation_timestamp: datetime.datetime
+
 
 # create login_codes table if it does not exist.
 # login codes have foreign keys to discord_user_info
@@ -45,7 +67,17 @@ cur.execute(
     """
 )
 
-# (snippet_id, url, snippet, title, discord_user_id, creation_timestamp)
+
+@dataclass(frozen=True)
+class Snippets:
+    "Data from snippets table"
+    snippet_id: str
+    title: str
+    url: str
+    snippet: str
+    discord_user_id: str
+    creation_timestamp: datetime.datetime
+
 
 # create snippets table if it does not exist.
 cur.execute(
@@ -65,7 +97,7 @@ cur.execute(
 )
 
 
-def create_code(discord_user_id, discord_user_name) -> str:
+def create_code(discord_user_id: Union[str, int], discord_user_name: str) -> str:
     """Creates codes for users to confirm discord for chrome extension"""
 
     # check if user has been add to discord_user_info table
@@ -92,7 +124,7 @@ def create_code(discord_user_id, discord_user_name) -> str:
     return code  # return code to be sent to user
 
 
-def query_db_by_date(date=None):
+def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
     """Query today."""
 
     if not date:
@@ -110,10 +142,10 @@ def query_db_by_date(date=None):
         {"value": date},
     )
 
-    return cur.fetchall()
+    return [Snippets(**fetch) for fetch in cur.fetchall()]
 
 
-def query_db_by_code(code):
+def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
     """Queries the DB by code and returns discords user"""
 
     sql = """SELECT discord_user_id
@@ -126,11 +158,11 @@ def query_db_by_code(code):
 
     fetched = cur.fetchone()
     if fetched:
-        return fetched[0]
+        return LoginCodes(**fetched[0])
     return None
 
 
-def invalidate_codes(discord_user_id) -> None:
+def invalidate_codes(discord_user_id: Union[str, int]) -> None:
     """Queries the DB by discord_user_id and deletes all codes"""
 
     sql = """DELETE FROM login_codes
@@ -142,7 +174,9 @@ def invalidate_codes(discord_user_id) -> None:
     )
 
 
-def search_urls_by_str(search_string, discord_user_id):
+def search_urls_by_str(
+    search_string: str, discord_user_id: Union[str, int]
+) -> List[Snippets]:
     """Search urls and snippets by string."""
 
     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
@@ -155,10 +189,12 @@ def search_urls_by_str(search_string, discord_user_id):
         sql, {"search_string": f"%{search_string}%", "discord_user_id": discord_user_id}
     )
 
-    return cur.fetchall()
+    return [Snippets(**fetch) for fetch in cur.fetchall()]
 
 
-def search_snippets_by_str(search_string, discord_user_id):
+def search_snippets_by_str(
+    search_string: str, discord_user_id: Union[str, int]
+) -> List[Snippets]:
     """Search urls and snippets by string."""
 
     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
@@ -171,10 +207,12 @@ def search_snippets_by_str(search_string, discord_user_id):
         sql, {"search_string": f"%{search_string}%", "discord_user_id": discord_user_id}
     )
 
-    return cur.fetchall()
+    return [Snippets(**fetch) for fetch in cur.fetchall()]
 
 
-def save_snippet_to_db(url, snippet, discord_user_id, title):
+def save_snippet_to_db(
+    url: str, snippet: str, discord_user_id: Union[str, int], title: str
+) -> Optional[str]:
     """Saves snippet to db."""
 
     sql = """INSERT INTO snippets
@@ -183,6 +221,6 @@ def save_snippet_to_db(url, snippet, discord_user_id, title):
             """
     cur.execute(sql, (url, snippet, discord_user_id, title))
 
-    last_row_id = cur.fetchone()[0]
+    fetched = cur.fetchone()
 
-    return last_row_id
+    return str(fetched["snippet_id"]) if fetched else None

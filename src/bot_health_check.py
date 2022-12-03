@@ -4,7 +4,9 @@ import json
 from aiohttp import web
 
 
-async def handle(request):  # pylint:disable=unused-argument
+async def handle(
+    request: web.Request,
+) -> web.Response:  # pylint:disable=unused-argument
     """Health check response."""
     response_obj = {"status": "success"}
     return web.Response(text=json.dumps(response_obj))

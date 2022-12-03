@@ -9,11 +9,12 @@
 import base64
 
 import json
+from typing import Any
 import boto3
 from botocore.exceptions import ClientError
 
 
-def get_secret(secret_name):
+def get_secret(secret_name: str) -> Any:
     """Get discord secrets."""
 
     region_name = "us-west-1"

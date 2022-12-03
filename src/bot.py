@@ -26,7 +26,7 @@ NOTIFICATION_USER = 273685734483820554
 
 
 @my_bot.tree.command()
-async def get_code(interaction: discord.Interaction):
+async def get_code(interaction: discord.Interaction) -> None:
     """Creates code used to sign into chrome extension to save content to discord."""
     key = db_utils.create_code(interaction.user.id, interaction.user.display_name)
     await interaction.response.send_message(f"Your key is: {key}")
@@ -34,7 +34,7 @@ async def get_code(interaction: discord.Interaction):
 
 
 @my_bot.tree.command()
-async def invalidate_codes(interaction: discord.Interaction):
+async def invalidate_codes(interaction: discord.Interaction) -> None:
     """Invalidates previously created codes."""
     db_utils.invalidate_codes(interaction.user.id)
     await interaction.response.send_message("All codes have been invalidated")
@@ -42,13 +42,13 @@ async def invalidate_codes(interaction: discord.Interaction):
 
 
 @my_bot.tree.command()
-async def erase_sinppets(interaction: discord.Interaction):
+async def erase_sinppets(interaction: discord.Interaction) -> None:
     """Erases saved content from database (will not be able to search past content)."""
     await interaction.response.send_message("Not yet implemented.")
 
 
 @my_bot.tree.command()
-async def today(interaction: discord.Interaction):
+async def today(interaction: discord.Interaction) -> None:
     """Returns a summary of snippets saved today."""
 
     await interaction.response.send_message("Gathering snippets for today...")
@@ -61,7 +61,7 @@ async def today(interaction: discord.Interaction):
 async def search(
     interaction: discord.Interaction,
     search_for: str,
-):
+) -> None:
     """Searches saved urls and content"""
 
     await interaction.response.send_message("Searching...")
@@ -86,7 +86,7 @@ async def search(
 
 
 @my_bot.event
-async def on_ready():
+async def on_ready() -> None:
     """Sync slash tree"""
     print("New bot deployed!")
     await my_bot.tree.sync()
@@ -99,7 +99,7 @@ async def on_ready():
 
 
 @my_bot.event
-async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent) -> None:
     """Processes reactions."""
 
     user: discord.User = await my_bot.fetch_user(payload.user_id)
@@ -116,7 +116,7 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
 
 
 @my_bot.event
-async def on_message(message: discord.Message):
+async def on_message(message: discord.Message) -> None:
     """On message test."""
     if message.author == my_bot.user:
         return
@@ -124,7 +124,7 @@ async def on_message(message: discord.Message):
     await my_bot.process_commands(message)
 
 
-async def main_async():
+async def main_async() -> None:
     """Main."""
     await my_bot.add_cog(BatchForwardSnippets(my_bot))
     await my_bot.start(secret_utils.TOKEN)

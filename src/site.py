@@ -11,13 +11,13 @@ from src import db_utils
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
 
-async def handle(request):  # pylint:disable=unused-argument
+async def handle(request: web.Request) -> web.Response:
     """Health check response."""
     response_obj = {"status": "success"}
     return web.Response(text=json.dumps(response_obj))
 
 
-async def forward(request):  # pylint:disable=unused-argument
+async def forward(request: web.Request) -> web.Response:
     """forward check response."""
     request_id = str(uuid.uuid4())
 
@@ -31,7 +31,7 @@ async def forward(request):  # pylint:disable=unused-argument
     return web.Response(text=json.dumps(response_obj))
 
 
-async def check_valid_code(request):
+async def check_valid_code(request: web.Request) -> web.Response:
     """Used by chrome extension to check if user can login with code."""
 
     request_text = await request.text()
@@ -42,15 +42,15 @@ async def check_valid_code(request):
     return web.Response(text="invalid")
 
 
-def get_queue_url():
+def get_queue_url() -> str:
     """Get Queue Url."""
     response = sqs_client.get_queue_url(
         QueueName="MyQueue.fifo",
     )
-    return response["QueueUrl"]
+    return str(response["QueueUrl"])
 
 
-def send_message(message):
+def send_message(message: dict[str, str]) -> None:
     """Send message to queue."""
     response = sqs_client.send_message(
         QueueUrl=get_queue_url(),

@@ -27,5 +27,5 @@ repos:
     rev: 'v0.991'  # Use the sha / tag you want to point at
     hooks:
     -   id: mypy
-        # args: [--check-untyped-defs]
-        additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary]
+        args: ["--config-file=mypy.ini"]
+        additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary, types-psycopg2, boto3-stubs]

@@ -6,7 +6,7 @@ import unittest
 class TestApp(unittest.TestCase):
     """Unit tests for bot."""
 
-    def test_app(self):
+    def test_app(self) -> bool:
         """Dummy Test."""
         return True
 

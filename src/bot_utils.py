@@ -1,5 +1,5 @@
 """Bot utility functions."""
-from typing import List
+from typing import List, Optional, Union
 from urllib.parse import urlparse
 import discord
 from src import db_utils
@@ -10,40 +10,37 @@ FIELD_NAME_MAX_SIZE = 256
 
 
 async def format_search_embed(
-    interaction,
-    snippet_matches,
-    search_for=None,
-    exclude_message_ids=None,
-    title="Formatted",
-    description="Search Results",
-    author="renzen",
-):
+    interaction: discord.Interaction,
+    snippet_matches: List[db_utils.Snippets],
+    search_for: Optional[str] = None,
+    exclude_message_ids: Optional[List[str]] = None,
+    title: str = "Formatted",
+    description: str = "Search Results",
+    author: str = "renzen",
+) -> List[str]:
     """Format search return results."""
     print(f"{snippet_matches=}")
 
     embeds: List[discord.Embed] = []  # all embeds to send
-    embed = None
+    embed: Optional[discord.Embed] = None
 
-    found_message_ids = []
+    found_message_ids: List[str] = []
     if not exclude_message_ids:
         exclude_message_ids = []
 
     for snippet in snippet_matches:
 
-        message_id = snippet[0]
-        url = snippet[1]
-        original_value = snippet[2]
-        url_title = f"**{snippet[3]}** \n\n"
+        url_title = f"**{snippet.title}** \n\n"
         escaped_string = ""
         bolded_string = ""
 
         # skip over messages already sent
-        if message_id in exclude_message_ids:
+        if snippet.snippet_id in exclude_message_ids:
             continue
-        found_message_ids.append(message_id)
+        found_message_ids.append(snippet.snippet_id)
 
         # get sized correctly
-        escaped_string = discord.utils.escape_markdown(original_value)
+        escaped_string = discord.utils.escape_markdown(snippet.snippet)
         if search_for:
             bolded_string = bold_substring(escaped_string, search_for)
 
@@ -52,7 +49,7 @@ async def format_search_embed(
         if len(value) > FIELD_VALUE_MAX_SIZE:
             value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
-        est_new_size = (len(embed) if embed else 0) + len(url) + len(value)  # type: ignore
+        est_new_size = (len(embed) if embed else 0) + len(snippet.url) + len(value)  # type: ignore
 
         if not embed or est_new_size >= EMBED_MAX_SIZE:
             # create new embed
@@ -65,7 +62,7 @@ async def format_search_embed(
             embeds.append(embed)
             embed.set_author(name=author)
 
-        embed.add_field(name=url, value=value)
+        embed.add_field(name=snippet.url, value=value)
 
     for embed in embeds:
         await interaction.followup.send(embed=embed)
@@ -73,7 +70,7 @@ async def format_search_embed(
     return found_message_ids
 
 
-def bold_substring(value: str, substring: str):
+def bold_substring(value: str, substring: str) -> str:
     """Bolds substring while keeping case."""
 
     # get indexes for occurrences case-insensitive
@@ -98,7 +95,9 @@ def bold_substring(value: str, substring: str):
     return bolded_string
 
 
-async def send_formatted_discord_message(temp_user, request_content, user_id):
+async def send_formatted_discord_message(
+    temp_user: discord.User, request_content: dict[str, str], user_id: Union[str, int]
+) -> None:
     """Sends message formatted."""
 
     snippet = request_content["snippet"]
