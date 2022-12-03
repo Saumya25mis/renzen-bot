@@ -222,6 +222,7 @@ async def search(
 @my_bot.event
 async def on_ready():
     """Sync slash tree"""
+    print("New bot deployed!")
     await my_bot.tree.sync()
     print("Commands Synced!!")
 
