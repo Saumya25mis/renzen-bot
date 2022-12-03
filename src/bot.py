@@ -1,4 +1,4 @@
-# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals
+# pylint: disable=no-member, unused-argument, unused-variable, too-many-locals, assigning-non-slot
 """Discord Bot."""
 
 import asyncio
@@ -8,8 +8,8 @@ from discord.ext import commands
 from src import secret_utils
 from src import db_utils
 
-from bot_utils import format_search_embed
-from batch_update_cog import BatchForwardSnippets
+from src.bot_utils import format_search_embed
+from src.batch_update_cog import BatchForwardSnippets
 
 discord.utils.setup_logging()
 
