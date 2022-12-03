@@ -56,5 +56,6 @@ class MyCog(commands.Cog):
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 print(f"Could not deliver message. Will not retry\n{e}")
                 print(f"{message.body=}")
+                await temp_user.send(f"Could not deliver message. Will not retry\n{e}")
 
             message.delete()
