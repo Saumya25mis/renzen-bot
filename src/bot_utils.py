@@ -1,4 +1,3 @@
-# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals, too-many-arguments
 """Bot utility functions."""
 from urllib.parse import urlparse
 import discord

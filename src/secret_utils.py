@@ -1,4 +1,4 @@
-# pylint: disable=line-too-long, invalid-name, no-else-raise, import-error, no-else-return
+# pylint: disable=invalid-name, no-else-raise, no-else-return, line-too-long
 
 """Get discord secrets."""
 

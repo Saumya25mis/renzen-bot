@@ -1,4 +1,3 @@
-# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals
 """Queue cog."""
 
 import json

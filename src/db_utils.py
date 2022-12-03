@@ -1,4 +1,3 @@
-# pylint: disable=import-error, line-too-long
 """DB utils."""
 
 import uuid

@@ -416,7 +416,7 @@ disable=raw-checker-failed,
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
-        no-member, unused-argument, unused-variable, too-many-locals, assigning-non-slot
+        no-member, unused-argument, unused-variable, too-many-locals, assigning-non-slot, too-many-arguments
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

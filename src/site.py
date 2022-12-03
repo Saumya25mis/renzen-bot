@@ -1,4 +1,3 @@
-# pylint: disable=import-error
 """Expose endpoint for aiohttp server"""
 
 import json
