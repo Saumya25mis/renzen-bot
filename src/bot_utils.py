@@ -58,7 +58,7 @@ async def format_search_embed(
             # create new embed
             print("Creating new embed.")
             embed = discord.Embed(
-                title=title,
+                title=f"#{len(embeds)+1} {title}",
                 description=description,
                 colour=discord.Colour.random(),
             )
