@@ -1,6 +1,7 @@
 """Discord Bot."""
 
 import asyncio
+import logging
 import discord
 from discord.ext import commands
 
@@ -9,6 +10,9 @@ from src.common import db_utils
 
 from src.bot.bot_utils import format_search_embed
 from src.bot.batch_update_cog import BatchForwardSnippets
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 discord.utils.setup_logging()
 
@@ -98,7 +102,7 @@ async def search(
 @my_bot.event
 async def on_ready() -> None:
     """Sync slash tree"""
-    print("New bot deployed!")
+    logger.info("New bot deployed!")
     await my_bot.tree.sync()
 
     # send to notification user
