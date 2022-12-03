@@ -3,7 +3,7 @@
 import setuptools
 
 setuptools.setup(
-    name="test-package",
+    name="renzen",
     version="0.0.1",
     author="renadvent",
     packages=["src/bot", "src/site", "src/common"],
