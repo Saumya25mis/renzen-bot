@@ -2,21 +2,28 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
+    -   id: end-of-file-fixer
+    -   id: check-yaml
     -   id: trailing-whitespace
     -   id: mixed-line-ending
+    -   id: requirements-txt-fixer
 -   repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
     -   id: black
--   repo: https://github.com/pycqa/pylint
-    rev: pylint-2.6.0
-    hooks:
-    -   id: pylint
+- repo: local
+  hooks:
+    - id: pylint
+      name: pylint
+      entry: pylint
+      language: system
+      types: [python]
+      args:
+        [
+          "-rn", # Only display messages
+          "-sn", # Don't display the score
+        ]
 # -   repo: https://github.com/pre-commit/mirrors-mypy
 #     rev: ''  # Use the sha / tag you want to point at
 #     hooks:
 #     -   id: mypy
-# -   repo: https://github.com/pre-commit/mirrors-yapf
-#     rev: ''  # Use the sha / tag you want to point at
-#     hooks:
-#     -   id: yapf
