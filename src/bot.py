@@ -50,7 +50,7 @@ async def erase_sinppets(interaction: discord.Interaction):
 
 @my_bot.tree.command()
 async def today(interaction: discord.Interaction):
-    """Words to color or highlight in snippets."""
+    """Returns a summary of snippets saved today."""
 
     await interaction.response.send_message("Gathering snippets for today...")
 
@@ -70,7 +70,10 @@ async def search(
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
     match_ids = await format_search_embed(
-        interaction, snippet_matches, search_for=search_for, title="Matching Snippets"
+        interaction,
+        snippet_matches,
+        search_for=search_for,
+        title="Matching Snippet Content",
     )
     await format_search_embed(
         interaction,
@@ -88,7 +91,7 @@ async def on_ready():
     await my_bot.tree.sync()
     print("Commands Synced!!")
 
-    # get notification user
+    # send to notification user
     user: discord.User = await my_bot.fetch_user(NOTIFICATION_USER)
 
     await user.send("New Bot Deploy!")
@@ -110,8 +113,6 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
         await message.delete()
         print(f"Deleted message: {message.content}")
 
-    # print(locals())
-
 
 @my_bot.event
 async def on_message(message: discord.Message):
@@ -119,10 +120,6 @@ async def on_message(message: discord.Message):
     if message.author == my_bot.user:
         return
 
-    # temp debug ack
-    await message.channel.send("on_message ack")
-
-    # process commands
     await my_bot.process_commands(message)
 
 
