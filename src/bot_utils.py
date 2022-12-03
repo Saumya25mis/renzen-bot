@@ -91,6 +91,7 @@ async def format_search_embed(
             else:
                 value = bolded_value
 
+        print(f"LENGTH OF FIELD {len(value)}")
         size += len(url) + len(value)
         embed.add_field(name=url, value=url_title + value)
 
