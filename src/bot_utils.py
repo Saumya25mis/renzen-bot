@@ -1,10 +1,12 @@
-# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals
+# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals, too-many-arguments
 """Bot utility functions."""
 from urllib.parse import urlparse
 import discord
 from src import db_utils
 
-FULL_MAX_SIZE = 5000
+EMBED_MAX_SIZE = 6000
+FIELD_VALUE_MAX_SIZE = 1024
+FIELD_NAME_MAX_SIZE = 256
 
 
 async def format_search_embed(
@@ -13,11 +15,12 @@ async def format_search_embed(
     search_for=None,
     exclude_message_ids=None,
     title="Formatted",
+    description="Search Results",
+    author="renzen",
 ):
     """Format search return results."""
     print(f"{snippet_matches=}")
 
-    size = 6  # length of bot name
     embeds = []  # all embeds to send
     embed = None
 
@@ -26,74 +29,43 @@ async def format_search_embed(
         exclude_message_ids = []
 
     for snippet in snippet_matches:
+
         message_id = snippet[0]
+        url = snippet[1]
+        original_value = snippet[2]
+        url_title = f"**{snippet[3]}** \n\n"
+        escaped_string = ""
+        bolded_string = ""
 
         # skip over messages already sent
         if message_id in exclude_message_ids:
             continue
         found_message_ids.append(message_id)
 
-        url = snippet[1]
-        original_value = snippet[2]
-        url_title = f"**{snippet[3]}** \n\n"
-
         # get sized correctly
+        escaped_string = discord.utils.escape_markdown(original_value)
+        if search_for:
+            bolded_string = bold_substring(escaped_string, search_for)
 
-        # do initail trim
-        trimmed_string = trim_string(original_value)
-        escaped_string = discord.utils.escape_markdown(trimmed_string)
+        value = url_title + (bolded_string or escaped_string)
 
-        max_field = 1000
+        if len(value) > FIELD_VALUE_MAX_SIZE:
+            value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
-        if len(escaped_string) > max_field:
-            # re-trim string
-            print("Trimming after escaping")
-            value = discord.utils.escape_markdown(
-                trim_string(
-                    trimmed_string, max_field - (len(escaped_string) - max_field)
-                )
-            )
-        else:
-            value = escaped_string
+        est_new_size = (len(embed) if embed else 0) + len(url) + len(value)
 
-        if not value:
-            continue
-
-        est_new_size = size + len(url) + len(value) + len(url_title)
-
-        if not embed or est_new_size >= FULL_MAX_SIZE:
+        if not embed or est_new_size >= EMBED_MAX_SIZE:
             # create new embed
             print("Creating new embed.")
             embed = discord.Embed(
                 title=title,
-                description="Search Results",
+                description=description,
                 colour=discord.Colour.random(),
             )
             embeds.append(embed)
-            embed.set_author(name="renzen")
-            size = 6
+            embed.set_author(name=author)
 
-        # adds more characters, but for now should be neglible
-        if search_for:
-            bolded_value = bold_substring(trim_string(value), search_for)
-
-            if len(bolded_value) > max_field:
-                # re-trim string
-                print("Trimming after bold")
-                value = bold_substring(
-                    discord.utils.escape_markdown(
-                        trim_string(
-                            trimmed_string, max_field - (len(bolded_value) - max_field)
-                        )
-                    ),
-                    search_for,
-                )
-            else:
-                value = bolded_value
-
-        print(f"LENGTH OF FIELD {len(value)}")
-        size += len(url) + len(value)
-        embed.add_field(name=url, value=url_title + value)
+        embed.add_field(name=url, value=value)
 
     for embed in embeds:
         await interaction.followup.send(embed=embed)
@@ -124,7 +96,7 @@ def bold_substring(value: str, substring: str):
     bolded_string = "".join(bolded_list)
 
     # debug
-    print(locals())
+    # print(locals())
 
     return bolded_string
 
@@ -137,13 +109,11 @@ def trim_string(string, max_chars=1000):
 async def send_formatted_discord_message(temp_user, request_content, user_id):
     """Sends message formatted."""
 
-    truncate = 1000
-
     snippet = request_content["snippet"]
 
     # truncate snippet
-    if len(snippet) >= truncate:
-        snippet = snippet[0 : truncate - 3] + "..."
+    if len(snippet) >= FIELD_VALUE_MAX_SIZE:
+        snippet = snippet[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
     url = request_content["URL"]
     title = request_content["title"]
