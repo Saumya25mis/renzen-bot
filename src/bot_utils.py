@@ -1,5 +1,5 @@
 """Bot utility functions."""
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from urllib.parse import urlparse
 import discord
 from src import db_utils
@@ -96,7 +96,7 @@ def bold_substring(value: str, substring: str) -> str:
 
 
 async def send_formatted_discord_message(
-    temp_user: discord.User, request_content: dict[str, str], user_id: Union[str, int]
+    temp_user: discord.User, request_content: Dict[str, str], user_id: Union[str, int]
 ) -> None:
     """Sends message formatted."""
 

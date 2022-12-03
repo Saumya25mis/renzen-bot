@@ -1,6 +1,7 @@
 """Expose endpoint for aiohttp server"""
 
 import json
+from typing import Dict
 import uuid
 import boto3
 from aiohttp import web
@@ -50,7 +51,7 @@ def get_queue_url() -> str:
     return str(response["QueueUrl"])
 
 
-def send_message(message: dict[str, str]) -> None:
+def send_message(message: Dict[str, str]) -> None:
     """Send message to queue."""
     response = sqs_client.send_message(
         QueueUrl=get_queue_url(),
