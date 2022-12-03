@@ -290,7 +290,7 @@ async def send_formatted_discord_message(temp_user, request_content, user_id):
         url=url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(name=f"# {db_id}", value=f"```{snippet}```")
+    embed.add_field(name=f"# {db_id}: {title}", value=f"```{snippet}```")
     # embed.add_field(name=f"# {db_id}", value=f"\n**{snippet}**")
     # image_url = f"{parsed_url.scheme}://{parsed_url.netloc}/favicon.ico"
     # print(f"{image_url=}")
