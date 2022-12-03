@@ -6,7 +6,7 @@ import uuid
 import boto3
 from aiohttp import web
 
-from src import db_utils
+from src.common import db_utils
 
 
 sqs_client = boto3.client("sqs", region_name="us-west-1")

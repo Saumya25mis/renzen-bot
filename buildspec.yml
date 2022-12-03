@@ -22,7 +22,7 @@ phases:
       - echo Building the Docker image bot...
       # Builds using Dockerfile named "Dockerfile" in root as context by default
       # Name and optionally a tag in the 'name:tag' format
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .  # `-t tag .`
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f DockerfileBot .  # `-t tag .`
       # tags built image with registry host name to push to private repository
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Building the Docker image site...

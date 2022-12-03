@@ -3,8 +3,8 @@
 import json
 import boto3
 from discord.ext import commands, tasks
-from src import bot_utils
-from src import db_utils
+from src.bot import bot_utils
+from src.common import db_utils
 
 sqs = boto3.resource("sqs", region_name="us-west-1")
 queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")

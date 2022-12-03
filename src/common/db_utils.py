@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import psycopg2
 import psycopg2.extras
-from src import secret_utils
+from src.common import secret_utils
 
 conn = psycopg2.connect(
     database="postgres",

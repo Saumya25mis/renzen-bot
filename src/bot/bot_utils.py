@@ -2,7 +2,7 @@
 from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 import discord
-from src import db_utils
+from src.common import db_utils
 
 EMBED_MAX_SIZE = 6000
 FIELD_VALUE_MAX_SIZE = 1024

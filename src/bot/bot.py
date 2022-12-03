@@ -4,11 +4,11 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from src import secret_utils
-from src import db_utils
+from src.common import secret_utils
+from src.common import db_utils
 
-from src.bot_utils import format_search_embed
-from src.batch_update_cog import BatchForwardSnippets
+from src.bot.bot_utils import format_search_embed
+from src.bot.batch_update_cog import BatchForwardSnippets
 
 discord.utils.setup_logging()
 

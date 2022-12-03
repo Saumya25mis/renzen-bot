@@ -28,4 +28,4 @@ repos:
     hooks:
     -   id: mypy
         args: ["--config-file=mypy.ini"]
-        additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary, types-psycopg2, boto3-stubs]
+        additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary, types-psycopg2, boto3-stubs, types-setuptools]
