@@ -73,7 +73,11 @@ async def search(
         interaction, snippet_matches, search_for=search_for, title="Matching Snippets"
     )
     await format_search_embed(
-        interaction, url_matches, match_ids, title="Matching URLS Only"
+        interaction,
+        url_matches,
+        search_for=search_for,
+        exclude_message_ids=match_ids,
+        title="Matching URLS Only",
     )
 
 
