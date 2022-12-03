@@ -1,6 +1,3 @@
-# aws cloudformation wait stack-create-complete --stack-name myStackName
-
-
 init-aws:
 	chmod a+x scripts/init_setup.sh
 	./scripts/init_setup.sh
