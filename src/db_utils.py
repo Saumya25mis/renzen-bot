@@ -101,7 +101,7 @@ def query_db_by_date(date=None):
 
     print(f"Searching for {date}")
 
-    sql = """select *
+    sql = """select snippet_id, url, snippet, title, discord_user_id, creation_timestamp
         from   snippets
         where  creation_timestamp >= (%(value)s::timestamp)
         and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
