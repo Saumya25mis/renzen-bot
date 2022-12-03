@@ -11,8 +11,8 @@ from src.common import db_utils
 from src.bot.bot_utils import format_search_embed
 from src.bot.batch_update_cog import BatchForwardSnippets
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 discord.utils.setup_logging()
 
