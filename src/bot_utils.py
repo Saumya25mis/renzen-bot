@@ -46,7 +46,7 @@ async def format_search_embed(
         if len(escaped_string) > 1000:
             # re-trim string
             value = discord.utils.escape_markdown(
-                trim_string(trimmed_string, 1000 - (len(escaped_string - 1000)))
+                trim_string(trimmed_string, 1000 - (len(escaped_string) - 1000))
             )
         else:
             value = escaped_string
