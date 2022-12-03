@@ -13,8 +13,6 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      # - echo attempt to stop service
-      # - aws ecs update-service --service bot-service --cluster bot-cluster --desired-count 0
       - echo deregistering tasks...
       - python3 deregister_tasks.py
   build:
@@ -27,7 +25,6 @@ phases:
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .  # `-t tag .`
       # tags built image with registry host name to push to private repository
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-
       - echo Building the Docker image site...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f DockerfileSite .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
@@ -50,10 +47,7 @@ phases:
       - cd site
       - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
-      # - aws ecs update-service --service bot-service --cluster bot-cluster --desired-count 1
-      # - printf '[{"name":"bot-container","imageUri":"%s"}, {"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
 artifacts:
-    # files: imagedefinitions.json
   files:
     - '**/*'
   secondary-artifacts:
