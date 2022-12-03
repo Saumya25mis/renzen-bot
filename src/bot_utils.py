@@ -1,5 +1,5 @@
 """Bot utility functions."""
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 import discord
 from src import db_utils
@@ -16,7 +16,7 @@ async def format_search_embed(
     title: str = "Formatted",
     description: str = "Search Results",
     author: str = "renzen",
-) -> tuple[List[str], List[discord.Embed]]:
+) -> Tuple[List[str], List[discord.Embed]]:
     """Format search return results."""
     print(f"{snippet_matches=}")
 
