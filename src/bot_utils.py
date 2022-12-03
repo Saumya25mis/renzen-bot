@@ -1,4 +1,5 @@
 """Bot utility functions."""
+from typing import List
 from urllib.parse import urlparse
 import discord
 from src import db_utils
@@ -20,7 +21,7 @@ async def format_search_embed(
     """Format search return results."""
     print(f"{snippet_matches=}")
 
-    embeds = []  # all embeds to send
+    embeds: List[discord.Embed] = []  # all embeds to send
     embed = None
 
     found_message_ids = []
@@ -51,7 +52,7 @@ async def format_search_embed(
         if len(value) > FIELD_VALUE_MAX_SIZE:
             value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
-        est_new_size = (len(embed) if embed else 0) + len(url) + len(value)
+        est_new_size = (len(embed) if embed else 0) + len(url) + len(value)  # type: ignore
 
         if not embed or est_new_size >= EMBED_MAX_SIZE:
             # create new embed
