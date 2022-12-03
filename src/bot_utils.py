@@ -43,10 +43,15 @@ async def format_search_embed(
         trimmed_string = trim_string(original_value)
         escaped_string = discord.utils.escape_markdown(trimmed_string)
 
-        if len(escaped_string) > 1000:
+        max_field = 1000
+
+        if len(escaped_string) > max_field:
             # re-trim string
+            print("Trimming after escaping")
             value = discord.utils.escape_markdown(
-                trim_string(trimmed_string, 1000 - (len(escaped_string) - 1000))
+                trim_string(
+                    trimmed_string, max_field - (len(escaped_string) - max_field)
+                )
             )
         else:
             value = escaped_string
@@ -70,7 +75,21 @@ async def format_search_embed(
 
         # adds more characters, but for now should be neglible
         if search_for:
-            value = bold_substring(trim_string(value), search_for)
+            bolded_value = bold_substring(trim_string(value), search_for)
+
+            if len(bolded_value) > max_field:
+                # re-trim string
+                print("Trimming after bold")
+                value = bold_substring(
+                    discord.utils.escape_markdown(
+                        trim_string(
+                            trimmed_string, max_field - (len(bolded_value) - max_field)
+                        )
+                    ),
+                    search_for,
+                )
+            else:
+                value = bolded_value
 
         size += len(url) + len(value)
         embed.add_field(name=url, value=url_title + value)
