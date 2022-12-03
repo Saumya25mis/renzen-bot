@@ -3,13 +3,27 @@
 
 import asyncio
 import discord
+from discord.ext import commands
 
 from src import secret_utils
 from src import db_utils
 
-from bot_constants import my_bot
 from bot_utils import format_search_embed
-from batch_update_cog import MyCog
+from batch_update_cog import BatchForwardSnippets
+
+discord.utils.setup_logging()
+
+intents = discord.Intents.all()
+intents.message_content = True
+intents.guild_messages = True
+intents.members = True
+
+my_bot = commands.Bot(
+    command_prefix="!",
+    intents=intents,
+)
+
+NOTIFICATION_USER = 273685734483820554
 
 
 @my_bot.tree.command()
@@ -59,7 +73,7 @@ async def search(
         interaction, snippet_matches, search_for=search_for, title="Matching Snippets"
     )
     await format_search_embed(
-        interaction, url_matches, match_ids, title="Matching URLS"
+        interaction, url_matches, match_ids, title="Matching URLS Only"
     )
 
 
@@ -71,13 +85,12 @@ async def on_ready():
     print("Commands Synced!!")
 
     # get notification user
-    user: discord.User = await my_bot.fetch_user(273685734483820554)
+    user: discord.User = await my_bot.fetch_user(NOTIFICATION_USER)
 
     await user.send("New Bot Deploy!")
 
 
 @my_bot.event
-# async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     """Processes reactions."""
 
@@ -85,7 +98,6 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     message: discord.Message = await user.fetch_message(payload.message_id)
 
     print("Reaction ack")
-    # await user.send("Reaction ack")
 
     emoji = str(payload.emoji)
 
@@ -112,7 +124,7 @@ async def on_message(message: discord.Message):
 
 async def main_async():
     """Main."""
-    await my_bot.add_cog(MyCog(my_bot))
+    await my_bot.add_cog(BatchForwardSnippets(my_bot))
     await my_bot.start(secret_utils.TOKEN)
 
 

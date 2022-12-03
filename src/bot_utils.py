@@ -95,15 +95,7 @@ def bold_substring(value: str, substring: str):
 
     bolded_string = "".join(bolded_list)
 
-    # debug
-    # print(locals())
-
     return bolded_string
-
-
-def trim_string(string, max_chars=1000):
-    """Trims string."""
-    return string[0 : min(len(string), max_chars)]
 
 
 async def send_formatted_discord_message(temp_user, request_content, user_id):

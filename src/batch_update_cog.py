@@ -2,13 +2,16 @@
 """Queue cog."""
 
 import json
+import boto3
 from discord.ext import commands, tasks
-from bot_utils import send_formatted_discord_message
-from bot_constants import queue
+from src import bot_utils
 from src import db_utils
 
+sqs = boto3.resource("sqs", region_name="us-west-1")
+queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
 
-class MyCog(commands.Cog):
+
+class BatchForwardSnippets(commands.Cog):
     """Cog to run sqs updates."""
 
     def __init__(self, bot):
@@ -49,7 +52,7 @@ class MyCog(commands.Cog):
                 print(f"{temp_user.name} was found!")
 
                 print(message.body)
-                await send_formatted_discord_message(
+                await bot_utils.send_formatted_discord_message(
                     temp_user, request_content, user_id
                 )
 
