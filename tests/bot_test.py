@@ -1,5 +1,3 @@
-# pylint: disable=no-self-use
-
 """Tests for bot."""
 
 import unittest

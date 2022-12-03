@@ -5,6 +5,7 @@ async-timeout==4.0.2
 attrs==22.1.0
 boto3==1.24.64
 botocore==1.27.64
+celery
 charset-normalizer==2.1.1
 dill==0.3.5.1
 discord.py==2.0.1
@@ -16,6 +17,7 @@ lazy-object-proxy==1.7.1
 mccabe==0.7.0
 multidict==6.0.2
 platformdirs==2.5.2
+psycopg2-binary
 pylint==2.15.0
 python-dateutil==2.8.2
 s3transfer==0.6.0
@@ -26,5 +28,3 @@ typing-extensions==4.3.0
 urllib3==1.26.12
 wrapt==1.14.1
 yarl==1.8.1
-celery
-psycopg2-binary
