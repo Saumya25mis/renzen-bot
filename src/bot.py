@@ -41,7 +41,7 @@ async def today(interaction: discord.Interaction):
     await interaction.response.send_message("Gathering snippets for today...")
 
     snippet_matches = db_utils.query_db_by_date()
-    await format_search_embed(interaction, snippet_matches)
+    await format_search_embed(interaction, snippet_matches, title="Today's Snippets")
 
 
 @my_bot.tree.command()
