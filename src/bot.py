@@ -1,4 +1,4 @@
-# pylint: disable=import-error, no-member, unused-argument, unused-variable
+# pylint: disable=import-error, no-member, unused-argument, unused-variable, too-many-locals
 """Discord Bot."""
 
 import json
@@ -82,28 +82,38 @@ async def today(interaction: discord.Interaction):
     """Words to color or highlight in snippets."""
 
     snippet_matches = db_utils.query_db_by_date()
+    await format_search_embed(interaction, snippet_matches)
 
+
+async def format_search_embed(
+    interaction,
+    snippet_matches,
+    search_for=None,
+    exclude_message_ids=None,
+    title="Formatted",
+):
+    """Format search return results."""
     print(f"{snippet_matches=}")
 
     size = 6  # length of bot name
     embeds = []  # all embeds to send
     embed = None
-    message_ids = []
+
+    found_message_ids = []
 
     await interaction.response.send_message("Gathering snippets for today...")
 
     for snippet in snippet_matches:
-
         message_id = snippet[0]
 
         # skip over messages already sent
-        if message_id in message_ids:
+        if message_id in exclude_message_ids:
             continue
-        message_ids.append(message_id)
+        found_message_ids.append(message_id)
 
         url = snippet[1]
         original_value = snippet[2]
-        title = f"**{snippet[3]}** \n\n"
+        url_title = f"**{snippet[3]}** \n\n"
 
         # get sized correctly
 
@@ -122,22 +132,28 @@ async def today(interaction: discord.Interaction):
         if not value:
             continue
 
-        est_new_size = size + len(url) + len(value) + len(title)
+        est_new_size = size + len(url) + len(value) + len(url_title)
 
         if not embed or est_new_size >= FULL_MAX_SIZE:
             # create new embed
             print("Creating new embed.")
             embed = discord.Embed(
-                title="Snippet Summary",
-                description="Snippets saved today",
+                title=title,
+                description="Search Results",
                 colour=discord.Colour.random(),
             )
             embeds.append(embed)
             embed.set_author(name="renzen")
             size = 6
 
+        # adds more characters, but for now should be neglible
+        if search_for:
+            value = bold_substring(trim_string(value), search_for)
+
         size += len(url) + len(value)
-        embed.add_field(name=url, value=title + value)
+        embed.add_field(name=url, value=url_title + value)
+
+        return found_message_ids
 
     for embed in embeds:
         await interaction.followup.send(embed=embed)
@@ -178,37 +194,16 @@ async def search(
 ):
     """Searches saved urls and content"""
 
+    await interaction.response.send_message("Searching...")
+
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
-
-    embed = discord.Embed(
-        title="Search Results",
-        description=f"Results for '{search_for}'",
-        colour=discord.Colour.random(),
+    match_ids = await format_search_embed(
+        interaction, snippet_matches, search_for=search_for, title="Matching Snippets"
     )
-    embed.set_author(name="renzen")
-
-    snippets_found = []
-
-    for snippet in snippet_matches:
-        snippets_found.append(snippet[0])
-        cleaned_text = discord.utils.escape_markdown(snippet[2])
-        value = bold_substring(trim_string(cleaned_text), search_for)
-        if not value:
-            continue
-        title = f"**{snippet[3]}**\n\n"
-        embed.add_field(name=snippet[1], value=title + value)
-
-    for snippet in url_matches:
-        if not snippet[0] in snippets_found:
-            cleaned_text = discord.utils.escape_markdown(snippet[2])
-            value = trim_string(cleaned_text)
-            if not value:
-                continue
-            title = f"**{snippet[3]}** \n\n"
-            embed.add_field(name=snippet[1], value=title + value)
-
-    await interaction.response.send_message(embed=embed)
+    await format_search_embed(
+        interaction, url_matches, match_ids, title="Matching URLS"
+    )
 
 
 @my_bot.event
