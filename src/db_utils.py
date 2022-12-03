@@ -146,7 +146,7 @@ def invalidate_codes(discord_user_id) -> None:
 def search_urls_by_str(search_string, discord_user_id):
     """Search urls and snippets by string."""
 
-    sql = """SELECT (snippet_id, url, snippet, title, discord_user_id, creation_timestamp)
+    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
             FROM snippets
             WHERE url ILIKE %(search_string)s
             AND  discord_user_id =%(discord_user_id)s
@@ -162,7 +162,7 @@ def search_urls_by_str(search_string, discord_user_id):
 def search_snippets_by_str(search_string, discord_user_id):
     """Search urls and snippets by string."""
 
-    sql = """SELECT (snippet_id, url, snippet, title, discord_user_id, creation_timestamp)
+    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
             FROM snippets
             WHERE snippet ILIKE %(search_string)s
             AND  discord_user_id =%(discord_user_id)s
