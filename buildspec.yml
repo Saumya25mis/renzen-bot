@@ -4,7 +4,7 @@ env:
   secrets-manager:
     AWS_ACCOUNT_ID: "BotAWSAccountID"
   variables:
-    IMAGE_TAG: "Latest"
+    IMAGE_TAG: "LatestBot"
     IMAGE_TAG_SITE: "LatestSite"
     IMAGE_REPO_NAME: "bot-repo"
 

@@ -118,7 +118,7 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Essential: true
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:Latest"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:LatestBot"
           LogConfiguration:
             LogDriver: "awslogs"
             Options:
