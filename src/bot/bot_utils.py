@@ -18,7 +18,6 @@ async def format_search_embed(
     author: str = "renzen",
 ) -> Tuple[List[str], List[discord.Embed]]:
     """Format search return results."""
-    print(f"{snippet_matches=}")
 
     embeds: List[discord.Embed] = []  # all embeds to send
     embed: Optional[discord.Embed] = None
@@ -52,7 +51,6 @@ async def format_search_embed(
 
         if not embed or est_new_size >= EMBED_MAX_SIZE:
             # create new embed
-            print("Creating new embed.")
             embed = discord.Embed(
                 title=f"#{len(embeds)+1} {title}",
                 description=description,

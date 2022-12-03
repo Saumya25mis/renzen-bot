@@ -32,25 +32,18 @@ class BatchForwardSnippets(commands.Cog):
                 message_json = json.loads(message.body)
                 request_content = json.loads(message_json["request_content"])
 
-                print(f"message_json: {str(message_json)}")
                 user = db_utils.query_db_by_code(request_content["login-code"])
-                print(f"{user=}")
 
                 if not user:
-                    print("NO USER FOUND TO MATCH CODE")
                     message.delete()
                     continue
 
                 temp_user = self.bot.get_user(int(user.discord_user_id))
 
                 if temp_user is None:
-                    print(f"USER {user.discord_user_id} NOT FOUND")
                     message.delete()
                     continue
 
-                print(f"{temp_user.name} was found!")
-
-                print(message.body)
                 await bot_utils.send_formatted_discord_message(
                     request_content=request_content, user_id=user.discord_user_id
                 )

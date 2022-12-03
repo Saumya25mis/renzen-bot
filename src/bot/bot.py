@@ -100,7 +100,6 @@ async def on_ready() -> None:
     """Sync slash tree"""
     print("New bot deployed!")
     await my_bot.tree.sync()
-    print("Commands Synced!!")
 
     # send to notification user
     user: discord.User = await my_bot.fetch_user(NOTIFICATION_USER)
@@ -115,14 +114,11 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent) -> None:
     user: discord.User = await my_bot.fetch_user(payload.user_id)
     message: discord.Message = await user.fetch_message(payload.message_id)
 
-    print("Reaction ack")
-
     emoji = str(payload.emoji)
 
     # delete post on thumbs down
     if emoji == "👎":
         await message.delete()
-        print(f"Deleted message: {message.content}")
 
 
 @my_bot.event

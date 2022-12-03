@@ -22,10 +22,7 @@ async def forward(request: web.Request) -> web.Response:
     """forward check response."""
     request_id = str(uuid.uuid4())
 
-    print(f"Received request to forward: {request_id}")
-
     request_text = await request.text()
-    print(f"{request_text=}")
 
     send_message(message={"request_content": request_text})
     response_obj = {"status": f"success forward {request_id}"}
@@ -58,7 +55,6 @@ def send_message(message: Dict[str, str]) -> None:
         MessageBody=json.dumps(message),
         MessageGroupId="MyTestId",
     )
-    print(f"{response=}")
 
 
 app = web.Application()

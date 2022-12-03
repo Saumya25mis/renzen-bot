@@ -130,8 +130,6 @@ def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
     if not date:
         date = str(datetime.datetime.now().date())
 
-    print(f"Searching for {date}")
-
     sql = """select snippet_id, url, snippet, title, discord_user_id, creation_timestamp
         from   snippets
         where  creation_timestamp >= (%(value)s::timestamp)
