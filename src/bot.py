@@ -88,12 +88,22 @@ async def today(interaction: discord.Interaction):
     size = 6  # length of bot name
     embeds = []  # all embeds to send
     embed = None
+    message_ids = []
 
     await interaction.response.send_message("Gathering snippets for today...")
 
     for snippet in snippet_matches:
+
+        message_id = snippet[0]
+
+        # skip over messages already sent
+        if message_id in message_ids:
+            continue
+        message_ids.append(message_id)
+
         url = snippet[1]
         original_value = snippet[2]
+        title = f"**{snippet[3]}** \n\n"
 
         # get sized correctly
 
@@ -106,21 +116,17 @@ async def today(interaction: discord.Interaction):
             value = discord.utils.escape_markdown(
                 trim_string(trimmed_string, 1000 - (len(escaped_string - 1000)))
             )
-            print(f"length of str: {value=}")
         else:
             value = escaped_string
 
         if not value:
-            print("CLEANED SNIPPET HAS NO VALUE")
-            print(f"Original: {snippet[2]=}")
-            print(f"Final: {value=}")
             continue
-        print(f"cleaned = {value=}")
 
-        new_size = size + len(url) + len(value)
+        est_new_size = size + len(url) + len(value) + len(title)
 
-        if not embed or new_size >= FULL_MAX_SIZE:
+        if not embed or est_new_size >= FULL_MAX_SIZE:
             # create new embed
+            print("Creating new embed.")
             embed = discord.Embed(
                 title="Snippet Summary",
                 description="Snippets saved today",
@@ -130,13 +136,11 @@ async def today(interaction: discord.Interaction):
             embed.set_author(name="renzen")
             size = 6
 
-        size += len(url) + len(snippet[2])
-        embed.add_field(name=url, value=value)
+        size += len(url) + len(value)
+        embed.add_field(name=url, value=title + value)
 
     for embed in embeds:
         await interaction.followup.send(embed=embed)
-
-    await interaction.followup.send(embed=embed)
 
 
 def bold_substring(value: str, substring: str):
@@ -174,12 +178,8 @@ async def search(
 ):
     """Searches saved urls and content"""
 
-    print(f"{search_for=}")
-
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
     url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
-
-    print(snippet_matches)
 
     embed = discord.Embed(
         title="Search Results",
@@ -195,11 +195,7 @@ async def search(
         cleaned_text = discord.utils.escape_markdown(snippet[2])
         value = bold_substring(trim_string(cleaned_text), search_for)
         if not value:
-            print("CLEANED SNIPPET HAS NO VALUE")
-            print(f"Original: {snippet[2]=}")
-            print(f"Final: {value=}")
             continue
-        print(f"cleaned and bolded text = {value=}")
         title = f"**{snippet[3]}**\n\n"
         embed.add_field(name=snippet[1], value=title + value)
 
@@ -208,11 +204,7 @@ async def search(
             cleaned_text = discord.utils.escape_markdown(snippet[2])
             value = trim_string(cleaned_text)
             if not value:
-                print("CLEANED SNIPPET HAS NO VALUE")
-                print(f"Original: {snippet[2]=}")
-                print(f"Final: {value=}")
                 continue
-            print(f"cleanedtext = {value=}")
             title = f"**{snippet[3]}** \n\n"
             embed.add_field(name=snippet[1], value=title + value)
 
