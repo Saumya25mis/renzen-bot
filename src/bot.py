@@ -1,4 +1,3 @@
-# pylint: disable=no-member, unused-argument, unused-variable, too-many-locals, assigning-non-slot
 """Discord Bot."""
 
 import asyncio
