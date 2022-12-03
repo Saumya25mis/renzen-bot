@@ -75,10 +75,10 @@ async def format_search_embed(
         size += len(url) + len(value)
         embed.add_field(name=url, value=url_title + value)
 
-        return found_message_ids
-
     for embed in embeds:
         await interaction.followup.send(embed=embed)
+
+    return found_message_ids
 
 
 def bold_substring(value: str, substring: str):
