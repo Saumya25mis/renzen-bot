@@ -55,10 +55,12 @@ class BatchForwardSnippets(commands.Cog):
                     message.delete()
                     continue
 
-                await bot_utils.send_formatted_discord_message(
+                embed = await bot_utils.send_formatted_discord_message(
                     request_content=request_content,
                     user_id=login_user_relation.discord_user_id,
                 )
+
+                await temp_user.send(embed=embed)
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 logger.info("Could not deliver message. Will not retry\n %s", e)
