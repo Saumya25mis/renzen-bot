@@ -132,9 +132,10 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent) -> None:
 @my_bot.event
 async def on_message(message: discord.Message) -> None:
     """On message test."""
-    logger.info("Event Detected: on_message")
     if message.author == my_bot.user:
         return
+
+    logger.info("Event Detected: on_message")
 
     await my_bot.process_commands(message)
 
