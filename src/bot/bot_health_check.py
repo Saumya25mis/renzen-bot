@@ -1,6 +1,7 @@
 """Expose endpoint for aiohttp server"""
 
 import json
+
 from aiohttp import web
 
 

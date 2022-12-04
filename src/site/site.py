@@ -2,8 +2,9 @@
 
 import json
 import logging
-from typing import Dict
 import uuid
+from typing import Dict
+
 import boto3
 from aiohttp import web
 

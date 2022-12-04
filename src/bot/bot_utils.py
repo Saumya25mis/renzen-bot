@@ -1,7 +1,9 @@
 """Bot utility functions."""
 from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
+
 import discord
+
 from src.common import db_utils
 
 EMBED_MAX_SIZE = 6000

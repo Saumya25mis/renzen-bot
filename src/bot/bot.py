@@ -2,14 +2,13 @@
 
 import asyncio
 import logging
+
 import discord
 from discord.ext import commands
 
-from src.common import secret_utils
-from src.common import db_utils
-
-from src.bot.bot_utils import format_search_embed
 from src.bot.batch_update_cog import BatchForwardSnippets
+from src.bot.bot_utils import format_search_embed
+from src.common import db_utils, secret_utils
 
 logger = logging.getLogger(__name__)
 

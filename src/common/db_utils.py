@@ -1,13 +1,14 @@
 """DB utils."""
 
-import logging
-from typing import List, Optional, Union
-import uuid
 import datetime
+import logging
+import uuid
 from dataclasses import dataclass
+from typing import List, Optional, Union
 
 import psycopg2
 import psycopg2.extras
+
 from src.common import secret_utils
 
 logger = logging.getLogger(__name__)

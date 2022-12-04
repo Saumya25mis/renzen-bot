@@ -7,10 +7,10 @@
 # https://aws.amazon.com/developers/getting-started/python/
 
 import base64
-
 import json
 import logging
 from typing import Any
+
 import boto3
 from botocore.exceptions import ClientError
 

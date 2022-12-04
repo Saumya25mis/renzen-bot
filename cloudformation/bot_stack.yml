@@ -7,15 +7,15 @@ Resources:
   ECSScalableTargetSite:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 3
+      MaxCapacity: 1
       MinCapacity: 1
       RoleARN:
         Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
       ServiceNamespace: ecs
       ScalableDimension: "ecs:service:DesiredCount"
       ResourceId: !Join
-        - /
-        - - service
+        - ""
+        - - "service"
           - !Ref ECSCluster
           - !GetAtt ECSServiceSite.Name
 
