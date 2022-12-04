@@ -463,7 +463,10 @@ Resources:
       MapPublicIpOnLaunch: true
       VpcId: !Ref myVPC
       CidrBlock: 10.0.0.0/24
-      AvailabilityZone: "us-west-1b"
+      AvailabilityZone: !Select
+          - 0
+          - !GetAZs
+            Ref: 'AWS::Region'
       Tags:
         - Key: stack
           Value: production
@@ -474,7 +477,10 @@ Resources:
       MapPublicIpOnLaunch: true
       VpcId: !Ref myVPC
       CidrBlock: 10.0.100.0/24
-      AvailabilityZone: "us-west-1c"
+      AvailabilityZone: !Select
+          - 0
+          - !GetAZs
+            Ref: 'AWS::Region'
       Tags:
         - Key: stack
           Value: production
