@@ -166,7 +166,7 @@ def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
 
     fetched = cur.fetchone()
     if fetched:
-        return LoginCodes(**(fetched[0]))
+        return LoginCodes(**fetched)
     return None
 
 
