@@ -156,7 +156,7 @@ def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
 
     logger.info("Querying by code")
 
-    sql = """SELECT discord_user_id
+    sql = """SELECT discord_user_id, code, creation_timestamp
             FROM login_codes WHERE code = %(value)s
         """
     cur.execute(
