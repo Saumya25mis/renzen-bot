@@ -41,20 +41,23 @@ class BatchForwardSnippets(commands.Cog):
                 message_json = json.loads(message.body)
                 request_content = json.loads(message_json["request_content"])
 
-                user = db_utils.query_db_by_code(request_content["login-code"])
+                login_user_relation: Optional[
+                    db_utils.LoginCodes
+                ] = db_utils.query_db_by_code(request_content["login-code"])
 
-                if not user:
+                if not login_user_relation:
                     message.delete()
                     continue
 
-                temp_user = self.bot.get_user(int(user.discord_user_id))
+                temp_user = self.bot.get_user(int(login_user_relation.discord_user_id))
 
                 if temp_user is None:
                     message.delete()
                     continue
 
                 await bot_utils.send_formatted_discord_message(
-                    request_content=request_content, user_id=user.discord_user_id
+                    request_content=request_content,
+                    user_id=login_user_relation.discord_user_id,
                 )
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name

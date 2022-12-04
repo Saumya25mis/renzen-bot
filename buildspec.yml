@@ -14,7 +14,12 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo deregistering tasks...
-      - python3 scripts/deregister_tasks.py
+      - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - pip3 install pytest
   build:
     commands:
       - echo Build started on `date`
