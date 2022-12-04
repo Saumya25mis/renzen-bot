@@ -3,3 +3,5 @@
 *.tfstate.backup
 venv
 eklie.egg-info/
+.reference
+.scratch

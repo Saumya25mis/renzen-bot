@@ -1,4 +1,3 @@
-# pylint:disable=import-error
 """Deregister task defintions so old ones aren't used accidently by service."""
 
 import boto3
