@@ -2,8 +2,10 @@
 
 import json
 import logging
+from typing import Optional
 
 import boto3
+import discord
 from discord.ext import commands, tasks
 
 from src.bot import bot_utils
@@ -31,6 +33,8 @@ class BatchForwardSnippets(commands.Cog):
         """Receive message."""
 
         for message in queue.receive_messages():
+
+            temp_user: Optional[discord.User] = None
 
             try:
 
