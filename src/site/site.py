@@ -1,6 +1,7 @@
 """Expose endpoint for aiohttp server"""
 
 import json
+import logging
 from typing import Dict
 import uuid
 import boto3
@@ -8,6 +9,7 @@ from aiohttp import web
 
 from src.common import db_utils
 
+logger = logging.getLogger(__name__)
 
 sqs_client = boto3.client("sqs", region_name="us-west-1")
 
@@ -20,6 +22,9 @@ async def handle(request: web.Request) -> web.Response:
 
 async def forward(request: web.Request) -> web.Response:
     """forward check response."""
+
+    logger.info("Received forward request.")
+
     request_id = str(uuid.uuid4())
 
     request_text = await request.text()
@@ -31,6 +36,8 @@ async def forward(request: web.Request) -> web.Response:
 
 async def check_valid_code(request: web.Request) -> web.Response:
     """Used by chrome extension to check if user can login with code."""
+
+    logger.info("Received valid code request.")
 
     request_text = await request.text()
     result = db_utils.query_db_by_code(str(request_text))
@@ -50,6 +57,7 @@ def get_queue_url() -> str:
 
 def send_message(message: Dict[str, str]) -> None:
     """Send message to queue."""
+    logger.info("Adding message to queue.")
     response = sqs_client.send_message(
         QueueUrl=get_queue_url(),
         MessageBody=json.dumps(message),

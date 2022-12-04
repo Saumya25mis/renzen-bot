@@ -9,13 +9,17 @@
 import base64
 
 import json
+import logging
 from typing import Any
 import boto3
 from botocore.exceptions import ClientError
 
+logger = logging.getLogger(__name__)
+
 
 def get_secret(secret_name: str) -> Any:
     """Get discord secrets."""
+    logger.info("Retrieving secrets...")
 
     region_name = "us-west-1"
 

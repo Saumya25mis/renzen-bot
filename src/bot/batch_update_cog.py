@@ -1,6 +1,7 @@
 """Queue cog."""
 
 import json
+import logging
 import boto3
 from discord.ext import commands, tasks
 from src.bot import bot_utils
@@ -8,6 +9,8 @@ from src.common import db_utils
 
 sqs = boto3.resource("sqs", region_name="us-west-1")
 queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
+
+logger = logging.getLogger(__name__)
 
 
 class BatchForwardSnippets(commands.Cog):
@@ -49,8 +52,8 @@ class BatchForwardSnippets(commands.Cog):
                 )
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
-                print(f"Could not deliver message. Will not retry\n{e}")
-                print(f"{message.body=}")
+                logger.info("Could not deliver message. Will not retry\n %s", e)
+                logger.info(message.body)
                 if temp_user:
                     await temp_user.send(
                         f"Could not deliver message. Will not retry\n{e}"

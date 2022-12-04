@@ -1,5 +1,6 @@
 """DB utils."""
 
+import logging
 from typing import List, Optional, Union
 import uuid
 import datetime
@@ -8,6 +9,8 @@ from dataclasses import dataclass
 import psycopg2
 import psycopg2.extras
 from src.common import secret_utils
+
+logger = logging.getLogger(__name__)
 
 conn = psycopg2.connect(
     database="postgres",
@@ -100,6 +103,8 @@ cur.execute(
 def create_code(discord_user_id: Union[str, int], discord_user_name: str) -> str:
     """Creates codes for users to confirm discord for chrome extension"""
 
+    logger.info("Generating code for %s", (discord_user_name))
+
     # check if user has been add to discord_user_info table
     sql = """SELECT *
             FROM discord_user_info
@@ -127,6 +132,8 @@ def create_code(discord_user_id: Union[str, int], discord_user_name: str) -> str
 def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
     """Query today."""
 
+    logger.info("Querying by date")
+
     if not date:
         date = str(datetime.datetime.now().date())
 
@@ -146,6 +153,8 @@ def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
 def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
     """Queries the DB by code and returns discords user"""
 
+    logger.info("Querying by code")
+
     sql = """SELECT discord_user_id
             FROM login_codes WHERE code = %(value)s
         """
@@ -163,6 +172,8 @@ def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
 def invalidate_codes(discord_user_id: Union[str, int]) -> None:
     """Queries the DB by discord_user_id and deletes all codes"""
 
+    logger.info("Invalidating codes for %s", (discord_user_id))
+
     sql = """DELETE FROM login_codes
             WHERE discord_user_id = %(value)s
         """
@@ -176,6 +187,8 @@ def search_urls_by_str(
     search_string: str, discord_user_id: Union[str, int]
 ) -> List[Snippets]:
     """Search urls and snippets by string."""
+
+    logger.info("Searching in urls for %s", (search_string))
 
     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
             FROM snippets
@@ -195,6 +208,8 @@ def search_snippets_by_str(
 ) -> List[Snippets]:
     """Search urls and snippets by string."""
 
+    logger.info("Searching in snippets for %s", (search_string))
+
     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
             FROM snippets
             WHERE snippet ILIKE %(search_string)s
@@ -212,6 +227,8 @@ def save_snippet_to_db(
     url: str, snippet: str, discord_user_id: Union[str, int], title: str
 ) -> Optional[str]:
     """Saves snippet to db."""
+
+    logger.info("Saving snippet in db for %s", (url))
 
     sql = """INSERT INTO snippets
                 (url, snippet, discord_user_id, title) VALUES (%s, %s, %s, %s)
