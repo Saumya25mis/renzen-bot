@@ -11,6 +11,8 @@ SNIPPET_FORWARD_MAX_SIZE = 1024
 FIELD_VALUE_MAX_SIZE = 600
 FIELD_NAME_MAX_SIZE = 256
 
+MAX_SEARCH_SNIPPET_TEXT_LENGTH = 300
+
 
 async def format_search_embed(
     snippet_matches: List[db_utils.Snippets],
@@ -43,11 +45,15 @@ async def format_search_embed(
             bolded_string = bold_substring(escaped_string, search_for)
 
         domain_link = f"**[{urlparse(url=snippet.url).netloc}]({snippet.url})** \n"
-        value = domain_link + (bolded_string or escaped_string) + "\n"
+        value = (
+            domain_link
+            + (bolded_string or escaped_string)[0 : MAX_SEARCH_SNIPPET_TEXT_LENGTH - 1]
+            + "\n"
+        )
 
         # check length of field value
         if len(value) > FIELD_VALUE_MAX_SIZE:
-            value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
+            value = value[0 : FIELD_VALUE_MAX_SIZE - 4] + "...\n"
 
         # check length of field name
         field_title = snippet.title
