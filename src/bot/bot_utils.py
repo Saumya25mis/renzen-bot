@@ -8,7 +8,7 @@ from src.common import db_utils
 
 EMBED_MAX_SIZE = 6000
 SNIPPET_FORWARD_MAX_SIZE = 1024
-FIELD_VALUE_MAX_SIZE = 300
+FIELD_VALUE_MAX_SIZE = 600
 FIELD_NAME_MAX_SIZE = 256
 
 
@@ -51,8 +51,12 @@ async def format_search_embed(
         if len(value) > FIELD_VALUE_MAX_SIZE:
             value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
+        field_title = snippet.title
+        if len(field_title) > FIELD_NAME_MAX_SIZE:
+            field_title = field_title[0 : FIELD_NAME_MAX_SIZE - 3] + "..."
+
         current_embed_length = len(embed) if embed else 0  # type: ignore
-        est_new_size = current_embed_length + len(snippet.title) + len(value)
+        est_new_size = current_embed_length + len(field_title) + len(value)
 
         if not embed or est_new_size >= EMBED_MAX_SIZE:
             # create new embed
@@ -64,7 +68,7 @@ async def format_search_embed(
             embeds.append(embed)
             embed.set_author(name=author)
 
-        embed.add_field(name=snippet.title, value=value)
+        embed.add_field(name=field_title, value=value)
 
     return found_message_ids, embeds
 
