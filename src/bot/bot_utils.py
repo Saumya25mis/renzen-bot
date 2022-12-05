@@ -31,10 +31,6 @@ async def format_search_embed(
 
     for snippet in snippet_matches:
 
-        # url_title = f"**{snippet.title}** \n\n"
-        escaped_string = ""
-        bolded_string = ""
-
         # skip over messages already sent
         if snippet.snippet_id in exclude_message_ids:
             continue
@@ -48,13 +44,16 @@ async def format_search_embed(
         domain_link = f"**{urlparse(url=snippet.url).netloc}]({snippet.url})** \n\n"
         value = domain_link + (bolded_string or escaped_string)
 
+        # check length of field value
         if len(value) > FIELD_VALUE_MAX_SIZE:
             value = value[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
 
+        # check length of field name
         field_title = snippet.title
         if len(field_title) > FIELD_NAME_MAX_SIZE:
             field_title = field_title[0 : FIELD_NAME_MAX_SIZE - 3] + "..."
 
+        # estimate size to determine whether to create an additional embed
         current_embed_length = len(embed) if embed else 0  # type: ignore
         est_new_size = current_embed_length + len(field_title) + len(value)
 
@@ -68,6 +67,7 @@ async def format_search_embed(
             embeds.append(embed)
             embed.set_author(name=author)
 
+        # add field to current embed
         embed.add_field(name=field_title, value=value)
 
     return found_message_ids, embeds
