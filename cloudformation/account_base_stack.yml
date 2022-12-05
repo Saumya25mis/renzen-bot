@@ -6,16 +6,16 @@ Description: ""
 Resources:
   AccountBaseS3Bucket:
     Type: "AWS::S3::Bucket"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
     Properties:
       BucketName: "cloudformation-files-renzen"
 
-  AccountBaseStackPipeline:
+  BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: AccountBaseStackPipeline
-      RoleArn: !ImportValue BotPipelineRole
+      Name: BotCodePipeline
+      RoleArn: !GetAtt BotPipelineRole.Arn
       ArtifactStore:
         Location: !Ref AccountBaseS3Bucket
         Type: "S3"
@@ -47,25 +47,27 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref AccountBaseCodeBuildProject
+                ProjectName: !Ref CodeBuildProject
               InputArtifacts:
                 - Name: "SourceArtifact"
+              OutputArtifacts:
+                - Name: "secondary_artifact_name_1"
+                - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
               Namespace: "BuildVariables"
               RunOrder: 1
 
-
-  AccountBaseCodeBuildProject:
+  CodeBuildProject:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: AccountBaseCodeBuildProject
+      Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
-        BuildSpec: "buildspecs/account_base_buildspec.yml"
+        BuildSpec: "buildspecs/base_account_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
-        Name: AccountBaseCodeBuildProject
+        Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache:
@@ -76,7 +78,7 @@ Resources:
         ImagePullCredentialsType: "CODEBUILD"
         PrivilegedMode: true
         Type: "LINUX_CONTAINER"
-      ServiceRole: !Ref BotCodeBuildRole
+      ServiceRole: !GetAtt BotCodeBuildRole.Arn
       TimeoutInMinutes: 60
       QueuedTimeoutInMinutes: 480
       LogsConfig:
@@ -86,19 +88,6 @@ Resources:
           Status: "DISABLED"
           EncryptionDisabled: false
       Visibility: "PRIVATE"
-
-
-  BotCodeBuildRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      Path: "/service-role/"
-      RoleName: BotCodeBuildRole
-      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
-      MaxSessionDuration: 3600
-      ManagedPolicyArns:
-        - !Ref BotCodeBuildIAMManagedPolicy
-        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
-
 
   BotPipelineRole:
     Type: "AWS::IAM::Role"
@@ -304,6 +293,18 @@ Resources:
         }
 
 
+  BotCodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/service-role/"
+      RoleName: BotCodeBuildRole
+      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+      MaxSessionDuration: 3600
+      ManagedPolicyArns:
+        - !Ref BotCodeBuildIAMManagedPolicy
+        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+
+
   BotCodeBuildIAMManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
@@ -370,24 +371,25 @@ Resources:
             ]
         }
 
-Outputs:
 
-  BotPipelineRole:
-    Value: !GetAtt BotPipelineRole.Arn
-    Export:
-      Name: BotPipelineRole
+# Outputs:
 
-  BotCodeBuildRole:
-    Value: !GetAtt BotCodeBuildRole.Arn
-    Export:
-      Name: BotCodeBuildRole
+#   BotPipelineRole:
+#     Value: !GetAtt BotPipelineRole.Arn
+#     Export:
+#       Name: BotPipelineRole
 
-  BotPipelineManagedPolicy:
-    Value: !Ref BotPipelineManagedPolicy
-    Export:
-      Name: BotPipelineManagedPolicy
+#   BotCodeBuildRole:
+#     Value: !GetAtt BotCodeBuildRole.Arn
+#     Export:
+#       Name: BotCodeBuildRole
 
-  BotCodeBuildIAMManagedPolicy:
-    Value: !Ref BotCodeBuildIAMManagedPolicy
-    Export:
-      Name: BotCodeBuildIAMManagedPolicy
+#   BotPipelineManagedPolicy:
+#     Value: !Ref BotPipelineManagedPolicy
+#     Export:
+#       Name: BotPipelineManagedPolicy
+
+#   BotCodeBuildIAMManagedPolicy:
+#     Value: !Ref BotCodeBuildIAMManagedPolicy
+#     Export:
+#       Name: BotCodeBuildIAMManagedPolicy

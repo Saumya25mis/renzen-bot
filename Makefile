@@ -1,8 +1,14 @@
+github-connect:
+	aws cloudformation create-stack \
+		--stack-name githubconnect \
+		--template-body file://cloudformation/stacks/bot_stack/manual/github_connect.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
+
 create-base:
 	aws cloudformation create-stack \
-		--stack-name account_base_stack \
-		--template-body file://cloudformation/accountbasestack.yml \
-		--capabilities CAPABILITY_NAMED_IAM; \
+		--stack-name accountbasestack \
+		--template-body file://cloudformation/account_base_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 init-aws:
 	chmod a+x scripts/init_setup.sh

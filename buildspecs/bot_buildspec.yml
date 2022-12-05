@@ -1,0 +1,74 @@
+version: 0.2
+
+env:
+  secrets-manager:
+    AWS_ACCOUNT_ID: "BotAWSAccountID"
+  variables:
+    IMAGE_TAG: "LatestBot"
+    IMAGE_TAG_SITE: "LatestSite"
+    IMAGE_REPO_NAME: "bot-repo"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo deregistering tasks...
+      - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
+  # install:
+  #   runtime-versions:
+  #     python: 3.7
+  #   commands:
+  #     - pip3 install pytest
+  build:
+    commands:
+      - echo Build started on `date`
+
+      - echo Building the Docker image bot...
+      # Builds using Dockerfile named "Dockerfile" in root as context by default
+      # Name and optionally a tag in the 'name:tag' format
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f DockerfileBot .  # `-t tag .`
+      # tags built image with registry host name to push to private repository
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Building the Docker image site...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f DockerfileSite .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+      - echo Pushing the Docker image bot...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+      - echo Pushing the Docker image site...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
+
+      - echo Writing image definitions file...
+      - mkdir bot
+      - cd bot
+      - printf '[{"name":"bot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - cd ..
+      - mkdir site
+      - cd site
+      - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
+      - cd ..
+# reports:
+#   pytest_reports:
+#     files:
+#       - <report filename>
+#     base-directory: <test report directory>
+#     file-format: JUNITXML
+artifacts:
+  files:
+    - '**/*'
+  secondary-artifacts:
+    secondary_artifact_name_1:
+      base-directory: bot
+      files:
+        - imagedefinitions.json
+      name: secondary_artifact_name_1
+    secondary_artifact_name_2:
+      base-directory: site
+      files:
+        - imagedefinitions.json
+      name: secondary_artifact_name_2
