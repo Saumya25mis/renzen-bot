@@ -1,3 +1,9 @@
+create-base:
+	aws cloudformation create-stack \
+		--stack-name account_base_stack \
+		--template-body file://cloudformation/account_base_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM; \
+
 init-aws:
 	chmod a+x scripts/init_setup.sh
 	./scripts/init_setup.sh

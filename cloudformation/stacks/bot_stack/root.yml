@@ -4,6 +4,11 @@ Metadata:
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
+  # nested stack
+  myStackWithParams:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "s3://cloudformation-files-renzen/cloudformation/stacks/bot_stack/nested/pipeline.yml"
   ECSScalableTargetSite:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:

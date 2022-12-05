@@ -1,0 +1,311 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "me-test"
+Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
+
+Resources:
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+        - Key: stack
+          Value: production
+
+  mySubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet1
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet2
+      RouteTableId:
+        Ref: myRouteTable
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId:
+        Ref: myRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !ImportValue myInternetGateway
+
+  myBotLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "bot-task"
+      RetentionInDays: 30
+
+  mySiteLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "bot-site"
+      RetentionInDays: 30
+
+  BotS3Bucket:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
+
+  ECRRepository:
+    Type: "AWS::ECR::Repository"
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: "bot-repo"
+
+  MyQueue:
+    Properties:
+      QueueName: MyQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+    Type: "AWS::SQS::Queue"
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+
+  #----------------DB----------------------------------------
+  #https://aws.amazon.com/blogs/security/how-to-create-and-retrieve-secrets-managed-in-aws-secrets-manager-using-aws-cloudformation-template/
+  # Create a secret with the username admin and a randomly generated password in JSON.
+  MyRDSInstanceRotationSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: "DBPassword"
+      Description: "This is the secret for my RDS instance"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "myadmin"}'
+        GenerateStringKey: "password"
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+
+  # The secret (username and password for the superuser) will be dynamically
+  # referenced. This ensures CloudFormation will not log or persist the resolved
+  # value.
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t4g.micro
+      Engine: postgres
+      MasterUsername:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref MyRDSInstanceRotationSecret,
+            ":SecretString:username}}",
+          ],
+        ]
+      MasterUserPassword:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref MyRDSInstanceRotationSecret,
+            ":SecretString:password}}",
+          ],
+        ]
+      BackupRetentionPeriod: 0
+      DBInstanceIdentifier: "rotation-instance"
+      DBSubnetGroupName: !Ref DataSourceSubtNetGroup
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId
+
+  DataSourceSubtNetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Created by CF
+      SubnetIds:
+        - !Ref mySubnet1
+        - !Ref mySubnet2
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select
+          - 0
+          - !GetAZs
+            Ref: 'AWS::Region'
+      Tags:
+        - Key: stack
+          Value: production
+
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.100.0/24
+      AvailabilityZone: !Select
+          - 1
+          - !GetAZs
+            Ref: 'AWS::Region'
+      Tags:
+        - Key: stack
+          Value: production
+
+  # Update the referenced secret with properties of the RDS database.
+  # This is required to enable rotation. To learn more, visit our documentation
+  # https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html
+  SecretRDSInstanceAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId: !Ref MyRDSInstanceRotationSecret
+      TargetId: !Ref MyDBInstance
+      TargetType: AWS::RDS::DBInstance
+
+  # Schedule rotating the secret every 30 days.
+  # Note, the first rotation is triggered immediately.
+  # This enables you to verify that rotation is configured appropriately.
+  # Subsequent rotations are scheduled according to the configured rotation.
+  # This example assumes that you have previously created a Lambda function to rotate secrets of this type.
+  # Replace <% replace-with-lambda-arn %> with the ARN of your rotation Lambda function.
+  # For details about rotation Lambdas, see:
+  # https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html
+  # MySecretRotationSchedule:
+  #   Type: AWS::SecretsManager::RotationSchedule
+  #   DependsOn: SecretRDSInstanceAttachment
+  #   Properties:
+  #     SecretId: !Ref MyRDSInstanceRotationSecret
+  #     # Remember to update this place holder with the ARN of your rotation lambda
+  #     RotationLambdaARN: <% replace-with-lambda-arn %>
+  #     RotationRules:
+  #       AutomaticallyAfterDays: 30
+
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      Tags:
+        - Key: stack
+          Value: production
+
+  LoadBalancerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow fargate service attach to RDS
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt InstanceSecurityGroup.GroupId
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: stack
+          Value: production
+
+Outputs:
+  GatewayToInternet:
+    Value: !Ref GatewayToInternet
+    Export:
+      Name: GatewayToInternet
+
+  myInternetGateway:
+    Value: !Ref myInternetGateway
+    Export:
+      Name: myInternetGateway
+
+  InstanceSecurityGroup:
+    Value: !Ref InstanceSecurityGroup
+    Export:
+      Name: InstanceSecurityGroup
+
+  LoadBalancerSecurityGroup:
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: LoadBalancerSecurityGroup
+
+  BotS3Bucket:
+    Value: !Ref BotS3Bucket
+    Export:
+      Name: BotS3Bucket
+
+  myVPC:
+    Value: !Ref myVPC
+    Export:
+      Name: myVPC
+
+  mySubnet1:
+    Value: !Ref mySubnet1
+    Export:
+      Name: mySubnet1
+
+  mySubnet2:
+    Value: !Ref mySubnet2
+    Export:
+      Name: mySubnet2
+
+
+
+  ECRRepository:
+    Value: !Ref ECRRepository
+    Export:
+      Name: ECRRepository
+
+  QueueName:
+    Description: The name of the queue
+    Value: !GetAtt
+      - MyQueue
+      - QueueName
+  QueueURL:
+    Description: The URL of the queue
+    Value: !Ref MyQueue
+  QueueARN:
+    Description: The ARN of the queue
+    Value: !GetAtt
+      - MyQueue
+      - Arn

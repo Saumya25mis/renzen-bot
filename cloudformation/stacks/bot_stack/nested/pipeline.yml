@@ -4,6 +4,10 @@ Metadata:
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
+  myStackWithParams:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "s3://cloudformation-files-renzen/cloudformation/stacks/bot_stack/nested/init_stack.yml"
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -87,7 +91,7 @@ Resources:
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
-        # BuildSpec: "buildspec.yml"
+        BuildSpec: "buildspecs/bot_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
         Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"

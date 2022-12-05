@@ -33,6 +33,14 @@ Resources:
       Name: "BotAWSAccountID"
       SecretString: !Ref AWSACCOUNTID
 
+
+  BotGithubConnection:
+    Type: "AWS::CodeStarConnections::Connection"
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ConnectionName: GithubConnection
+      ProviderType: GitHub
 Outputs:
   GitHubRepoName:
     Value: !Ref GitHubRepoName
@@ -48,3 +56,7 @@ Outputs:
     Value: !Ref DiscordTokenParameter
     Export:
       Name: DiscordTokenParameter
+  BotGithubConnection:
+    Value: !Ref BotGithubConnection
+    Export:
+      Name: BotGithubConnection
