@@ -47,13 +47,13 @@ async def format_search_embed(
         domain_link = f"**[{urlparse(url=snippet.url).netloc}]({snippet.url})** \n"
         value = (
             domain_link
-            + (bolded_string or escaped_string)[0 : MAX_SEARCH_SNIPPET_TEXT_LENGTH - 1]
-            + "\n"
+            + (bolded_string or escaped_string)[0 : MAX_SEARCH_SNIPPET_TEXT_LENGTH - 5]
+            + "...\n"
         )
 
         # check length of field value
         if len(value) > FIELD_VALUE_MAX_SIZE:
-            value = value[0 : FIELD_VALUE_MAX_SIZE - 4] + "...\n"
+            value = value[0 : FIELD_VALUE_MAX_SIZE - 10] + "...\n"
 
         # check length of field name
         field_title = snippet.title
