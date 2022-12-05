@@ -7,7 +7,8 @@ import discord
 from src.common import db_utils
 
 EMBED_MAX_SIZE = 6000
-FIELD_VALUE_MAX_SIZE = 1024
+SNIPPET_FORWARD_MAX_SIZE = 1024
+FIELD_VALUE_MAX_SIZE = 300
 FIELD_NAME_MAX_SIZE = 256
 
 
@@ -99,8 +100,8 @@ async def send_formatted_discord_message(
     snippet = request_content["snippet"]
 
     # truncate snippet
-    if len(snippet) >= FIELD_VALUE_MAX_SIZE:
-        snippet = snippet[0 : FIELD_VALUE_MAX_SIZE - 3] + "..."
+    if len(snippet) >= SNIPPET_FORWARD_MAX_SIZE:
+        snippet = snippet[0 : SNIPPET_FORWARD_MAX_SIZE - 3] + "..."
 
     url = request_content["URL"]
     title = request_content["title"]
