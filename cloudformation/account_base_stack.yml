@@ -47,7 +47,7 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildProject
+                ProjectName: !Ref BotCodeBuildProject
               InputArtifacts:
                 - Name: "SourceArtifact"
               OutputArtifacts:
@@ -57,7 +57,7 @@ Resources:
               Namespace: "BuildVariables"
               RunOrder: 1
 
-  CodeBuildProject:
+  BotCodeBuildProject:
     Type: "AWS::CodeBuild::Project"
     Properties:
       Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"

@@ -10,6 +10,12 @@ create-base:
 		--template-body file://cloudformation/account_base_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
+update-base:
+	aws cloudformation update-stack \
+		--stack-name accountbasestack \
+		--template-body file://cloudformation/account_base_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
+
 init-aws:
 	chmod a+x scripts/init_setup.sh
 	./scripts/init_setup.sh
