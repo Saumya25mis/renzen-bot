@@ -87,6 +87,7 @@ Resources:
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
+        # BuildSpec: "buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
         Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"

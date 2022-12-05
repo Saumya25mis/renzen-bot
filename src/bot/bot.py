@@ -69,7 +69,7 @@ async def today(interaction: discord.Interaction) -> None:
 
 
 @my_bot.tree.command()
-async def search(
+async def search_snippets(
     interaction: discord.Interaction,
     search_for: str,
 ) -> None:
@@ -79,8 +79,7 @@ async def search(
     await interaction.response.send_message(f"Searching for {search_for}...")
 
     snippet_matches = db_utils.search_snippets_by_str(search_for, interaction.user.id)
-    url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
-    match_ids, embeds = await format_search_embed(
+    _, embeds = await format_search_embed(
         snippet_matches=snippet_matches,
         search_for=search_for,
         title="Matching Snippet Content",
@@ -90,10 +89,22 @@ async def search(
     for embed in embeds:
         await interaction.followup.send(embed=embed)
 
-    match_ids, embeds = await format_search_embed(
+
+@my_bot.tree.command()
+async def search_urls(
+    interaction: discord.Interaction,
+    search_for: str,
+) -> None:
+    """Searches saved urls and content"""
+    logger.info("Command Detected: search")
+
+    await interaction.response.send_message(f"Searching for {search_for}...")
+
+    url_matches = db_utils.search_urls_by_str(search_for, interaction.user.id)
+
+    _, embeds = await format_search_embed(
         snippet_matches=url_matches,
         search_for=search_for,
-        exclude_message_ids=match_ids,
         title="Matching URLS Only",
         description=f"Search Results for {search_for}",
     )
