@@ -41,7 +41,7 @@ async def format_search_embed(
         if search_for:
             bolded_string = bold_substring(escaped_string, search_for)
 
-        domain_link = f"**{urlparse(url=snippet.url).netloc}]({snippet.url})** \n\n"
+        domain_link = f"**[{urlparse(url=snippet.url).netloc}]({snippet.url})** \n\n"
         value = domain_link + (bolded_string or escaped_string)
 
         # check length of field value
