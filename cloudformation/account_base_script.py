@@ -58,12 +58,13 @@ for directory in directories:
     for stack in stack_summaries:
 
         # deal with stacks that exist
-        if stack["StackName"] == directory:
+        compliant = directory.replace("_", "")
+        if stack["StackName"] == compliant:
 
             status = stack["StackStatus"]
             if status == "CREATE_COMPLETE":
                 update_response = cloudformation_client.update_stack(
-                    StackName=directory,
+                    StackName=compliant,
                     TemplateURL=f"cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
                 )
                 # not async rn

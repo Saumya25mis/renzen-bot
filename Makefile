@@ -1,7 +1,7 @@
 create-base:
 	aws cloudformation create-stack \
 		--stack-name account_base_stack \
-		--template-body file://cloudformation/account_base_stack.yml \
+		--template-body file://cloudformation/accountbasestack.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
 
 init-aws:
