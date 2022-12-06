@@ -4,7 +4,13 @@ Metadata:
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
-  myStackWithParams:
+  BotS3Bucket:
+    Type: "AWS::S3::Bucket"
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: "renzen-bot-s3-bucket"
+  Init:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/nested/init_stack.yml"
@@ -14,7 +20,7 @@ Resources:
       Name: BotCodePipeline
       RoleArn: !ImportValue BotPipelineRole
       ArtifactStore:
-        Location: !ImportValue BotS3Bucket
+        Location: !Ref BotS3Bucket
         Type: "S3"
       Stages:
         - Name: Source
@@ -87,14 +93,14 @@ Resources:
   CodeBuildProject:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
+      Name: BotCodeBuildProject-2 # !Sub "${CodeBuildProject3}-3"
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
         BuildSpec: "buildspecs/bot_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
-        Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
+        Name: BotCodeBuildProject-2 # !Sub "${CodeBuildProject3}-3"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache:
@@ -115,63 +121,62 @@ Resources:
           Status: "DISABLED"
           EncryptionDisabled: false
       Visibility: "PRIVATE"
-Outputs:
-  Export:
-    GatewayToInternet:
-      Value: !Ref GatewayToInternet
-      Export:
-        Name: GatewayToInternet
+# Outputs:
+#     GatewayToInternet:
+#       Value: !ImportValue Init.GatewayToInternet
+#       Export:
+#         Name: GatewayToInternet
 
-    myInternetGateway:
-      Value: !Ref myInternetGateway
-      Export:
-        Name: myInternetGateway
+#     myInternetGateway:
+#       Value: !ImportValue myInternetGateway
+#       Export:
+#         Name: myInternetGateway
 
-    InstanceSecurityGroup:
-      Value: !Ref InstanceSecurityGroup
-      Export:
-        Name: InstanceSecurityGroup
+#     InstanceSecurityGroup:
+#       Value: !ImportValue myStackWithParams.InstanceSecurityGroup
+#       Export:
+#         Name: InstanceSecurityGroup
 
-    LoadBalancerSecurityGroup:
-      Value: !Ref LoadBalancerSecurityGroup
-      Export:
-        Name: LoadBalancerSecurityGroup
+#     LoadBalancerSecurityGroup:
+#       Value: !ImportValue myStackWithParams.LoadBalancerSecurityGroup
+#       Export:
+#         Name: LoadBalancerSecurityGroup
 
-    BotS3Bucket:
-      Value: !Ref BotS3Bucket
-      Export:
-        Name: BotS3Bucket
+#     BotS3Bucket:
+#       Value: !ImportValue BotS3Bucket
+#       Export:
+#         Name: BotS3Bucket
 
-    myVPC:
-      Value: !Ref myVPC
-      Export:
-        Name: myVPC
+#     myVPC:
+#       Value: !ImportValue myVPC
+#       Export:
+#         Name: myVPC
 
-    mySubnet1:
-      Value: !Ref mySubnet1
-      Export:
-        Name: mySubnet1
+#     mySubnet1:
+#       Value: !ImportValue mySubnet1
+#       Export:
+#         Name: mySubnet1
 
-    mySubnet2:
-      Value: !Ref mySubnet2
-      Export:
-        Name: mySubnet2
+#     mySubnet2:
+#       Value: !ImportValue myStackWithParams.mySubnet2
+#       Export:
+#         Name: mySubnet2
 
-    ECRRepository:
-      Value: !Ref ECRRepository
-      Export:
-        Name: ECRRepository
+#     ECRRepository:
+#       Value: !ImportValue ECRRepository
+#       Export:
+#         Name: ECRRepository
 
-    QueueName:
-      Description: The name of the queue
-      Value: !GetAtt
-        - MyQueue
-        - QueueName
-    QueueURL:
-      Description: The URL of the queue
-      Value: !Ref MyQueue
-    QueueARN:
-      Description: The ARN of the queue
-      Value: !GetAtt
-        - MyQueue
-        - Arn
+    # QueueName:
+    #   Description: The name of the queue
+    #   Value: !GetAtt
+    #     - MyQueue
+    #     - QueueName
+    # QueueURL:
+    #   Description: The URL of the queue
+    #   Value: !ImportValue Init.MyQueue
+    # QueueARN:
+    #   Description: The ARN of the queue
+    #   Value: !GetAtt
+    #     - MyQueue
+    #     - Arn

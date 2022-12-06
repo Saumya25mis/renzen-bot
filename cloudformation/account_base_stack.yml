@@ -386,24 +386,24 @@ Resources:
         }
 
 
-# Outputs:
+Outputs:
 
-#   BotPipelineRole:
-#     Value: !GetAtt BotPipelineRole.Arn
-#     Export:
-#       Name: BotPipelineRole
+  BotPipelineRole:
+    Value: !GetAtt BotPipelineRole.Arn
+    Export:
+      Name: BotPipelineRole
 
-#   BotCodeBuildRole:
-#     Value: !GetAtt BotCodeBuildRole.Arn
-#     Export:
-#       Name: BotCodeBuildRole
+  BotCodeBuildRole:
+    Value: !GetAtt BotCodeBuildRole.Arn
+    Export:
+      Name: BotCodeBuildRole
 
-#   BotPipelineManagedPolicy:
-#     Value: !Ref BotPipelineManagedPolicy
-#     Export:
-#       Name: BotPipelineManagedPolicy
+  BotPipelineManagedPolicy:
+    Value: !Ref BotPipelineManagedPolicy
+    Export:
+      Name: BotPipelineManagedPolicy
 
-#   BotCodeBuildIAMManagedPolicy:
-#     Value: !Ref BotCodeBuildIAMManagedPolicy
-#     Export:
-#       Name: BotCodeBuildIAMManagedPolicy
+  BotCodeBuildIAMManagedPolicy:
+    Value: !Ref BotCodeBuildIAMManagedPolicy
+    Export:
+      Name: BotCodeBuildIAMManagedPolicy

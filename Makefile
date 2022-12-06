@@ -5,9 +5,15 @@ github-connect:
 		--capabilities CAPABILITY_NAMED_IAM; \
 
 create-base:
-	aws cloudformation create-stack \
+	aws cloudformation update-stack \
 		--stack-name accountbasestack \
 		--template-body file://cloudformation/account_base_stack.yml \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
+
+create-root:
+	aws cloudformation create-stack \
+		--stack-name botstack \
+		--template-body file://cloudformation/stacks/bot_stack/nested/pipeline.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 update-base:

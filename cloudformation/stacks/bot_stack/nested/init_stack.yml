@@ -33,7 +33,7 @@ Resources:
       RouteTableId:
         Ref: myRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !ImportValue myInternetGateway
+      GatewayId: !Ref myInternetGateway
 
   myBotLogGroup:
     Type: AWS::Logs::LogGroup
@@ -300,11 +300,19 @@ Outputs:
       Value: !GetAtt
         - MyQueue
         - QueueName
+      Export:
+        Name: QueueName
+
     QueueURL:
       Description: The URL of the queue
       Value: !Ref MyQueue
+      Export:
+        Name: QueueURL
+
     QueueARN:
       Description: The ARN of the queue
       Value: !GetAtt
         - MyQueue
         - Arn
+      Export:
+        Name: QueueARN
