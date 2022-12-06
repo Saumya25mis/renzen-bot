@@ -72,12 +72,14 @@ for directory in directories:
 
     for stack in stack_summaries:
 
+        print(f"{stack=}")
+
         # deal with stacks that exist
         compliant = directory.replace("_", "").replace(".yml", "")
         if stack["StackName"] == compliant:
             print(stack)
             status = stack["StackStatus"]
-            if status in ["CREATE_COMPLETE", "ROLLBACK_COMPLETE", "UPDATE_COMPLETE"]:
+            if status in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
                 print(f'Updating {stack["StackName"]}...')
 
                 try:
@@ -95,6 +97,26 @@ for directory in directories:
                 except Exception as e:
                     print(f"COULD NOT UPDATE: {e}")
                     break
+            elif status in stack["ROLLBACK_COMPLETE"]:
+
+                print(
+                    f'stack {stack["StackName"]} in ROLLBACK_COMPLETE state. Deleting'
+                )
+
+                cloudformation_client.delete_stack(StackName=compliant)
+                role_waiter = cloudformation_client.get_waiter("stack_delete_complete")
+                role_waiter.wait(StackName=compliant)
+
+                print(f'Creating {stack["StackName"]}...')
+                create_response = cloudformation_client.create_stack(
+                    StackName=compliant,
+                    TemplateURL=f"{stack_prefix}/{directory}/root.yml",
+                    Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+                )
+                cloudformation_client.get_waiter("stack_create_complete").wait(
+                    StackName=stack["StackName"]
+                )
+
             # else:
             #     # FAIL DEPLOY
             #     print(
