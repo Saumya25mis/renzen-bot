@@ -10,10 +10,10 @@ import s3fs  # type: ignore
 s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
 # upload files to s3
 s3_file_system.put(
-    local_path="cloudformation/",
-    s3_path="cloudformation-s3-bucket/cloudformation/",
+    rpath="cloudformation/",
+    lpath="cloudformation-s3-bucket/cloudformation/",
     recursive=True,
-)  # type: ignore
+)
 
 # get cloudformation client
 cloudformation_client = boto3.client("cloudformation")
