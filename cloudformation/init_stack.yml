@@ -255,10 +255,10 @@ Resources:
     Properties:
       BucketName: "renzen-bot-s3-bucket"
 
-  BotCodePipeline-2:
+  BotCodePipeline2:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: BotCodePipeline-2
+      Name: BotCodePipeline2
       RoleArn: !ImportValue BotPipelineRole
       ArtifactStore:
         Location: !Ref BotS3Bucket
