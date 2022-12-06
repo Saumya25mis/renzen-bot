@@ -16,7 +16,7 @@ cloudformation_client = boto3.client("cloudformation")
 
 # apply stacks
 
-directories: List[str] = os.listdir("cloudformation/stacks")
+directories: List[str] = os.listdir("cloudformation/stacks/")
 
 # run the each stack directorys `root.yml`
 response = cloudformation_client.describe_stacks()
@@ -75,15 +75,12 @@ for directory in directories:
         # deal with stacks that exist
         compliant = directory.replace("_", "").replace(".yml", "")
         if stack["StackName"] == compliant:
-
             print(stack)
-
             status = stack["StackStatus"]
             if status in ["CREATE_COMPLETE", "ROLLBACK_COMPLETE", "UPDATE_COMPLETE"]:
                 print(f'Updating {stack["StackName"]}...')
 
                 try:
-
                     update_response = cloudformation_client.update_stack(
                         StackName=compliant,
                         TemplateURL=f"{stack_prefix}/{directory}/root.yml",
@@ -93,24 +90,26 @@ for directory in directories:
                     cloudformation_client.get_waiter("stack_update_complete").wait(
                         StackName=stack["StackName"]
                     )
+                    break
 
                 except Exception as e:
                     print(f"COULD NOT UPDATE: {e}")
+                    break
+            # else:
+            #     # FAIL DEPLOY
+            #     print(
+            #         f'Stack {stack["StackName"]} could not be updated due to {stack["StackStatus"]} !'
+            #     )
+            #     break
 
-            else:
-                # FAIL DEPLOY
-                print(
-                    f'Stack {stack["StackName"]} could not be updated due to {stack["StackStatus"]} !'
-                )
-
-        # deal with stacks that DONT exist
-        else:
-            print(f'Creating {stack["StackName"]}...')
-            create_response = cloudformation_client.create_stack(
-                StackName=compliant,
-                TemplateURL=f"{stack_prefix}/{directory}/root.yml",
-                Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
-            )
-            cloudformation_client.get_waiter("stack_create_complete").wait(
-                StackName=stack["StackName"]
-            )
+    # directory has not corresponding stack created, so create
+    else:
+        print(f'Creating {stack["StackName"]}...')
+        create_response = cloudformation_client.create_stack(
+            StackName=compliant,
+            TemplateURL=f"{stack_prefix}/{directory}/root.yml",
+            Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+        )
+        cloudformation_client.get_waiter("stack_create_complete").wait(
+            StackName=stack["StackName"]
+        )
