@@ -36,7 +36,7 @@ for stack_name in stacks_name_compliant:
             StackName=stack_name
         )
         print(f"Updated: {stack_name}")
-    except botocore.exceptions.ValidationError as e:
+    except (botocore.exceptions.ValidationError, botocore.exceptions.ClientError) as e:
         # stack does NOT, so attempt to create
         print(f"Stack does not exist. Attempting to create {stack_name}")
         create_response = cloudformation_client.create_stack(

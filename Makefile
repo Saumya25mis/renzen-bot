@@ -22,7 +22,7 @@ create-bot-root:
 update-base:
 	aws cloudformation update-stack \
 		--stack-name accountbasestack \
-		--template-body file://cloudformation/account_base_stack.yml \
+		--template-body file://cloudformation/cloudformation_deploy.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 init-aws:
