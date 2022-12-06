@@ -10,8 +10,8 @@ import s3fs  # type: ignore
 s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
 # upload files to s3
 s3_file_system.put(
-    rpath="cloudformation/",
-    lpath="s3://cloudformation-files-renzen/cloudformation/",
+    lpath="cloudformation/",
+    rpath="s3://cloudformation-files-renzen/cloudformation/",
     recursive=True,
 )
 
