@@ -5,10 +5,6 @@ Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
   # nested stack
-  StackInit:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/nested/init_stack.yml"
   ECSScalableTargetSite:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
@@ -26,7 +22,6 @@ Resources:
 
   myLoadBalancerSite:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn: StackInit
     Properties:
       Name: myLoadBalancerSite
       SecurityGroups:

@@ -38,7 +38,7 @@ for stack_name in stacks_name_compliant:
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             TemplateURL=f"{stack_prefix}/{stack_name}",
         )
-        role_waiter = cloudformation_client.get_waiter("stack_update_complete").wait(
+        cloudformation_client.get_waiter("stack_update_complete").wait(
             StackName=stack_name
         )
         print(f"Updated: {stack_name}")
@@ -50,7 +50,7 @@ for stack_name in stacks_name_compliant:
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             TemplateURL=f"{stack_prefix}/{stack_name}",
         )
-        role_waiter = cloudformation_client.get_waiter("stack_create_complete").wait(
+        cloudformation_client.get_waiter("stack_create_complete").wait(
             StackName=stack_name
         )
         print(f"Created: {stack_name}")
