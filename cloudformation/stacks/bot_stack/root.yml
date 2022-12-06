@@ -8,7 +8,7 @@ Resources:
   myStackWithParams:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "s3://cloudformation-files-renzen/cloudformation/stacks/bot_stack/nested/pipeline.yml"
+      TemplateURL: "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/nested/pipeline.yml"
   ECSScalableTargetSite:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:

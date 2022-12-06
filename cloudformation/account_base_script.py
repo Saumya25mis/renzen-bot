@@ -50,19 +50,20 @@ while "NextToken" in response:
     response = cloudformation_client.list_stacks(NextToken=response["NextToken"])
     stack_summaries.extend(response["StackSummaries"])
 
+role_url = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/roles.yml"
 # check for role stack first
 for stack in stack_summaries:
     if stack["StackName"] == "roles":
         create_response = cloudformation_client.update_stack(
             StackName="roles.yml",
-            TemplateURL="s3://cloudformation-files-renzen/cloudformation/roles.yml",
+            TemplateURL=role_url,
         )
         role_waiter = cloudformation_client.get_waiter("stack_update_complete")
         break
 else:
     create_response = cloudformation_client.create_stack(
         StackName="roles",
-        TemplateURL="s3://cloudformation-files-renzen/cloudformation/roles.yml",
+        TemplateURL=role_url,
     )
 
     role_waiter = cloudformation_client.get_waiter("stack_create_complete")
@@ -73,6 +74,10 @@ role_waiter.wait(StackName="roles")
 
 # loop over directories (which correspond with stack names)
 # and create/update as necessary
+
+# https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/root.yml
+
+stack_prefix = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks"
 for directory in directories:
 
     for stack in stack_summaries:
@@ -85,7 +90,7 @@ for directory in directories:
             if status == "CREATE_COMPLETE":
                 update_response = cloudformation_client.update_stack(
                     StackName=compliant,
-                    TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
+                    TemplateURL=f"{stack_prefix}/{directory}/root.yml",
                 )
                 # not async rn
                 cloudformation_client.get_waiter("stack_update_complete").wait(

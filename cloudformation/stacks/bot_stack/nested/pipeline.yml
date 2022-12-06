@@ -7,7 +7,7 @@ Resources:
   myStackWithParams:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "s3://cloudformation-files-renzen/cloudformation/stacks/bot_stack/nested/init_stack.yml"
+      TemplateURL: "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/nested/init_stack.yml"
   BotCodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
