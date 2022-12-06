@@ -45,10 +45,11 @@ directories: List[str] = os.listdir("cloudformation/stacks")
 response = cloudformation_client.list_stacks()
 
 # get all stacks
-stack_summaries = response["StackSummaries"]
+stack_summaries = response["Stacks"]
+print(stack_summaries)
 while "NextToken" in response:
-    response = cloudformation_client.list_stacks(NextToken=response["NextToken"])
-    stack_summaries.extend(response["StackSummaries"])
+    response = cloudformation_client.describe_stacks(NextToken=response["NextToken"])
+    stack_summaries.extend(response["Stacks"])
 
 role_url = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/roles.yml"
 # check for role stack first
@@ -89,6 +90,8 @@ for directory in directories:
         # deal with stacks that exist
         compliant = directory.replace("_", "").replace("", ".yml")
         if stack["StackName"] == compliant:
+
+            print(stack)
 
             status = stack["StackStatus"]
             if status in ["CREATE_COMPLETE", "ROLLBACK_COMPLETE", "UPDATE_COMPLETE"]:
