@@ -11,7 +11,7 @@ s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
 # upload files to s3
 s3_file_system.put(
     rpath="cloudformation/",
-    lpath="cloudformation-s3-bucket/cloudformation/",
+    lpath="s3://cloudformation-files-renzen/cloudformation/",
     recursive=True,
 )
 
