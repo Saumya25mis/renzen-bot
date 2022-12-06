@@ -64,7 +64,7 @@ Resources:
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
-        BuildSpec: "buildspecs/base_account_buildspec.yml"
+        BuildSpec: "buildspecs/account_base_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
         Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
@@ -347,7 +347,8 @@ Resources:
                   "Effect": "Allow",
                   "Resource": [
                       "arn:aws:s3:::codepipeline-${AWS::Region}-*",
-                      "arn:aws:s3:::cloudformation-files-renzen"
+                      "arn:aws:s3:::cloudformation-files-renzen*",
+                      "arn:aws:s3:::cloudformation-files-renzen/*"
                   ],
                   "Action": [
                       "s3:PutObject",
