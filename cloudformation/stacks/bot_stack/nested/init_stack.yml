@@ -254,11 +254,11 @@ Resources:
     # UpdateReplacePolicy: Retain
     Properties:
       BucketName: "renzen-bot-s3-bucket"
-  BotCodePipeline:
-    DependsOn: Init
+
+  BotCodePipeline-2:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: BotCodePipeline
+      Name: BotCodePipeline-2
       RoleArn: !ImportValue BotPipelineRole
       ArtifactStore:
         Location: !Ref BotS3Bucket

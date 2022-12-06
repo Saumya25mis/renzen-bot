@@ -1,3 +1,6 @@
+sync-cloudformation:
+	aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
+
 github-connect:
 	aws cloudformation create-stack \
 		--stack-name githubconnect \

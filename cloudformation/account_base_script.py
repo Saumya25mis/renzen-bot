@@ -4,13 +4,14 @@ import os
 from typing import List
 
 import boto3
-import s3fs  # type: ignore
 
-s3_file = s3fs.S3FileSystem()
-local_path = "cloudformation"
-s3_path = "s3://cloudformation-files-renzen/cloudformation/"
-s3_file.rm(s3_path, recursive=True, maxdepth=10)
-s3_file.put(local_path, s3_path, recursive=True)
+# import s3fs  # type: ignore
+
+# s3_file = s3fs.S3FileSystem()
+# local_path = "cloudformation"
+# s3_path = "s3://cloudformation-files-renzen/cloudformation/"
+# s3_file.rm(s3_path, recursive=True, maxdepth=10)
+# s3_file.put(local_path, s3_path, recursive=True)
 
 # get cloudformation client
 cloudformation_client = boto3.client("cloudformation")

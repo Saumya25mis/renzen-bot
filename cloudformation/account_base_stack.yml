@@ -334,8 +334,7 @@ Resources:
               {
                   "Effect": "Allow",
                   "Resource": [
-                      "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/BotCodeBuildProject",
-                      "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/BotCodeBuildProject:*"
+                    "*"
                   ],
                   "Action": [
                       "logs:CreateLogGroup",
@@ -379,7 +378,7 @@ Resources:
                       "codebuild:BatchPutCodeCoverages"
                   ],
                   "Resource": [
-                      "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/BotCodeBuildProject-*"
+                      "*"
                   ]
               }
             ]
