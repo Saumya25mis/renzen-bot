@@ -10,10 +10,10 @@ create-base:
 		--template-body file://cloudformation/account_base_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
-create-root:
+create-bot-root:
 	aws cloudformation create-stack \
 		--stack-name botstack \
-		--template-body file://cloudformation/stacks/bot_stack/nested/pipeline.yml \
+		--template-body file://cloudformation/stacks/bot_stack/root.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 update-base:
