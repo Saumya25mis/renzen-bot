@@ -130,12 +130,12 @@ for directory in directories:
 
     # directory has not corresponding stack created, so create
     else:
-        print(f'Creating {stack["StackName"]}...')
+        print(f"Creating {dir_stack_compliant_name}...")
         create_response = cloudformation_client.create_stack(
             StackName=dir_stack_compliant_name,
             TemplateURL=f"{stack_prefix}/{directory}/root.yml",
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
         )
         cloudformation_client.get_waiter("stack_create_complete").wait(
-            StackName=stack["StackName"]
+            StackName=dir_stack_compliant_name
         )
