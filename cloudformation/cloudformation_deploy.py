@@ -5,6 +5,11 @@ from typing import List
 import boto3
 import botocore.exceptions
 
+# file path prefix
+stack_prefix = (
+    "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation"
+)
+
 # stacks created or updated in this script
 stacks_order: List[str] = [
     "roles.yml",
@@ -31,6 +36,7 @@ for stack_name in stacks_name_compliant:
         update_response = cloudformation_client.update_stack(
             StackName=stack_name,
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+            TemplateURL=f"{stack_prefix}/{stack_name}",
         )
         role_waiter = cloudformation_client.get_waiter("stack_update_complete").wait(
             StackName=stack_name
@@ -42,6 +48,7 @@ for stack_name in stacks_name_compliant:
         create_response = cloudformation_client.create_stack(
             StackName=stack_name,
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+            TemplateURL=f"{stack_prefix}/{stack_name}",
         )
         role_waiter = cloudformation_client.get_waiter("stack_create_complete").wait(
             StackName=stack_name
