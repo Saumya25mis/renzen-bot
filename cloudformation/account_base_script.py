@@ -1,4 +1,4 @@
-# pylint:disable=invalid-name, line-too-long, broad-except
+# pylint:disable=invalid-name, line-too-long, broad-except, f-string-without-interpolation
 """Uploads cloudformation files to s3, calls stacks"""
 import os
 from typing import List
@@ -66,69 +66,73 @@ else:
 # and create/update as necessary
 
 stack_prefix = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks"
+
+
 for directory in directories:
 
-    print(directory)
+    dir_stack_compliant_name = directory.replace("_", "").replace(".yml", "")
+    print(f"{directory=}")
+    print(f"{dir_stack_compliant_name=}")
 
     for stack in stack_summaries:
 
         print(f"{stack=}")
+        stackName = stack["StackName"]
+        stackstatus = stack["StackStatus"]
 
-        # deal with stacks that exist
-        compliant = directory.replace("_", "").replace(".yml", "")
-        if stack["StackName"] == compliant:
-            print(stack)
-            status = stack["StackStatus"]
-            if status in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
-                print(f'Updating {stack["StackName"]}...')
+        if stackName == dir_stack_compliant_name:
+            print(f"{stackName} exists with matching directory name")
+
+            if stackstatus in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
+                print(f"Stack {stackName} can be updated...")
 
                 try:
+                    print(f"Attempting to update {stackName}...")
                     update_response = cloudformation_client.update_stack(
-                        StackName=compliant,
+                        StackName=dir_stack_compliant_name,
                         TemplateURL=f"{stack_prefix}/{directory}/root.yml",
                         Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
                     )
                     # not async rn
                     cloudformation_client.get_waiter("stack_update_complete").wait(
-                        StackName=stack["StackName"]
+                        StackName=stackName
                     )
+                    print(f"Stack {stackName} was updated...")
+                    print(f"Moving on to next directory")
                     break
 
                 except Exception as e:
-                    print(f"COULD NOT UPDATE: {e}")
+                    print(f"Stack {stackName} was NOT updated: {e}")
+                    print(f"Moving on to next directory")
                     break
-            elif status in ["ROLLBACK_COMPLETE"]:
+
+            elif stackstatus in ["ROLLBACK_COMPLETE"]:
 
                 print(
-                    f'stack {stack["StackName"]} in ROLLBACK_COMPLETE state. Deleting'
+                    f'stack {stack["StackName"]} in ROLLBACK_COMPLETE state. Deleting...'
                 )
 
-                cloudformation_client.delete_stack(StackName=compliant)
+                cloudformation_client.delete_stack(StackName=dir_stack_compliant_name)
                 role_waiter = cloudformation_client.get_waiter("stack_delete_complete")
-                role_waiter.wait(StackName=compliant)
+                role_waiter.wait(StackName=dir_stack_compliant_name)
 
-                print(f'Creating {stack["StackName"]}...')
+                print(f'Creating after deleting {stack["StackName"]}...')
                 create_response = cloudformation_client.create_stack(
-                    StackName=compliant,
+                    StackName=dir_stack_compliant_name,
                     TemplateURL=f"{stack_prefix}/{directory}/root.yml",
                     Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
                 )
                 cloudformation_client.get_waiter("stack_create_complete").wait(
-                    StackName=compliant
+                    StackName=dir_stack_compliant_name
                 )
-
-            # else:
-            #     # FAIL DEPLOY
-            #     print(
-            #         f'Stack {stack["StackName"]} could not be updated due to {stack["StackStatus"]} !'
-            #     )
-            #     break
+                print(f"Moving on to next directory")
+                break
 
     # directory has not corresponding stack created, so create
     else:
         print(f'Creating {stack["StackName"]}...')
         create_response = cloudformation_client.create_stack(
-            StackName=compliant,
+            StackName=dir_stack_compliant_name,
             TemplateURL=f"{stack_prefix}/{directory}/root.yml",
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
         )
