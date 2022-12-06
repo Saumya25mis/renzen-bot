@@ -69,7 +69,7 @@ for directory in directories:
                 )
                 # not async rn
                 cloudformation_client.get_waiter("stack_update_complete").wait(
-                    stack["StackName"]
+                    StackName=stack["StackName"]
                 )
             else:
                 # FAIL DEPLOY
@@ -82,5 +82,5 @@ for directory in directories:
                 TemplateURL=f"cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
             )
             cloudformation_client.get_waiter("stack_create_complete").wait(
-                stack["StackName"]
+                StackName=stack["StackName"]
             )
