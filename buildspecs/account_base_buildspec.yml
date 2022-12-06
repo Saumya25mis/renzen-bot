@@ -4,4 +4,4 @@ phases:
   build:
     commands:
       - echo uploading cloudformation files to s3...
-      - python3 account_base_scripts/account_base_script.py
+      - python3 cloudformation/account_base_script.py
