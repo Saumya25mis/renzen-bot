@@ -1,4 +1,6 @@
+# pylint:disable=invalid-name
 """Uploads cloudformation files to s3, calls stacks"""
+import os
 from typing import List
 
 import boto3
@@ -7,19 +9,37 @@ import s3fs  # type: ignore
 # from mypy_boto3_cloudformation.client import CloudFormationClient
 # from mypy_boto3_s3.client import S3Client
 
-s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
-# upload files to s3
-s3_file_system.put(
-    lpath="cloudformation/",
-    rpath="s3://cloudformation-files-renzen/cloudformation/",
-    recursive=True,
-)
+# s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
+# # upload files to s3
+# s3_file_system.put(
+#     lpath="cloudformation/",
+#     rpath="s3://cloudformation-files-renzen/cloudformation/",
+#     recursive=True,
+# )
+
+s3_file = s3fs.S3FileSystem()
+local_path = "cloudformation/"
+s3_path = "s3://cloudformation-files-renzen/cloudformation/"
+s3_file.put(local_path, s3_path, recursive=True)
+
+# s3C = boto3.client("s3")
+
+
+# def upload_directory(path: str, bucketname: str) -> None:
+#     """Uploads directory to s3"""
+#     for root, dirs, files in os.walk(path):
+#         for file in files:
+#             s3C.upload_file(os.path.join(root, file), bucketname, file)
+
+
+# upload_directory(path="cloudformation", bucketname="cloudformation-files-renzen")
 
 # get cloudformation client
 cloudformation_client = boto3.client("cloudformation")
 
 # apply stacks
-directories: List[str] = s3_file_system.listdir("cloudformation/stacks")
+# directories: List[str] = s3_file.listdir("cloudformation/stacks")
+directories: List[str] = os.listdir("cloudformation/stacks")
 
 # run the each stack directorys `root.yml`
 response = cloudformation_client.list_stacks()
