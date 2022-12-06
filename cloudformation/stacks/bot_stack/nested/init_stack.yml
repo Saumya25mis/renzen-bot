@@ -249,61 +249,62 @@ Resources:
           Value: production
 
 Outputs:
-  GatewayToInternet:
-    Value: !Ref GatewayToInternet
-    Export:
-      Name: GatewayToInternet
+  Export:
+    GatewayToInternet:
+      Value: !Ref GatewayToInternet
+      Export:
+        Name: GatewayToInternet
 
-  myInternetGateway:
-    Value: !Ref myInternetGateway
-    Export:
-      Name: myInternetGateway
+    myInternetGateway:
+      Value: !Ref myInternetGateway
+      Export:
+        Name: myInternetGateway
 
-  InstanceSecurityGroup:
-    Value: !Ref InstanceSecurityGroup
-    Export:
-      Name: InstanceSecurityGroup
+    InstanceSecurityGroup:
+      Value: !Ref InstanceSecurityGroup
+      Export:
+        Name: InstanceSecurityGroup
 
-  LoadBalancerSecurityGroup:
-    Value: !Ref LoadBalancerSecurityGroup
-    Export:
-      Name: LoadBalancerSecurityGroup
+    LoadBalancerSecurityGroup:
+      Value: !Ref LoadBalancerSecurityGroup
+      Export:
+        Name: LoadBalancerSecurityGroup
 
-  BotS3Bucket:
-    Value: !Ref BotS3Bucket
-    Export:
-      Name: BotS3Bucket
+    BotS3Bucket:
+      Value: !Ref BotS3Bucket
+      Export:
+        Name: BotS3Bucket
 
-  myVPC:
-    Value: !Ref myVPC
-    Export:
-      Name: myVPC
+    myVPC:
+      Value: !Ref myVPC
+      Export:
+        Name: myVPC
 
-  mySubnet1:
-    Value: !Ref mySubnet1
-    Export:
-      Name: mySubnet1
+    mySubnet1:
+      Value: !Ref mySubnet1
+      Export:
+        Name: mySubnet1
 
-  mySubnet2:
-    Value: !Ref mySubnet2
-    Export:
-      Name: mySubnet2
+    mySubnet2:
+      Value: !Ref mySubnet2
+      Export:
+        Name: mySubnet2
 
-  ECRRepository:
-    Value: !Ref ECRRepository
-    Export:
-      Name: ECRRepository
+    ECRRepository:
+      Value: !Ref ECRRepository
+      Export:
+        Name: ECRRepository
 
-  QueueName:
-    Description: The name of the queue
-    Value: !GetAtt
-      - MyQueue
-      - QueueName
-  QueueURL:
-    Description: The URL of the queue
-    Value: !Ref MyQueue
-  QueueARN:
-    Description: The ARN of the queue
-    Value: !GetAtt
-      - MyQueue
-      - Arn
+    QueueName:
+      Description: The name of the queue
+      Value: !GetAtt
+        - MyQueue
+        - QueueName
+    QueueURL:
+      Description: The URL of the queue
+      Value: !Ref MyQueue
+    QueueARN:
+      Description: The ARN of the queue
+      Value: !GetAtt
+        - MyQueue
+        - Arn

@@ -114,7 +114,7 @@ for directory in directories:
                     Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
                 )
                 cloudformation_client.get_waiter("stack_create_complete").wait(
-                    StackName=stack["StackName"]
+                    StackName=compliant
                 )
 
             # else:
