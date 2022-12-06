@@ -346,7 +346,8 @@ Resources:
               {
                   "Effect": "Allow",
                   "Resource": [
-                      "arn:aws:s3:::codepipeline-${AWS::Region}-*"
+                      "arn:aws:s3:::codepipeline-${AWS::Region}-*",
+                      "arn:aws:s3:::cloudformation-files-renzen"
                   ],
                   "Action": [
                       "s3:PutObject",
