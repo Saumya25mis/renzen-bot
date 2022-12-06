@@ -52,7 +52,7 @@ while "NextToken" in response:
 
 # check for role stack first
 for stack in stack_summaries:
-    if stack["StackName"] == "roles.yml":
+    if stack["StackName"] == "roles":
         create_response = cloudformation_client.update_stack(
             StackName="roles.yml",
             TemplateURL="s3://cloudformation-files-renzen/cloudformation/roles.yml",
@@ -61,7 +61,7 @@ for stack in stack_summaries:
         break
 else:
     create_response = cloudformation_client.create_stack(
-        StackName="roles.yml",
+        StackName="roles",
         TemplateURL="s3://cloudformation-files-renzen//cloudformation/roles.yml",
     )
 
@@ -69,7 +69,7 @@ else:
 
 
 # wait until stack is updated or created
-role_waiter.wait(StackName="roles.yml")
+role_waiter.wait(StackName="roles")
 
 # loop over directories (which correspond with stack names)
 # and create/update as necessary
@@ -78,7 +78,7 @@ for directory in directories:
     for stack in stack_summaries:
 
         # deal with stacks that exist
-        compliant = directory.replace("_", "")
+        compliant = directory.replace("_", "").replace("", ".yml")
         if stack["StackName"] == compliant:
 
             status = stack["StackStatus"]
