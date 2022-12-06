@@ -64,7 +64,7 @@ Resources:
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
-        BuildSpec: "buildspecs/account_base_buildspec.yml"
+        BuildSpec: "buildspecs/cloudformation_deploy_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
         Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"

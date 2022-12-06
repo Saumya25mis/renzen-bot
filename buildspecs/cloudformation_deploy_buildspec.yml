@@ -1,0 +1,7 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo uploading cloudformation files to s3...
+      - python3 cloudformation/cloudformation_deploy.py

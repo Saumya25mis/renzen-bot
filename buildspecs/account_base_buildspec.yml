@@ -1,9 +1,0 @@
-version: 0.2
-
-phases:
-  build:
-    commands:
-      - echo uploading cloudformation files to s3...
-      # - pip3 install s3Fs
-      - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
-      - python3 cloudformation/account_base_script.py
