@@ -366,7 +366,8 @@ Resources:
                       "*"
                   ],
                   "Action": [
-                      "cloudformation:*"
+                      "cloudformation:*",
+                      "iam:*"
                   ]
               },
               {

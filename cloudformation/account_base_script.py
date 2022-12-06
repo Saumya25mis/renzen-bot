@@ -56,7 +56,7 @@ for stack in stack_summaries:
     if stack["StackName"] == "roles":
         print("Updating 'role' stack...")
         create_response = cloudformation_client.update_stack(
-            StackName="roles.yml",
+            StackName="roles",
             TemplateURL=role_url,
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
         )
@@ -91,7 +91,7 @@ for directory in directories:
         if stack["StackName"] == compliant:
 
             status = stack["StackStatus"]
-            if status == "CREATE_COMPLETE":
+            if status in ["CREATE_COMPLETE", "ROLLBACK_COMPLETE", "UPDATE_COMPLETE"]:
                 print(f'Updating {stack["StackName"]}...')
                 update_response = cloudformation_client.update_stack(
                     StackName=compliant,
