@@ -71,7 +71,7 @@ for directory in directories:
     for stack in stack_summaries:
 
         # deal with stacks that exist
-        compliant = directory.replace("_", "").replace("", ".yml")
+        compliant = directory.replace("_", "").replace(".yml", "")
         if stack["StackName"] == compliant:
 
             print(stack)
