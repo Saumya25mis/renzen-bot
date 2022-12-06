@@ -68,6 +68,8 @@ else:
 stack_prefix = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks"
 for directory in directories:
 
+    print(directory)
+
     for stack in stack_summaries:
 
         # deal with stacks that exist
@@ -106,7 +108,7 @@ for directory in directories:
             print(f'Creating {stack["StackName"]}...')
             create_response = cloudformation_client.create_stack(
                 StackName=compliant,
-                TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
+                TemplateURL=f"{stack_prefix}/{directory}/root.yml",
                 Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             )
             cloudformation_client.get_waiter("stack_create_complete").wait(
