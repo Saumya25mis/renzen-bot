@@ -97,7 +97,7 @@ for directory in directories:
                 except Exception as e:
                     print(f"COULD NOT UPDATE: {e}")
                     break
-            elif status in stack["ROLLBACK_COMPLETE"]:
+            elif status in ["ROLLBACK_COMPLETE"]:
 
                 print(
                     f'stack {stack["StackName"]} in ROLLBACK_COMPLETE state. Deleting'
