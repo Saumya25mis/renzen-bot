@@ -6,39 +6,16 @@ from typing import List
 import boto3
 import s3fs  # type: ignore
 
-# from mypy_boto3_cloudformation.client import CloudFormationClient
-# from mypy_boto3_s3.client import S3Client
-
-# s3_file_system: s3fs.S3FileSystem = s3fs.S3FileSystem()
-# # upload files to s3
-# s3_file_system.put(
-#     lpath="cloudformation/",
-#     rpath="s3://cloudformation-files-renzen/cloudformation/",
-#     recursive=True,
-# )
-
 s3_file = s3fs.S3FileSystem()
 local_path = "cloudformation/"
 s3_path = "s3://cloudformation-files-renzen/cloudformation/"
 s3_file.put(local_path, s3_path, recursive=True)
 
-# s3C = boto3.client("s3")
-
-
-# def upload_directory(path: str, bucketname: str) -> None:
-#     """Uploads directory to s3"""
-#     for root, dirs, files in os.walk(path):
-#         for file in files:
-#             s3C.upload_file(os.path.join(root, file), bucketname, file)
-
-
-# upload_directory(path="cloudformation", bucketname="cloudformation-files-renzen")
-
 # get cloudformation client
 cloudformation_client = boto3.client("cloudformation")
 
 # apply stacks
-# directories: List[str] = s3_file.listdir("cloudformation/stacks")
+
 directories: List[str] = os.listdir("cloudformation/stacks")
 
 # run the each stack directorys `root.yml`
@@ -80,8 +57,6 @@ role_waiter.wait(StackName="roles")
 # loop over directories (which correspond with stack names)
 # and create/update as necessary
 
-# https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks/bot_stack/root.yml
-
 stack_prefix = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation/stacks"
 for directory in directories:
 
@@ -115,7 +90,7 @@ for directory in directories:
         else:
             print(f'Creating {stack["StackName"]}...')
             create_response = cloudformation_client.create_stack(
-                StackName=directory,
+                StackName=compliant,
                 TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
                 Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             )
