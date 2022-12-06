@@ -41,6 +41,8 @@ for stack in stack_summaries:
                 Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             )
             role_waiter = cloudformation_client.get_waiter("stack_update_complete")
+            if role_waiter:
+                role_waiter.wait(StackName="roles")
         except Exception as e:
             print(f"COULD NOT UPDATE: {e}")
         break
@@ -53,10 +55,12 @@ else:
     )
 
     role_waiter = cloudformation_client.get_waiter("stack_create_complete")
+    if role_waiter:
+        role_waiter.wait(StackName="roles")
 
 
 # wait until stack is updated or created
-role_waiter.wait(StackName="roles")
+
 
 # loop over directories (which correspond with stack names)
 # and create/update as necessary
