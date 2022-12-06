@@ -54,16 +54,20 @@ role_url = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloud
 # check for role stack first
 for stack in stack_summaries:
     if stack["StackName"] == "roles":
+        print("Updating 'role' stack...")
         create_response = cloudformation_client.update_stack(
             StackName="roles.yml",
             TemplateURL=role_url,
+            Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
         )
         role_waiter = cloudformation_client.get_waiter("stack_update_complete")
         break
 else:
+    print("Creating 'role' stack...")
     create_response = cloudformation_client.create_stack(
         StackName="roles",
         TemplateURL=role_url,
+        Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
     )
 
     role_waiter = cloudformation_client.get_waiter("stack_create_complete")
@@ -88,9 +92,11 @@ for directory in directories:
 
             status = stack["StackStatus"]
             if status == "CREATE_COMPLETE":
+                print(f'Updating {stack["StackName"]}...')
                 update_response = cloudformation_client.update_stack(
                     StackName=compliant,
                     TemplateURL=f"{stack_prefix}/{directory}/root.yml",
+                    Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
                 )
                 # not async rn
                 cloudformation_client.get_waiter("stack_update_complete").wait(
@@ -98,13 +104,17 @@ for directory in directories:
                 )
             else:
                 # FAIL DEPLOY
-                pass
+                print(
+                    f'Stack {stack["StackName"]} could not be updated due to {stack["StackStatus"]} !'
+                )
 
         # deal with stacks that DONT exist
         else:
+            print(f'Creating {stack["StackName"]}...')
             create_response = cloudformation_client.create_stack(
                 StackName=directory,
                 TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
+                Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
             )
             cloudformation_client.get_waiter("stack_create_complete").wait(
                 StackName=stack["StackName"]
