@@ -1,4 +1,4 @@
-# pylint:disable=invalid-name, line-too-long
+# pylint:disable=invalid-name, line-too-long, broad-except
 """Uploads cloudformation files to s3, calls stacks"""
 import os
 from typing import List
@@ -33,12 +33,16 @@ role_url = "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloud
 for stack in stack_summaries:
     if stack["StackName"] == "roles":
         print("Updating 'role' stack...")
-        create_response = cloudformation_client.update_stack(
-            StackName="roles",
-            TemplateURL=role_url,
-            Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
-        )
-        role_waiter = cloudformation_client.get_waiter("stack_update_complete")
+
+        try:
+            create_response = cloudformation_client.update_stack(
+                StackName="roles",
+                TemplateURL=role_url,
+                Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+            )
+            role_waiter = cloudformation_client.get_waiter("stack_update_complete")
+        except Exception as e:
+            print(f"COULD NOT UPDATE: {e}")
         break
 else:
     print("Creating 'role' stack...")
@@ -71,15 +75,22 @@ for directory in directories:
             status = stack["StackStatus"]
             if status in ["CREATE_COMPLETE", "ROLLBACK_COMPLETE", "UPDATE_COMPLETE"]:
                 print(f'Updating {stack["StackName"]}...')
-                update_response = cloudformation_client.update_stack(
-                    StackName=compliant,
-                    TemplateURL=f"{stack_prefix}/{directory}/root.yml",
-                    Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
-                )
-                # not async rn
-                cloudformation_client.get_waiter("stack_update_complete").wait(
-                    StackName=stack["StackName"]
-                )
+
+                try:
+
+                    update_response = cloudformation_client.update_stack(
+                        StackName=compliant,
+                        TemplateURL=f"{stack_prefix}/{directory}/root.yml",
+                        Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+                    )
+                    # not async rn
+                    cloudformation_client.get_waiter("stack_update_complete").wait(
+                        StackName=stack["StackName"]
+                    )
+
+                except Exception as e:
+                    print(f"COULD NOT UPDATE: {e}")
+
             else:
                 # FAIL DEPLOY
                 print(
