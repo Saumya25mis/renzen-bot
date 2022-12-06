@@ -1,4 +1,4 @@
-# pylint:disable=invalid-name
+# pylint:disable=invalid-name, line-too-long
 """Uploads cloudformation files to s3, calls stacks"""
 import os
 from typing import List
@@ -62,7 +62,7 @@ for stack in stack_summaries:
 else:
     create_response = cloudformation_client.create_stack(
         StackName="roles",
-        TemplateURL="s3://cloudformation-files-renzen//cloudformation/roles.yml",
+        TemplateURL="s3://cloudformation-files-renzen/cloudformation/roles.yml",
     )
 
     role_waiter = cloudformation_client.get_waiter("stack_create_complete")
@@ -85,7 +85,7 @@ for directory in directories:
             if status == "CREATE_COMPLETE":
                 update_response = cloudformation_client.update_stack(
                     StackName=compliant,
-                    TemplateURL=f"cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
+                    TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
                 )
                 # not async rn
                 cloudformation_client.get_waiter("stack_update_complete").wait(
@@ -99,7 +99,7 @@ for directory in directories:
         else:
             create_response = cloudformation_client.create_stack(
                 StackName=directory,
-                TemplateURL=f"cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
+                TemplateURL=f"s3://cloudformation-s3-bucket/cloudformation/{directory}/root.yml",
             )
             cloudformation_client.get_waiter("stack_create_complete").wait(
                 StackName=stack["StackName"]
