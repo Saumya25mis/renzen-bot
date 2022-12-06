@@ -42,7 +42,7 @@ cloudformation_client = boto3.client("cloudformation")
 directories: List[str] = os.listdir("cloudformation/stacks")
 
 # run the each stack directorys `root.yml`
-response = cloudformation_client.list_stacks()
+response = cloudformation_client.describe_stacks()
 
 # get all stacks
 stack_summaries = response["Stacks"]
