@@ -119,8 +119,3 @@ Outputs:
     Value: !GetAtt BotCodeBuildRole.Arn
     Export:
       Name: BotCodeBuildRole
-
-  BotCodeBuildIAMManagedPolicy:
-    Value: !Ref BotCodeBuildIAMManagedPolicy
-    Export:
-      Name: BotCodeBuildIAMManagedPolicy
