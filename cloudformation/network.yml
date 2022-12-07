@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "me-test"
+Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports values to be used for bot stack. ECR repo. console.aws.amazon.com/codesuite/settings/connections to finish setting up Github"
+
+Resources:
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+        - Key: stack
+          Value: production
+
+  mySubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet1
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref mySubnet2
+      RouteTableId:
+        Ref: myRouteTable
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId:
+        Ref: myRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref myInternetGateway
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs
+          Ref: "AWS::Region"
+      Tags:
+        - Key: stack
+          Value: production
+
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.100.0/24
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+          Ref: "AWS::Region"
+      Tags:
+        - Key: stack
+          Value: production
+
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      Tags:
+        - Key: stack
+          Value: production
+
+  LoadBalancerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow fargate service attach to RDS
+      VpcId:
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt InstanceSecurityGroup.GroupId
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: stack
+          Value: production
+
+  DataSourceSubtNetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Created by CF
+      SubnetIds:
+        - !Ref mySubnet1
+        - !Ref mySubnet2
+
+Outputs:
+  GatewayToInternet:
+    Value: !Ref GatewayToInternet
+    Export:
+      Name: GatewayToInternet
+
+  DataSourceSubtNetGroup:
+    Value: !Ref DataSourceSubtNetGroup
+    Export:
+      Name: DataSourceSubtNetGroup
+
+  myInternetGateway:
+    Value: !Ref myInternetGateway
+    Export:
+      Name: myInternetGateway
+
+  InstanceSecurityGroup:
+    Value: !Ref InstanceSecurityGroup
+    Export:
+      Name: InstanceSecurityGroup
+
+  LoadBalancerSecurityGroup:
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: LoadBalancerSecurityGroup
+
+  myVPC:
+    Value: !Ref myVPC
+    Export:
+      Name: myVPC
+
+  mySubnet1:
+    Value: !Ref mySubnet1
+    Export:
+      Name: mySubnet1
+
+  mySubnet2:
+    Value: !Ref mySubnet2
+    Export:
+      Name: mySubnet2

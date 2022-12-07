@@ -12,8 +12,10 @@ stack_prefix = (
 
 # stacks created or updated in this script
 stacks_order: List[str] = [
+    "cloudformation_deploy.yml",
     "roles.yml",
-    "init_stack.yml",
+    "network.yml",
+    "resources.yml",
     "bot.yml",
 ]
 
