@@ -39,7 +39,7 @@ for stack_name, stack_name_compliant in stacks_zipped:
         print(f"{stack_summary=}")
     except (botocore.exceptions.ValidationError, botocore.exceptions.ClientError) as e:
         # stack does NOT, so attempt to create
-        print(f"Stack does not exist. Attempting to create {stack_name_compliant}")
+        print(f"Stack does not exist. Attempting to create {stack_name_compliant} {e}")
         create_response = cloudformation_client.create_stack(
             StackName=stack_name_compliant,
             Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
@@ -51,15 +51,23 @@ for stack_name, stack_name_compliant in stacks_zipped:
         print(f"Created: {stack_name_compliant}")
     else:
         # stack exists, so attempt to update
-        print(f"Stack exists. Attempting to update {stack_name_compliant}...")
-        update_response = cloudformation_client.update_stack(
-            StackName=stack_name_compliant,
-            Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
-            TemplateURL=f"{stack_prefix}/{stack_name}",
-        )
-        cloudformation_client.get_waiter("stack_update_complete").wait(
-            StackName=stack_name_compliant
-        )
-        print(f"Updated: {stack_name_compliant}")
+        try:
+            print(f"Stack exists. Attempting to update {stack_name_compliant}...")
+            update_response = cloudformation_client.update_stack(
+                StackName=stack_name_compliant,
+                Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"],
+                TemplateURL=f"{stack_prefix}/{stack_name}",
+            )
+            cloudformation_client.get_waiter("stack_update_complete").wait(
+                StackName=stack_name_compliant
+            )
+            print(f"Updated: {stack_name_compliant}")
+        except (
+            botocore.exceptions.ValidationError,
+            botocore.exceptions.ClientError,
+        ) as e:
+            # update failed due to no updates
+            print(f"No updates for: {stack_name_compliant}")
+            print(f"{e}")
     finally:
         print(f"Done processing: {stack_name}")
