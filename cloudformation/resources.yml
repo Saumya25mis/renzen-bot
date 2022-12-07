@@ -85,7 +85,7 @@ Resources:
       DBSubnetGroupName: !Ref DataSourceSubtNetGroup
       PubliclyAccessible: true
       VPCSecurityGroups:
-        - !GetAtt RDSSecurityGroup.GroupId
+        - !ImportValue RDSSecurityGroup
 
 
   # Update the referenced secret with properties of the RDS database.

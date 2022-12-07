@@ -175,3 +175,8 @@ Outputs:
     Value: !Ref mySubnet2
     Export:
       Name: mySubnet2
+
+  RDSSecurityGroup:
+    Value: !GetAtt RDSSecurityGroup.GroupId
+    Export:
+      Name: RDSSecurityGroup
