@@ -82,7 +82,7 @@ Resources:
         ]
       BackupRetentionPeriod: 0
       DBInstanceIdentifier: "rotation-instance"
-      DBSubnetGroupName: !Ref DataSourceSubtNetGroup
+      DBSubnetGroupName: !ImportValue DataSourceSubtNetGroup
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !ImportValue RDSSecurityGroup
