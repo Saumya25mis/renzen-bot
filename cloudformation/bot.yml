@@ -25,10 +25,10 @@ Resources:
     Properties:
       Name: myLoadBalancerSite
       SecurityGroups:
-        - !Ref LoadBalancerSecurityGroup
+        - !ImportValue LoadBalancerSecurityGroup
       Subnets:
-        - !Ref mySubnet1
-        - !Ref mySubnet2
+        - !ImportValue mySubnet1
+        - !ImportValue mySubnet2
 
   myListenerSite:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -52,7 +52,7 @@ Resources:
       Port: 80
       Protocol: HTTP
       TargetType: ip
-      VpcId: !Ref myVPC
+      VpcId: !ImportValue myVPC
 
   ECSCluster:
     Type: "AWS::ECS::Cluster"
@@ -75,10 +75,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
           SecurityGroups:
-            - !Ref InstanceSecurityGroup
+            - !ImportValue InstanceSecurityGroup
           Subnets:
-            - !Ref mySubnet1
-            - !Ref mySubnet2
+            - !ImportValue mySubnet1
+            - !ImportValue mySubnet2
       SchedulingStrategy: "REPLICA"
       CapacityProviderStrategy:
         - CapacityProvider: "FARGATE"
@@ -99,10 +99,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
           SecurityGroups:
-            - !Ref InstanceSecurityGroup
+            - !ImportValue InstanceSecurityGroup
           Subnets:
-            - !Ref mySubnet1
-            - !Ref mySubnet2
+            - !ImportValue mySubnet1
+            - !ImportValue mySubnet2
       SchedulingStrategy: "REPLICA"
       CapacityProviderStrategy:
         - CapacityProvider: "FARGATE"

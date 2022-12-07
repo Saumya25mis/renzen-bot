@@ -303,6 +303,8 @@ Resources:
       ManagedPolicyArns:
         - !Ref BotCodeBuildIAMManagedPolicy
         - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+        - !Ref BotPipelineManagedPolicy
+        - arn:aws:iam::aws:policy/AdministratorAccess
 
 
   BotCodeBuildIAMManagedPolicy:
@@ -337,6 +339,7 @@ Resources:
                     "*"
                   ],
                   "Action": [
+                      "logs:*",
                       "logs:CreateLogGroup",
                       "logs:CreateLogStream",
                       "logs:PutLogEvents"
@@ -350,6 +353,7 @@ Resources:
                       "arn:aws:s3:::cloudformation-files-renzen/*"
                   ],
                   "Action": [
+                      "s3:*",
                       "s3:PutObject",
                       "s3:GetObject",
                       "s3:GetObjectVersion",
