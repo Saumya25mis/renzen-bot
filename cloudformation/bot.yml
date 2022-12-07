@@ -4,21 +4,20 @@ Metadata:
 Description: "Stack used to start and stop bot and pipeline."
 
 Resources:
-  # nested stack
-  ECSScalableTargetSite:
-    Type: AWS::ApplicationAutoScaling::ScalableTarget
-    Properties:
-      MaxCapacity: 1
-      MinCapacity: 1
-      RoleARN:
-        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
-      ServiceNamespace: ecs
-      ScalableDimension: "ecs:service:DesiredCount"
-      ResourceId: !Join
-        - ""
-        - - "service"
-          - !Ref ECSCluster
-          - !GetAtt ECSServiceSite.Name
+  # ECSScalableTargetSite:
+  #   Type: AWS::ApplicationAutoScaling::ScalableTarget
+  #   Properties:
+  #     MaxCapacity: 1
+  #     MinCapacity: 2
+  #     RoleARN:
+  #       Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+  #     ServiceNamespace: ecs
+  #     ScalableDimension: "ecs:service:DesiredCount"
+  #     ResourceId: !Join
+  #       - ""
+  #       - - "service"
+  #         - !Ref ECSCluster
+  #         - !GetAtt ECSServiceSite.Name
 
   myLoadBalancerSite:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer

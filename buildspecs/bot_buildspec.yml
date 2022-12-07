@@ -15,11 +15,6 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo deregistering tasks...
       - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
-  # install:
-  #   runtime-versions:
-  #     python: 3.7
-  #   commands:
-  #     - pip3 install pytest
   build:
     commands:
       - echo Build started on `date`
@@ -52,12 +47,7 @@ phases:
       - cd site
       - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
-# reports:
-#   pytest_reports:
-#     files:
-#       - <report filename>
-#     base-directory: <test report directory>
-#     file-format: JUNITXML
+
 artifacts:
   files:
     - '**/*'

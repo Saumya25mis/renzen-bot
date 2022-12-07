@@ -265,13 +265,13 @@ Resources:
                 Provider: CodeStarSourceConnection
               Configuration:
                 BranchName: !ImportValue GitHubBranchName
-                ConnectionArn: !ImportValue BotGithubConnection
+                ConnectionArn: !ImportValue BotGithubConnection2
                 FullRepositoryId: !ImportValue GitHubRepoName
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: SourceArtifact
               Region: !Ref AWS::Region
-              Namespace: "SourceVariables"
+              Namespace: "SourceVariables2"
               RunOrder: 1
         - Name: "Build"
           Actions:
@@ -289,7 +289,7 @@ Resources:
                 - Name: "secondary_artifact_name_1"
                 - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
-              Namespace: "BuildVariables"
+              Namespace: "BuildVariables2"
               RunOrder: 1
         - Name: "DeployBot"
           Actions:
