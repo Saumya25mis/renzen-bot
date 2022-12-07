@@ -291,7 +291,7 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildProject
+                ProjectName: !Ref CodeBuildProject2
               InputArtifacts:
                 - Name: "SourceArtifact"
               OutputArtifacts:
@@ -331,17 +331,17 @@ Resources:
               Namespace: "DeployVariablesSite"
               RunOrder: 1
 
-  CodeBuildProject:
+  CodeBuildProject2:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: BotCodeBuildProject-2 # !Sub "${CodeBuildProject3}-3"
+      Name: CodeBuildProject2
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
         BuildSpec: "buildspecs/bot_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
-        Name: BotCodeBuildProject-2 # !Sub "${CodeBuildProject3}-3"
+        Name: CodeBuildProject2
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache:
