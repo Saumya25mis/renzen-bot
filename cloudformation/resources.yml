@@ -21,12 +21,12 @@ Resources:
     Properties:
       BucketName: "renzen-bot-s3-bucket"
 
-  ECRRepository:
-    Type: "AWS::ECR::Repository"
-    # DeletionPolicy: Retain
-    # UpdateReplacePolicy: Retain
-    Properties:
-      RepositoryName: "bot-repo"
+  # ECRRepository:
+  #   Type: "AWS::ECR::Repository"
+  #   # DeletionPolicy: Retain
+  #   # UpdateReplacePolicy: Retain
+  #   Properties:
+  #     RepositoryName: "bot-repo"
 
   MyQueue:
     Properties:
@@ -122,10 +122,10 @@ Outputs:
     Export:
       Name: BotS3Bucket
 
-  ECRRepository:
-    Value: !Ref ECRRepository
-    Export:
-      Name: ECRRepository
+  # ECRRepository:
+  #   Value: !Ref ECRRepository
+  #   Export:
+  #     Name: ECRRepository
 
   QueueName:
     Description: The name of the queue

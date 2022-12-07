@@ -107,6 +107,13 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
+  ECRRepository:
+    Type: "AWS::ECR::Repository"
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: "bot-repo"
+
 Outputs:
   BotPipelineRole:
     Value: !GetAtt BotPipelineRole.Arn
@@ -117,3 +124,8 @@ Outputs:
     Value: !GetAtt BotCodeBuildRole.Arn
     Export:
       Name: BotCodeBuildRole
+
+  ECRRepository:
+    Value: !Ref ECRRepository
+    Export:
+      Name: ECRRepository
