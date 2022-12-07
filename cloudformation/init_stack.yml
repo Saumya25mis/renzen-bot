@@ -49,15 +49,15 @@ Resources:
 
   BotS3Bucket:
     Type: "AWS::S3::Bucket"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
 
   ECRRepository:
     Type: "AWS::ECR::Repository"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
     Properties:
       RepositoryName: "bot-repo"
 
@@ -67,8 +67,8 @@ Resources:
       FifoQueue: true
       ContentBasedDeduplication: true
     Type: "AWS::SQS::Queue"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
 
   #----------------DB----------------------------------------
   #https://aws.amazon.com/blogs/security/how-to-create-and-retrieve-secrets-managed-in-aws-secrets-manager-using-aws-cloudformation-template/

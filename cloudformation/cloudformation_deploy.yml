@@ -60,14 +60,14 @@ Resources:
   BotCodeBuildProject:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
+      Name: BotCodeBuildProject
       Source:
         InsecureSsl: false
         Type: "CODEPIPELINE"
         BuildSpec: "buildspecs/cloudformation_deploy_buildspec.yml"
       Artifacts:
         EncryptionDisabled: false
-        Name: BotCodeBuildProject # !Sub "${CodeBuildProject3}-3"
+        Name: BotCodeBuildProject
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache:
@@ -97,201 +97,7 @@ Resources:
       AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codepipeline.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
       MaxSessionDuration: 3600
       ManagedPolicyArns:
-        - !Ref BotPipelineManagedPolicy
-
-
-  BotPipelineManagedPolicy:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      ManagedPolicyName: "BotPipelineManagedPolicy"
-      Path: "/service-role/"
-      PolicyDocument: |
-        {
-            "Statement": [
-                {
-                  "Action": [
-                    "ecr:BatchCheckLayerAvailability",
-                    "ecr:CompleteLayerUpload",
-                    "ecr:GetAuthorizationToken",
-                    "ecr:InitiateLayerUpload",
-                    "ecr:PutImage",
-                    "ecr:UploadLayerPart"
-                  ],
-                  "Resource": "*",
-                  "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "iam:PassRole"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow",
-                    "Condition": {
-                        "StringEqualsIfExists": {
-                            "iam:PassedToService": [
-                                "cloudformation.amazonaws.com",
-                                "elasticbeanstalk.amazonaws.com",
-                                "ec2.amazonaws.com",
-                                "ecs-tasks.amazonaws.com"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "Action": [
-                        "codecommit:CancelUploadArchive",
-                        "codecommit:GetBranch",
-                        "codecommit:GetCommit",
-                        "codecommit:GetRepository",
-                        "codecommit:GetUploadArchiveStatus",
-                        "codecommit:UploadArchive"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "codedeploy:CreateDeployment",
-                        "codedeploy:GetApplication",
-                        "codedeploy:GetApplicationRevision",
-                        "codedeploy:GetDeployment",
-                        "codedeploy:GetDeploymentConfig",
-                        "codedeploy:RegisterApplicationRevision"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "codestar-connections:UseConnection"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "elasticbeanstalk:*",
-                        "ec2:*",
-                        "elasticloadbalancing:*",
-                        "autoscaling:*",
-                        "cloudwatch:*",
-                        "s3:*",
-                        "sns:*",
-                        "cloudformation:*",
-                        "rds:*",
-                        "sqs:*",
-                        "ecs:*"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "lambda:InvokeFunction",
-                        "lambda:ListFunctions"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "opsworks:CreateDeployment",
-                        "opsworks:DescribeApps",
-                        "opsworks:DescribeCommands",
-                        "opsworks:DescribeDeployments",
-                        "opsworks:DescribeInstances",
-                        "opsworks:DescribeStacks",
-                        "opsworks:UpdateApp",
-                        "opsworks:UpdateStack"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "cloudformation:CreateStack",
-                        "cloudformation:DeleteStack",
-                        "cloudformation:DescribeStacks",
-                        "cloudformation:UpdateStack",
-                        "cloudformation:CreateChangeSet",
-                        "cloudformation:DeleteChangeSet",
-                        "cloudformation:DescribeChangeSet",
-                        "cloudformation:ExecuteChangeSet",
-                        "cloudformation:SetStackPolicy",
-                        "cloudformation:ValidateTemplate"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Action": [
-                        "codebuild:BatchGetBuilds",
-                        "codebuild:StartBuild",
-                        "codebuild:BatchGetBuildBatches",
-                        "codebuild:StartBuildBatch"
-                    ],
-                    "Resource": "*",
-                    "Effect": "Allow"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "devicefarm:ListProjects",
-                        "devicefarm:ListDevicePools",
-                        "devicefarm:GetRun",
-                        "devicefarm:GetUpload",
-                        "devicefarm:CreateUpload",
-                        "devicefarm:ScheduleRun"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "servicecatalog:ListProvisioningArtifacts",
-                        "servicecatalog:CreateProvisioningArtifact",
-                        "servicecatalog:DescribeProvisioningArtifact",
-                        "servicecatalog:DeleteProvisioningArtifact",
-                        "servicecatalog:UpdateProduct"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "cloudformation:ValidateTemplate"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "ecr:DescribeImages"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "states:DescribeExecution",
-                        "states:DescribeStateMachine",
-                        "states:StartExecution"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "appconfig:StartDeployment",
-                        "appconfig:StopDeployment",
-                        "appconfig:GetDeployment"
-                    ],
-                    "Resource": "*"
-                }
-            ],
-            "Version": "2012-10-17"
-        }
-
+        - arn:aws:iam::aws:policy/AdministratorAccess
 
   BotCodeBuildRole:
     Type: "AWS::IAM::Role"
@@ -301,96 +107,9 @@ Resources:
       AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
       MaxSessionDuration: 3600
       ManagedPolicyArns:
-        - !Ref BotCodeBuildIAMManagedPolicy
-        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
-        - !Ref BotPipelineManagedPolicy
         - arn:aws:iam::aws:policy/AdministratorAccess
 
-
-  BotCodeBuildIAMManagedPolicy:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      ManagedPolicyName: BotCodeBuildIAMManagedPolicy
-      Path: "/service-role/"
-      PolicyDocument: !Sub |
-        {
-            "Version": "2012-10-17",
-            "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": ["ecs:UpdateService","ecs:ListTaskDefinitions", "ecs:DeregisterTaskDefinition"],
-                "Resource": "*"
-            },
-            {
-                "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:CompleteLayerUpload",
-                "ecr:GetAuthorizationToken",
-                "ecr:InitiateLayerUpload",
-                "ecr:PutImage",
-                "ecr:UploadLayerPart"
-                ],
-                "Resource": "*",
-                "Effect": "Allow"
-            },
-              {
-                  "Effect": "Allow",
-                  "Resource": [
-                    "*"
-                  ],
-                  "Action": [
-                      "logs:*",
-                      "logs:CreateLogGroup",
-                      "logs:CreateLogStream",
-                      "logs:PutLogEvents"
-                  ]
-              },
-              {
-                  "Effect": "Allow",
-                  "Resource": [
-                      "arn:aws:s3:::codepipeline-${AWS::Region}-*",
-                      "arn:aws:s3:::cloudformation-files-renzen*",
-                      "arn:aws:s3:::cloudformation-files-renzen/*"
-                  ],
-                  "Action": [
-                      "s3:*",
-                      "s3:PutObject",
-                      "s3:GetObject",
-                      "s3:GetObjectVersion",
-                      "s3:GetBucketAcl",
-                      "s3:GetBucketLocation",
-                      "s3:ListBucket",
-                      "cloudformation:*"
-                  ]
-              },
-              {
-                  "Effect": "Allow",
-                  "Resource": [
-                      "*"
-                  ],
-                  "Action": [
-                      "cloudformation:*",
-                      "iam:*"
-                  ]
-              },
-              {
-                  "Effect": "Allow",
-                  "Action": [
-                      "codebuild:CreateReportGroup",
-                      "codebuild:CreateReport",
-                      "codebuild:UpdateReport",
-                      "codebuild:BatchPutCodeCoverages"
-                  ],
-                  "Resource": [
-                      "*"
-                  ]
-              }
-            ]
-        }
-
-
 Outputs:
-
   BotPipelineRole:
     Value: !GetAtt BotPipelineRole.Arn
     Export:
