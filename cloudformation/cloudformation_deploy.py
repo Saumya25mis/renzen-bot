@@ -1,5 +1,6 @@
 # pylint:disable=invalid-name, line-too-long, broad-except, f-string-without-interpolation
 """Uploads cloudformation files to s3, calls stacks"""
+import sys
 from typing import List
 
 import boto3
@@ -51,6 +52,15 @@ for stack_name, stack_name_compliant in stacks_zipped:
             StackName=stack_name_compliant
         )
         print(f"Created: {stack_name_compliant}")
+
+        # SPECIAL CONDITION FOR FIRST RUN
+        # CONCURRENT BUILD IS ONE
+        # SO PIPELINE FOR THE BOT NEEDS TO CREATE DOCKER IMAGE
+        # BEFORE IT CAN PROGRESS TO CREATING THE SERVICE OR WONT STABILIZE
+        if stacks_name_compliant == "resources":
+            print("RERUN PIPELINE ONCE DOCKER IMAGES ARE GENERATED FROM BOT PIPELINE")
+            sys.exit()
+
     else:
         # stack exists, so attempt to update
         try:
