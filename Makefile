@@ -1,5 +1,5 @@
 create-deploy-process:
-	aws cloudformation update-stack \
+	aws cloudformation create-stack \
 		--stack-name cloudformationdeploy \
 		--template-body file://cloudformation/cloudformation_deploy.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
