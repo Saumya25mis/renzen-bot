@@ -120,11 +120,6 @@ Outputs:
     Export:
       Name: BotCodeBuildRole
 
-  BotPipelineManagedPolicy:
-    Value: !Ref BotPipelineManagedPolicy
-    Export:
-      Name: BotPipelineManagedPolicy
-
   BotCodeBuildIAMManagedPolicy:
     Value: !Ref BotCodeBuildIAMManagedPolicy
     Export:
