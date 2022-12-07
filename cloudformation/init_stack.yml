@@ -247,6 +247,7 @@ Resources:
           Value: production
 
   BotCodePipeline2:
+    DependsOn: !Ref BotS3Bucket
     Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: BotCodePipeline2
