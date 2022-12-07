@@ -6,8 +6,6 @@ Description: ""
 Resources:
   AccountBaseS3Bucket:
     Type: "AWS::S3::Bucket"
-    # DeletionPolicy: Retain
-    # UpdateReplacePolicy: Retain
     Properties:
       BucketName: "cloudformation-files-renzen"
 

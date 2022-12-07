@@ -5,6 +5,8 @@ Description: "Sets up Github connection, Discord Secret, and s3 bucket. Exports 
 
 Resources:
 
+  # ServiceLinkedRole
+
   AWSServiceRoleForECS:
     Type: "AWS::IAM::ServiceLinkedRole"
     Properties:
