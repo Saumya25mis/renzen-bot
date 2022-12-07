@@ -58,7 +58,7 @@ for stack_name, stack_name_compliant in stacks_zipped:
         # CONCURRENT BUILD IS ONE
         # SO PIPELINE FOR THE BOT NEEDS TO CREATE DOCKER IMAGE
         # BEFORE IT CAN PROGRESS TO CREATING THE SERVICE OR WONT STABILIZE
-        if stack_name_compliant == "resources":
+        if stack_name == "bot_pipeline.yml":
             print("RERUN PIPELINE ONCE DOCKER IMAGES ARE GENERATED FROM BOT PIPELINE")
             sys.exit()
 
