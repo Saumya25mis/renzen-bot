@@ -49,10 +49,8 @@ Resources:
 
   BotS3Bucket:
     Type: "AWS::S3::Bucket"
-    # DeletionPolicy: Retain
-    # UpdateReplacePolicy: Retain
     Properties:
-      BucketName: !Sub "codepipeline-${AWS::Region}-bots3bucket"
+      BucketName: "renzen-bot-s3-bucket"
 
   ECRRepository:
     Type: "AWS::ECR::Repository"
@@ -247,13 +245,6 @@ Resources:
       Tags:
         - Key: stack
           Value: production
-
-  BotS3Bucket:
-    Type: "AWS::S3::Bucket"
-    # DeletionPolicy: Retain
-    # UpdateReplacePolicy: Retain
-    Properties:
-      BucketName: "renzen-bot-s3-bucket"
 
   BotCodePipeline2:
     Type: AWS::CodePipeline::Pipeline
