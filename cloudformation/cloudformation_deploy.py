@@ -17,6 +17,7 @@ stacks_order: List[str] = [
     "roles.yml",
     "network.yml",
     "resources.yml",
+    "bot_pipeline.yml",
     "bot.yml",
 ]
 
@@ -57,7 +58,7 @@ for stack_name, stack_name_compliant in stacks_zipped:
         # CONCURRENT BUILD IS ONE
         # SO PIPELINE FOR THE BOT NEEDS TO CREATE DOCKER IMAGE
         # BEFORE IT CAN PROGRESS TO CREATING THE SERVICE OR WONT STABILIZE
-        if stacks_name_compliant == "resources":
+        if stack_name_compliant == "resources":
             print("RERUN PIPELINE ONCE DOCKER IMAGES ARE GENERATED FROM BOT PIPELINE")
             sys.exit()
 
