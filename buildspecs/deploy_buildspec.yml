@@ -1,12 +1,12 @@
 version: 0.2
 
 env:
-  secrets-manager:
-    AWS_ACCOUNT_ID: "BotAWSAccountID"
-  variables:
-    IMAGE_TAG: "LatestBot"
-    IMAGE_TAG_SITE: "LatestSite"
-    IMAGE_REPO_NAME: "bot-repo"
+  # secrets-manager:
+  #   AWS_ACCOUNT_ID: "BotAWSAccountID"
+  # variables:
+  #   IMAGE_TAG: "LatestBot"
+  #   IMAGE_TAG_SITE: "LatestSite"
+  #   IMAGE_REPO_NAME: "bot-repo"
 
 phases:
   pre_build:
@@ -14,23 +14,33 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo deregistering tasks...
-      - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
+      # - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
   build:
     commands:
       - echo Build started on `date`
 
+      - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
+      - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
+      - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
+
       - echo Building the Docker image bot...
       # Builds using Dockerfile named "Dockerfile" in root as context by default
       # Name and optionally a tag in the 'name:tag' format
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f DockerfileBot .  # `-t tag .`
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f src/bot/Dockerfile .  # `-t tag .`
       # tags built image with registry host name to push to private repository
+      - AWS_ACCOUNT_ID = AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
       - echo Building the Docker image site...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f DockerfileSite .
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f src/site/Dockerfile .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
   post_build:
     commands:
       - echo Build completed on `date`
+
+      - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
+      - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
+      - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
       - echo Pushing the Docker image bot...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
@@ -48,10 +58,14 @@ phases:
       - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
 
+
+      # CODEBUILD_BUILD_NUMBER -- only do this after first run
       # update cloudformation after pushing docker imagses
-      - echo uploading cloudformation files to s3...
-      - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
-      - python3 cloudformation/cloudformation_deploy.py
+      # for potential dev branches, would skip this step.
+      # - echo uploading cloudformation files to s3...
+      # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
+      # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/buildspecs/"  # use these uploaded buildspecs in dev environment instead of local
+      # - python3 cloudformation/apply_cloudformation.py
 
 artifacts:
   files:

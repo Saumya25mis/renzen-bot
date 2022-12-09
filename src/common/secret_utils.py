@@ -9,6 +9,7 @@
 import base64
 import json
 import logging
+import os
 from typing import Any
 
 import boto3
@@ -68,9 +69,11 @@ def get_secret(secret_name: str) -> Any:
     # return json.loads(secret)
 
 
-TOKEN = get_secret("BotDiscordToken")
+ENV = os.getenv("CURRENT_ENVIRONMENT")
 
-DB_INFO = json.loads(get_secret("DBPassword"))
+TOKEN = get_secret(f"{ENV}-BotDiscordToken")
+
+DB_INFO = json.loads(get_secret(f"{ENV}-DBPassword"))
 
 DB_PASSWORD = DB_INFO["password"]
 DB_USERNAME = DB_INFO["username"]
