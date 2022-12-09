@@ -11,19 +11,8 @@ Resources:
     Properties:
       ConnectionName: GithubConnection
       ProviderType: GitHub
-  BotGithubConnection2:
-    Type: "AWS::CodeStarConnections::Connection"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      ConnectionName: GithubConnection2
-      ProviderType: GitHub
 Outputs:
   BotGithubConnection:
     Value: !Ref BotGithubConnection
     Export:
       Name: BotGithubConnection
-  BotGithubConnection2:
-    Value: !Ref BotGithubConnection2
-    Export:
-      Name: BotGithubConnection2

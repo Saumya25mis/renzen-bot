@@ -1,14 +1,32 @@
 # pylint:disable=invalid-name, line-too-long, broad-except, f-string-without-interpolation
-"""Uploads cloudformation files to s3, calls stacks"""
+"""Uploads cloudformation files to s3, calls stacks.
+
+Updates environments cloudformation from the production (main) and staging branches.
+"""
+import os
 from typing import List
 
 import boto3
 import botocore.exceptions
 
+CODE_ENVIRONMENT = os.getenv("CodeEnvironment")  # production/staging/dev etc
+
+ENVIRONMENTS = ["production", "staging", "dev-branch-1", "dev-branch-2", "dev-branch-3"]
+
+
+if CODE_ENVIRONMENT == "production":
+    # update all environments terraform
+    pass
+elif CODE_ENVIRONMENT == "staging":
+    # update all environments except production
+    pass
+else:
+    pass
+    # do nothing
+
 # file path prefix
-stack_prefix = (
-    "https://cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation"
-)
+stack_prefix = f"https://{CODE_ENVIRONMENT}-cloudformation-files-renzen.s3.us-west-1.amazonaws.com/cloudformation"
+
 
 # stacks created or updated in this script
 stacks_order: List[str] = [

@@ -5,7 +5,7 @@ ADD . $AP/
 WORKDIR $AP
 
 # install requirements
-RUN pip3 install --no-cache-dir -r src/bot/requirements.txt
+RUN pip3 install --no-cache-dir -r ../../src/bot/requirements.txt
 
 # install module
 RUN pip3 install -e .
