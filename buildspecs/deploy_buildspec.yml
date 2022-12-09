@@ -12,6 +12,17 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
+
+      - AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
+      - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
+      - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
+      - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
+
+      - echo AWS_ACCOUNT_ID
+      - echo IMAGE_TAG
+      - echo IMAGE_TAG_SITE
+      - echo IMAGE_REPO_NAME
+
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo deregistering tasks...
       # - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
