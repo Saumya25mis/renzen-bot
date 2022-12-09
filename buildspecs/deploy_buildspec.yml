@@ -1,6 +1,6 @@
 version: 0.2
 
-env:
+# env:
   # secrets-manager:
   #   AWS_ACCOUNT_ID: "BotAWSAccountID"
   # variables:
@@ -19,9 +19,15 @@ phases:
     commands:
       - echo Build started on `date`
 
+      - AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
+
+      - echo AWS_ACCOUNT_ID
+      - echo IMAGE_TAG
+      - echo IMAGE_TAG_SITE
+      - echo IMAGE_REPO_NAME
 
       - echo Building the Docker image bot...
       # Builds using Dockerfile named "Dockerfile" in root as context by default
@@ -38,9 +44,15 @@ phases:
     commands:
       - echo Build completed on `date`
 
+      - AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
+
+      - echo AWS_ACCOUNT_ID
+      - echo IMAGE_TAG
+      - echo IMAGE_TAG_SITE
+      - echo IMAGE_REPO_NAME
 
       - echo Pushing the Docker image bot...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
