@@ -23,6 +23,8 @@ phases:
       - echo $IMAGE_TAG_SITE
       - echo $IMAGE_REPO_NAME
 
+      - echo $CURRENT_ENVIRONMENT
+
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo deregistering tasks...
       # - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
@@ -73,11 +75,11 @@ phases:
       - echo Writing image definitions file...
       - mkdir bot
       - cd bot
-      - printf '[{"name":"bot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"${CURRENT_ENVIRONMENT}-bot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - cd ..
       - mkdir site
       - cd site
-      - printf '[{"name":"site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
+      - printf '[{"name":"${CURRENT_ENVIRONMENT}-site-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
 
 
