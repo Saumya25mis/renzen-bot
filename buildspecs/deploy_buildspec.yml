@@ -55,6 +55,7 @@ phases:
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f src/site/Dockerfile .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
   post_build:
+    on-failure: ABORT
     commands:
       - echo Build completed on `date`
 
@@ -67,6 +68,8 @@ phases:
       - echo $IMAGE_TAG
       - echo $IMAGE_TAG_SITE
       - echo $IMAGE_REPO_NAME
+
+      - pytest
 
       - echo Pushing the Docker image bot...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
