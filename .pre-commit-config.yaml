@@ -1,50 +1,68 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    -   id: end-of-file-fixer
-    # -   id: check-yaml
-    -   id: trailing-whitespace
-    -   id: mixed-line-ending
-    -   id: requirements-txt-fixer
--   repo: https://github.com/psf/black
+      - id: end-of-file-fixer
+      # -   id: check-yaml
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: requirements-txt-fixer
+  - repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:
-    -   id: black
-- repo: local
-  hooks:
-    - id: pylint
-      name: pylint
-      entry: pylint
-      language: python
-      types: [python]
-      args:
-        [
-          "-rn", # Only display messages
-          "-sn", # Don't display the score
-        ]
-      additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary, types-psycopg2, boto3-stubs, types-setuptools,s3fs]
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v0.991'  # Use the sha / tag you want to point at
+      - id: black
+  - repo: local
     hooks:
-    -   id: mypy
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
+        args: [
+            "-rn", # Only display messages
+            "-sn", # Don't display the score
+          ]
+        additional_dependencies:
+          [
+            boto3==1.24.64,
+            botocore==1.27.64,
+            discord.py==2.0.1,
+            psycopg2-binary,
+            types-psycopg2,
+            boto3-stubs,
+            types-setuptools,
+            aiohttp==3.8.1
+          ]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v0.991" # Use the sha / tag you want to point at
+    hooks:
+      - id: mypy
         args: ["--config-file=mypy.ini"]
-        additional_dependencies: [boto3==1.24.64,botocore==1.27.64,discord.py==2.0.1, psycopg2-binary, types-psycopg2, boto3-stubs, types-setuptools,s3fs]
-# - repo: https://github.com/aws-cloudformation/cfn-lint
-#   rev: v0.72.1  # The version of cfn-lint to use
-#   hooks:
-#     - id: cfn-lint
-#       files: cloudformation/.*\.(json|yml|yaml)$
-- repo: https://github.com/pycqa/isort
-  rev: 5.10.1
-  hooks:
-    - id: isort
-      name: isort (python)
-- repo: local
-  hooks:
-    - id: pytest-check
-      name: pytest-check
-      entry: pytest
-      language: system
-      pass_filenames: false
-      always_run: true
+        additional_dependencies:
+          [
+            boto3==1.24.64,
+            botocore==1.27.64,
+            discord.py==2.0.1,
+            psycopg2-binary,
+            types-psycopg2,
+            boto3-stubs,
+            types-setuptools,
+          ]
+  # - repo: https://github.com/aws-cloudformation/cfn-lint
+  #   rev: v0.72.1  # The version of cfn-lint to use
+  #   hooks:
+  #     - id: cfn-lint
+  #       files: cloudformation/.*\.(json|yml|yaml)$
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
