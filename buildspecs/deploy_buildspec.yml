@@ -45,7 +45,6 @@ phases:
       # Name and optionally a tag in the 'name:tag' format
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f src/bot/Dockerfile .  # `-t tag .`
       # tags built image with registry host name to push to private repository
-      - AWS_ACCOUNT_ID = AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
 
       - echo Building the Docker image site...
