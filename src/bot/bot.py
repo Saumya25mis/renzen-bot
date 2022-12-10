@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 
 import discord
 from discord.ext import commands
@@ -26,6 +27,8 @@ my_bot = commands.Bot(
 )
 
 NOTIFICATION_USER = 273685734483820554
+PRODUCTION_ALERTS_CHANNEL = 1050487198882992268
+STAGING_ALERTS_CHANNEL = 1050487229631451238
 
 
 @my_bot.tree.command()
@@ -123,6 +126,15 @@ async def on_ready() -> None:
     user: discord.User = await my_bot.fetch_user(NOTIFICATION_USER)
 
     await user.send("New Bot Deploy!")
+
+    if os.getenv("CURRENT_ENVIRONMENT") == "staging":
+        channel = my_bot.get_channel(STAGING_ALERTS_CHANNEL)
+        if channel:
+            await channel.send(content="New Staging Bot Deploy!")  # type: ignore
+    elif os.getenv("CURRENT_ENVIRONMENT") == "production":
+        channel = my_bot.get_channel(PRODUCTION_ALERTS_CHANNEL)
+        if channel:
+            await channel.send(content="New Staging Bot Deploy!")  # type: ignore
 
 
 @my_bot.event

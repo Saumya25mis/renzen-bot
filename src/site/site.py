@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 import uuid
 from typing import Dict
 
@@ -13,6 +14,7 @@ from src.common import db_utils
 logger = logging.getLogger(__name__)
 
 sqs_client = boto3.client("sqs", region_name="us-west-1")
+CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
 
 async def handle(request: web.Request) -> web.Response:
@@ -50,8 +52,9 @@ async def check_valid_code(request: web.Request) -> web.Response:
 
 def get_queue_url() -> str:
     """Get Queue Url."""
+
     response = sqs_client.get_queue_url(
-        QueueName="MyQueue.fifo",
+        QueueName=f"{CURRENT_ENVIRONMENT}-MyQueue.fifo",
     )
     return str(response["QueueUrl"])
 

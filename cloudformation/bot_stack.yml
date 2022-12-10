@@ -34,6 +34,10 @@ Parameters:
     Type: String
     Description: hosted zone
 
+  AlertsChannelID:
+    Type: String
+    Description: Discord channel to publish alerts to
+
 Resources:
 
   SecretsManagerSecret:
@@ -498,7 +502,7 @@ Resources:
 
   MyQueue:
     Properties:
-      QueueName: !Sub '${CodeEnvironment}-MyQueue.fifo'
+      QueueName: !Sub '${CodeEnviron}ment-MyQueue.fifo'
       FifoQueue: true
       ContentBasedDeduplication: true
     Type: "AWS::SQS::Queue"

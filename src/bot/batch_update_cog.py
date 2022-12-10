@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 from typing import Optional
 
 import boto3
@@ -12,7 +13,8 @@ from src.bot import bot_utils
 from src.common import db_utils
 
 sqs = boto3.resource("sqs", region_name="us-west-1")
-queue = sqs.get_queue_by_name(QueueName="MyQueue.fifo")
+CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
+queue = sqs.get_queue_by_name(QueueName=f"{CURRENT_ENVIRONMENT}-MyQueue.fifo")
 
 logger = logging.getLogger(__name__)
 
