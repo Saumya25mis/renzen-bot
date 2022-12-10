@@ -13,7 +13,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
 
-      - AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
@@ -30,7 +30,7 @@ phases:
     commands:
       - echo Build started on `date`
 
-      - AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
