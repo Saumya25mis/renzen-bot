@@ -35,10 +35,10 @@ phases:
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
-      - echo AWS_ACCOUNT_ID
-      - echo IMAGE_TAG
-      - echo IMAGE_TAG_SITE
-      - echo IMAGE_REPO_NAME
+      - echo $AWS_ACCOUNT_ID
+      - echo $IMAGE_TAG
+      - echo $IMAGE_TAG_SITE
+      - echo $IMAGE_REPO_NAME
 
       - echo Building the Docker image bot...
       # Builds using Dockerfile named "Dockerfile" in root as context by default
