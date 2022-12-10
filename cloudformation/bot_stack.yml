@@ -37,6 +37,7 @@ Parameters:
   AlertsChannelID:
     Type: String
     Description: Discord channel to publish alerts to
+    Default: None
 
 Resources:
 
@@ -502,7 +503,7 @@ Resources:
 
   MyQueue:
     Properties:
-      QueueName: !Sub '${CodeEnviron}ment-MyQueue.fifo'
+      QueueName: !Sub '${CodeEnvironment}-MyQueue.fifo'
       FifoQueue: true
       ContentBasedDeduplication: true
     Type: "AWS::SQS::Queue"
