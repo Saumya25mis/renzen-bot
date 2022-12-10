@@ -71,7 +71,7 @@ def get_secret(secret_name: str) -> Any:
 
 ENV = os.getenv("CURRENT_ENVIRONMENT")
 
-TOKEN = get_secret(f"{ENV}-BotDiscordToken")
+TOKEN = get_secret(f"{ENV}-DiscordToken")
 
 DB_INFO = json.loads(get_secret(f"{ENV}-DBPassword"))
 
