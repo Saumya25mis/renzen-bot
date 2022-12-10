@@ -18,7 +18,9 @@
         "contextMenus"
     ],
     "host_permissions": [
-        "http://api.renzen.io/*"
+        "http://api.renzen.io/*",
+        "http://staging.renzen.io/*",
+        "http://production.renzen.io/*"
     ],
     "content_scripts": [
         {
