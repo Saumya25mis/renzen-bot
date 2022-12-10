@@ -5,3 +5,4 @@ venv
 eklie.egg-info/
 .reference
 .scratch
+.env
