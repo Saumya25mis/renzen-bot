@@ -5,11 +5,11 @@ ADD . $AP/
 WORKDIR $AP
 
 # install requirements
-RUN pip3 install --no-cache-dir -r ../../src/bot/requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # install module
 RUN pip3 install -e .
 
-RUN ["chmod", "+x", "scripts/bot_wrapper_script.sh"]
+RUN ["chmod", "+x", "../../scripts/bot_wrapper_script.sh"]
 ENV PYTHONUNBUFFERED=1
-ENTRYPOINT ["scripts/bot_wrapper_script.sh"]
+ENTRYPOINT ["../../scripts/bot_wrapper_script.sh"]

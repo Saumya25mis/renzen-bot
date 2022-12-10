@@ -5,10 +5,10 @@ ADD . $AP/
 WORKDIR $AP
 
 # install requirements
-RUN pip3 install --no-cache-dir -r src/site/requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # install module
 RUN pip3 install -e .
 
 ENV PYTHONUNBUFFERED=1
-ENTRYPOINT [ "python3", "src/site/site.py" ]
+ENTRYPOINT [ "python3", "site.py" ]
