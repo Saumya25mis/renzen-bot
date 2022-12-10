@@ -9,9 +9,8 @@ from typing import List
 import boto3
 import botocore.exceptions
 
-CODE_ENVIRONMENT = os.getenv("CodeEnvironment")  # production/staging/dev etc
-
-ENVIRONMENTS = ["production", "staging", "dev-branch-1", "dev-branch-2", "dev-branch-3"]
+CODE_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
+CODE_BUILD_NUMBER = os.getenv("CODEBUILD_BUILD_NUMBER")
 
 
 if CODE_ENVIRONMENT == "production":
