@@ -22,7 +22,8 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
       console.log(tab.title)
 
-      let site = "http://api.renzen.io/forward";
+      // let site = "http://api.renzen.io/forward";
+      let site = `http://localhost:81/forward`
 
       chrome.storage.local.get(["login-code"], function (login_result) {
         fetch(site, {

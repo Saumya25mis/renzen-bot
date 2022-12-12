@@ -12,8 +12,11 @@ document.getElementById("save-btn").onclick = async () => {
       function: () => getSelection().toString(),
     });
 
-    let subdomain = document.getElementById('subdomain').value;
-    let site = `http://${subdomain}.renzen.io/forward`
+    // let subdomain = document.getElementById('subdomain').value;
+    // let site = `http://${subdomain}.renzen.io/forward`
+
+    // let subdomain = document.getElementById('subdomain').value;
+    let site = `http://localhost:81/forward`
 
     chrome.storage.local.get(['login-code'], function (login_result) {
       fetch(site, {

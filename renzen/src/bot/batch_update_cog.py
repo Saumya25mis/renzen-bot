@@ -2,19 +2,13 @@
 
 import json
 import logging
-import os
 from typing import Optional
 
-import boto3
 import discord
 from discord.ext import commands, tasks
-
+from src.common import queue_utils
 from src.bot import bot_utils
 from src.common import db_utils
-
-sqs = boto3.resource("sqs", region_name="us-west-1")
-CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
-queue = sqs.get_queue_by_name(QueueName=f"{CURRENT_ENVIRONMENT}-MyQueue.fifo")
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +28,25 @@ class BatchForwardSnippets(commands.Cog):
     async def batch_update(self) -> None:
         """Receive message."""
 
-        for message in queue.receive_messages():
+        message_type, messages = queue_utils.receive_messages()
+
+        for message in messages:
 
             temp_user: Optional[discord.User] = None
 
             try:
 
-                message_json = json.loads(message.body)
-                request_content = json.loads(message_json["request_content"])
+                if message_type == "aws":
+                    message_json = json.loads(message.body)
+                    request_content = json.loads(message_json["request_content"])
+                elif message_type == "rabbit":
+                    if not message:
+                        continue
+                    message_json = json.loads(message)
+                    request_content = json.loads(message_json["request_content"])
+                else:
+                    # do nothing
+                    return
 
                 login_user_relation: Optional[
                     db_utils.LoginCodes
@@ -66,10 +71,11 @@ class BatchForwardSnippets(commands.Cog):
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
                 logger.info("Could not deliver message. Will not retry\n %s", e)
-                logger.info(message.body)
+                logger.info(message)
                 if temp_user:
                     await temp_user.send(
                         f"Could not deliver message. Will not retry\n{e}"
                     )
 
-            message.delete()
+            if message_type == "aws":
+                message.delete()

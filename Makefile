@@ -7,6 +7,9 @@ endif
 
 AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
 
+run-local:
+	make docker compose up --build
+
 deploy-prod:
 	aws cloudformation create-stack \
 		--stack-name productiondeploy \

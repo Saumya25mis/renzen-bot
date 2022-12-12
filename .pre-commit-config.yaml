@@ -7,6 +7,11 @@ repos:
       - id: trailing-whitespace
       - id: mixed-line-ending
       - id: requirements-txt-fixer
+  # - repo: https://github.com/pycqa/isort
+  #   rev: 5.10.1
+  #   hooks:
+  #     - id: isort
+  #       name: isort (python)
   - repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:
@@ -52,11 +57,6 @@ repos:
   #   hooks:
   #     - id: cfn-lint
   #       files: cloudformation/.*\.(json|yml|yaml)$
-  - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-        name: isort (python)
   - repo: local
     hooks:
       - id: pytest-check

@@ -1,25 +1,29 @@
+# pylint: disable=invalid-name
 """DB utils."""
-
 import datetime
 import logging
+import os
 import uuid
 from dataclasses import dataclass
 from typing import List, Optional, Union
 
+
 import psycopg2
 import psycopg2.extras
-
 from src.common import secret_utils
 
 logger = logging.getLogger(__name__)
+CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
+
+# get access to aws postgres
 conn = psycopg2.connect(
-    database="postgres",
+    database=secret_utils.DB_DB,
     user=secret_utils.DB_USERNAME,
     password=secret_utils.DB_PASSWORD,
     host=secret_utils.DB_ENDPOINT,
     port=secret_utils.DB_PORT,
-    sslmode="require",
+    # sslmode="require",
 )
 
 conn.autocommit = True

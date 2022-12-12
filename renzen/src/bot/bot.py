@@ -6,7 +6,6 @@ import os
 
 import discord
 from discord.ext import commands
-
 from src.bot.batch_update_cog import BatchForwardSnippets
 from src.bot.bot_utils import format_search_embed
 from src.common import db_utils, secret_utils
