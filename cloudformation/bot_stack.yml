@@ -109,7 +109,7 @@ Resources:
                 Version: "1"
               RunOrder: 1
               Configuration:
-                ActionMode: CREATE_UPDATE
+                ActionMode: CHANGE_SET_EXECUTE
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
                 # ChangeSetName: ${CodeEnvironment}-pipeline-changeset
                 # ParameterOverrides: '{"ProjectId": "my-project","CodeDeployRole": "CodeDeploy_Role_ARN"}'
