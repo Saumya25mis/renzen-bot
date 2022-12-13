@@ -6,6 +6,7 @@ services:
   bot:
     environment:
       - RUN_LOCAL=1
+      - DEV_DISCORD_TOKEN=${DEV_DISCORD_TOKEN:?err}
     image: bot-app
     build:
       context: renzen

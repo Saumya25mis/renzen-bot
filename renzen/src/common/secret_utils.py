@@ -73,8 +73,7 @@ def get_secret(secret_name: str) -> Any:
 ENV = os.getenv("CURRENT_ENVIRONMENT")
 
 if os.getenv("RUN_LOCAL"):
-    # temp staging
-    TOKEN = ""
+    TOKEN = os.getenv("DEV_DISCORD_TOKEN")
     DB_PASSWORD = "postgres"
     DB_USERNAME = "postgres"
     DB_PORT = 5432
