@@ -94,6 +94,7 @@ Resources:
               OutputArtifacts:
                 - Name: "secondary_artifact_name_1"
                 - Name: "secondary_artifact_name_2"
+                - Name: "secondary_artifact_name_3"
               Region: !Ref AWS::Region
               Namespace: "BuildVariables"
               RunOrder: 1
@@ -115,11 +116,12 @@ Resources:
                 # ParameterOverrides: '{"ProjectId": "my-project","CodeDeployRole": "CodeDeploy_Role_ARN"}'
                 RoleArn: !GetAtt BotPipelineRole.Arn
                 StackName: !Sub '${CodeEnvironment}deploy'
-                # TemplateConfiguration: 'my-project--BuildArtifact::template-configuration.json'
+                TemplateConfiguration: 'secondary_artifact_name_3::STACK_PARAMETERS.json'
                 TemplatePath: "SourceArtifact::cloudformation/bot_stack.yml"
               OutputArtifacts: []
               InputArtifacts:
                 - Name: SourceArtifact
+                - Name: secondary_artifact_name_3
 
         - Name: "DeployBot"
           Actions:

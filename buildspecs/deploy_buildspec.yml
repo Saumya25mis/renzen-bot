@@ -98,7 +98,8 @@ phases:
       # - echo uploading cloudformation files to s3...
       # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
       # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/buildspecs/"  # use these uploaded buildspecs in dev environment instead of local
-      # - python3 cloudformation/apply_cloudformation.py
+
+      - python3 cloudformation/export_parameters.py
 
 artifacts:
   files:
@@ -114,3 +115,7 @@ artifacts:
       files:
         - imagedefinitions.json
       name: secondary_artifact_name_2
+    secondary_artifact_name_3:
+      files:
+        - STACK_PARAMETERS.json
+      name: secondary_artifact_name_3
