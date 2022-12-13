@@ -84,7 +84,7 @@ else:
 
     DB_INFO = json.loads(get_secret(f"{ENV}-DBPassword"))
 
-    DB_DB = "db"
+    DB_DB = "postgres"
 
     DB_PASSWORD = DB_INFO["password"]
     DB_USERNAME = DB_INFO["username"]
