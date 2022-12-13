@@ -114,7 +114,7 @@ Resources:
                 # ChangeSetName: ${CodeEnvironment}-pipeline-changeset
                 # ParameterOverrides: '{"ProjectId": "my-project","CodeDeployRole": "CodeDeploy_Role_ARN"}'
                 RoleArn: !GetAtt BotPipelineRole.Arn
-                StackName: ${CodeEnvironment}deploy
+                StackName: !Sub '${CodeEnvironment}deploy'
                 # TemplateConfiguration: 'my-project--BuildArtifact::template-configuration.json'
                 TemplatePath: "SourceArtifact::cloudformation/bot_stack.yml"
               OutputArtifacts: []
@@ -189,7 +189,7 @@ Resources:
     Properties:
       Path: "/service-role/"
       RoleName: !Sub "${CodeEnvironment}-BotPipelineRole"
-      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codepipeline.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codepipeline.amazonaws.com", "Service":"cloudformation.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
       MaxSessionDuration: 3600
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
