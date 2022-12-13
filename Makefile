@@ -36,17 +36,8 @@ deploy-staging:
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
-sync-cloudformation:
-	aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
-
 github-connect:
 	aws cloudformation update-stack \
 		--stack-name githubconnect \
 		--template-body file://cloudformation/github_connect.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
-
-bot-logs:
-	aws logs tail bot-task --follow
-
-site-logs:
-	aws logs tail bot-site --follow
