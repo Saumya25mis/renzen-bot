@@ -22,11 +22,14 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
       console.log(tab.title)
 
-      // let site = "http://api.renzen.io/forward";
-      let site = `http://localhost:81/forward`
+      //let site = document.querySelector('input[name="bot"]:checked').value;
 
-      chrome.storage.local.get(["login-code"], function (login_result) {
-        fetch(site, {
+      // print(site)
+      // // let site = "http://api.renzen.io/forward";
+      // let site = `http://localhost:81/forward`
+
+      chrome.storage.local.get(['login-code', 'bot_path'], function (login_result) {
+        fetch(login_result['bot_path'], {
           method: "POST",
           headers: {
             "Content-Type": "application/json;charset=utf-8",

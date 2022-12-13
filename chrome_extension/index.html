@@ -5,8 +5,22 @@
 </head>
 
 <body>
-    <p>Just some text.</p>
-    <input type="text" id="subdomain" name="subdomain" placeholder="production">
+
+
+        <fieldset>
+            <div id="bot">
+                <input type="radio" id="production" name="bot" value="http://production8.renzen.io/forward" />
+                <label for="production">production</label>
+
+                <input type="radio" id="staging" name="bot" value="http://staging.renzen.io/forward" />
+                <label for="staging">staging</label>
+
+                <input type="radio" id="local" name="bot" value="http://localhost:81/forward" />
+                <label for="local">local</label>
+            </div>
+        </fieldset>
+
+
     <input type="text" id="login-code" name="login-code">
     <button id="login-btn">Login</button>
     <button id="save-btn">Send to Discord</button>
