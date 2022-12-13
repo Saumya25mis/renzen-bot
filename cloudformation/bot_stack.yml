@@ -112,7 +112,7 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-                ChangeSetName: ${CodeEnvironment}-pipeline-changeset
+                ChangeSetName: !Sub '${CodeEnvironment}-pipeline-changeset'
                 # ParameterOverrides: '{"ProjectId": "my-project","CodeDeployRole": "CodeDeploy_Role_ARN"}'
                 RoleArn: !GetAtt BotPipelineRole.Arn
                 StackName: !Sub '${CodeEnvironment}deploy'
