@@ -90,7 +90,7 @@ phases:
       - cd ..
 
       # update cloudformation for appropriate stack
-      - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
+      # - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
 
       # CODEBUILD_BUILD_NUMBER -- only do this after first run
       # update cloudformation after pushing docker imagses

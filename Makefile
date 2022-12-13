@@ -37,20 +37,20 @@ deploy-staging:
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 update-prod:
-	aws cloudformation create-stack \
-		--stack-name productiondeploy \
+	aws cloudformation update-stack \
+		--stack-name productiondeploy8 \
 		--template-body file://cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
 		--parameters \
 		ParameterKey="DiscordToken",ParameterValue=${PRODUCTION_DISCORD_TOKEN} \
 		ParameterKey="GitHubRepoName",ParameterValue=${PRODUCTION_GITHUB_REPO} \
 		ParameterKey="GitHubBranchName",ParameterValue=${PRODUCTION_GITHUB_BRANCH} \
-		ParameterKey="CodeEnvironment",ParameterValue="production" \
+		ParameterKey="CodeEnvironment",ParameterValue="production8" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 update-staging:
-	aws cloudformation create-stack \
+	aws cloudformation update-stack \
 		--stack-name stagingdeploy \
 		--template-body file://cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
