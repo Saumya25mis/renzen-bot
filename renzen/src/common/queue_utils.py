@@ -19,7 +19,7 @@ aws_queue = None
 if not os.getenv("RUN_LOCAL"):
     # set up access to aws queue
     sqs = boto3.resource("sqs", region_name="us-west-1")
-    aws_queue = sqs.get_queue_by_name(QueueName=queue_name)
+    aws_queue = sqs.get_queue_by_name(QueueName=f"{CURRENT_ENVIRONMENT}-MyQueue.fifo")
 else:
     # set up access to rabbit queue
     connection = pika.BlockingConnection(
