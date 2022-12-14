@@ -7,3 +7,4 @@ eklie.egg-info/
 .scratch
 .env
 renzen/renzen.egg-info/*
+images/*

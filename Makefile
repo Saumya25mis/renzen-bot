@@ -54,3 +54,6 @@ github-connect:
 		--stack-name githubconnect \
 		--template-body file://cloudformation/github_connect.yml \
 		--capabilities CAPABILITY_NAMED_IAM; \
+
+create-env-template:
+	python3 scripts/create_env_template.py
