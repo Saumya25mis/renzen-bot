@@ -164,7 +164,7 @@ async def on_message(message: discord.Message) -> None:
 async def main_async() -> None:
     """Main."""
     await my_bot.add_cog(BatchForwardSnippets(my_bot))
-    await my_bot.start(secret_utils.TOKEN)
+    await my_bot.start(secret_utils.TOKEN)  # type: ignore
 
 
 asyncio.run(main_async())

@@ -22,13 +22,16 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
       console.log(tab.title)
 
-      //let site = document.querySelector('input[name="bot"]:checked').value;
+      // selected_bot = document.querySelector('input[name="bot"]:checked').id;
 
-      // print(site)
-      // // let site = "http://api.renzen.io/forward";
-      // let site = `http://localhost:81/forward`
+      let selected_bot = await chrome.storage.local.get(['button_id'])
+      selected_bot = selected_bot['button_id']
+      console.log('SELECTED: '+selected_bot)
 
-      chrome.storage.local.get(['login-code', 'bot_path'], function (login_result) {
+      chrome.storage.local.get(['login-code-' + selected_bot, 'bot_path'], function (login_result) {
+
+        console.log(login_result)
+
         fetch(login_result['bot_path'], {
           method: "POST",
           headers: {
@@ -36,13 +39,14 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
           },
           body: JSON.stringify({
             "snippet": result,
-            "login-code": login_result["login-code"],
+            "login-code": login_result["login-code-" + selected_bot],
             "URL": tab.url,
             "title": tab.title
           }),
         });
       });
     } catch (e) {
+      console.log("ERROR "+ e)
       return; // ignoring an unsupported page like chrome://extensions
     }
   })();

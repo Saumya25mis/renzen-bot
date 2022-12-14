@@ -23,7 +23,7 @@ if not os.getenv("RUN_LOCAL"):
 else:
     # set up access to rabbit queue
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host="rabbitmq", port=5672)
+        pika.ConnectionParameters(host="rabbitmq", port=5672, heartbeat=0)
     )
     rabbit_channel = connection.channel()
     rabbit_queue = rabbit_channel.queue_declare(queue=queue_name)
