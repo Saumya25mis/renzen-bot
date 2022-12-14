@@ -53,6 +53,8 @@ The purpose of this section is to give a brief overview of the files and in the 
   - [**Dockerfile**](.devcontainer/Dockefile)
     - This is the Dockerfile that is run to create our Dev Environment
 - .github
+  - [**CODEOWNERS**](.github/CODEOWNERS)
+    - Specifies files that need special approval from specific developers.
   - workflows
     - [**pre-commit.yml**](.github/workflows//pre-commit.yml)
       - This is a check that is run on all branches when pushed to github. Ths verifies that the code submitted meets certain standards. These standards are specified in `.pre-commit-config.yaml`
