@@ -12,14 +12,14 @@ run-local:
 
 deploy-prod:
 	aws cloudformation deploy \
-		--stack-name productiondeploy8 \
+		--stack-name productiondeploy \
 		--template-file cloudformation/bot_stack.yml \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
 		--parameter-overrides \
 		ParameterKey="DiscordToken",ParameterValue=${PRODUCTION_DISCORD_TOKEN} \
 		ParameterKey="GitHubRepoName",ParameterValue=${PRODUCTION_GITHUB_REPO} \
 		ParameterKey="GitHubBranchName",ParameterValue=${PRODUCTION_GITHUB_BRANCH} \
-		ParameterKey="CodeEnvironment",ParameterValue="production8" \
+		ParameterKey="CodeEnvironment",ParameterValue="production" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
