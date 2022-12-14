@@ -318,7 +318,7 @@ Resources:
           # Environment: !Sub
           #   - '[{"name":"CURRENT_ENVIRONMENT", "value": "${CodeEnvironment}"}]'
           #   - CodeEnvironment: !Ref CodeEnvironment
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/bot-repo:${CodeEnvironment}-LatestBot"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestBot"
           LogConfiguration:
             LogDriver: "awslogs"
             Options:
