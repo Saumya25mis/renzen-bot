@@ -4,22 +4,20 @@ import json
 import logging
 import os
 import uuid
-from typing import Dict
 
-import boto3
 from aiohttp import web
-
+from src.common import queue_utils
 from src.common import db_utils
 
 logger = logging.getLogger(__name__)
 
-sqs_client = boto3.client("sqs", region_name="us-west-1")
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
 
 async def handle(request: web.Request) -> web.Response:
     """Health check response."""
     response_obj = {"status": "success"}
+    print(response_obj)
     return web.Response(text=json.dumps(response_obj))
 
 
@@ -32,7 +30,9 @@ async def forward(request: web.Request) -> web.Response:
 
     request_text = await request.text()
 
-    send_message(message={"request_content": request_text})
+    print(f"{request_text=}")
+
+    queue_utils.send_message(message={"request_content": request_text})
     response_obj = {"status": f"success forward {request_id}"}
     return web.Response(text=json.dumps(response_obj))
 
@@ -48,25 +48,6 @@ async def check_valid_code(request: web.Request) -> web.Response:
     if result:
         return web.Response(text="valid")
     return web.Response(text="invalid")
-
-
-def get_queue_url() -> str:
-    """Get Queue Url."""
-
-    response = sqs_client.get_queue_url(
-        QueueName=f"{CURRENT_ENVIRONMENT}-MyQueue.fifo",
-    )
-    return str(response["QueueUrl"])
-
-
-def send_message(message: Dict[str, str]) -> None:
-    """Send message to queue."""
-    logger.info("Adding message to queue.")
-    response = sqs_client.send_message(
-        QueueUrl=get_queue_url(),
-        MessageBody=json.dumps(message),
-        MessageGroupId="MyTestId",
-    )
 
 
 app = web.Application()

@@ -6,7 +6,6 @@ import os
 
 import discord
 from discord.ext import commands
-
 from src.bot.batch_update_cog import BatchForwardSnippets
 from src.bot.bot_utils import format_search_embed
 from src.common import db_utils, secret_utils
@@ -165,7 +164,7 @@ async def on_message(message: discord.Message) -> None:
 async def main_async() -> None:
     """Main."""
     await my_bot.add_cog(BatchForwardSnippets(my_bot))
-    await my_bot.start(secret_utils.TOKEN)
+    await my_bot.start(secret_utils.TOKEN)  # type: ignore
 
 
 asyncio.run(main_async())

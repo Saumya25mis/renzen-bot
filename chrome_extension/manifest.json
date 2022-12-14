@@ -20,7 +20,8 @@
     "host_permissions": [
         "http://api.renzen.io/*",
         "http://staging.renzen.io/*",
-        "http://production.renzen.io/*"
+        "http://production.renzen.io/*",
+        "http://localhost/*"
     ],
     "content_scripts": [
         {

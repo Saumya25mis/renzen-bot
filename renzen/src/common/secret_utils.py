@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 def get_secret(secret_name: str) -> Any:
     """Get discord secrets."""
+
     logger.info("Retrieving secrets...")
 
     region_name = "us-west-1"
@@ -71,11 +72,21 @@ def get_secret(secret_name: str) -> Any:
 
 ENV = os.getenv("CURRENT_ENVIRONMENT")
 
-TOKEN = get_secret(f"{ENV}-DiscordToken")
+if os.getenv("RUN_LOCAL"):
+    TOKEN = os.getenv("DEV_DISCORD_TOKEN")
+    DB_PASSWORD = "postgres"
+    DB_USERNAME = "postgres"
+    DB_PORT = 5432
+    DB_ENDPOINT = "db"  # "localhost"
+    DB_DB = "postgres"
+else:
+    TOKEN = get_secret(f"{ENV}-DiscordToken")
 
-DB_INFO = json.loads(get_secret(f"{ENV}-DBPassword"))
+    DB_INFO = json.loads(get_secret(f"{ENV}-DBPassword"))
 
-DB_PASSWORD = DB_INFO["password"]
-DB_USERNAME = DB_INFO["username"]
-DB_PORT = DB_INFO["port"]
-DB_ENDPOINT = DB_INFO["host"]
+    DB_DB = "postgres"
+
+    DB_PASSWORD = DB_INFO["password"]
+    DB_USERNAME = DB_INFO["username"]
+    DB_PORT = DB_INFO["port"]
+    DB_ENDPOINT = DB_INFO["host"]

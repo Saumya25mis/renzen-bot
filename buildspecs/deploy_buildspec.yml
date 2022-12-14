@@ -49,12 +49,12 @@ phases:
       - echo Building the Docker image bot...
       # Builds using Dockerfile named "Dockerfile" in root as context by default
       # Name and optionally a tag in the 'name:tag' format
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f src/bot/Dockerfile .  # `-t tag .`
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f renzen/src/bot/Dockerfile renzen  # `-t tag .`
       # tags built image with registry host name to push to private repository
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
 
       - echo Building the Docker image site...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f src/site/Dockerfile .
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f renzen/src/site/Dockerfile renzen
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
   post_build:
     on-failure: ABORT
@@ -90,7 +90,7 @@ phases:
       - cd ..
 
       # update cloudformation for appropriate stack
-      - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
+      # - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
 
       # CODEBUILD_BUILD_NUMBER -- only do this after first run
       # update cloudformation after pushing docker imagses
@@ -98,7 +98,8 @@ phases:
       # - echo uploading cloudformation files to s3...
       # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
       # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/buildspecs/"  # use these uploaded buildspecs in dev environment instead of local
-      # - python3 cloudformation/apply_cloudformation.py
+
+      - python3 cloudformation/export_parameters.py
 
 artifacts:
   files:
@@ -114,3 +115,7 @@ artifacts:
       files:
         - imagedefinitions.json
       name: secondary_artifact_name_2
+    secondary_artifact_name_3:
+      files:
+        - STACK_PARAMETERS.json
+      name: secondary_artifact_name_3

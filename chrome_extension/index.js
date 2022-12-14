@@ -1,42 +1,50 @@
-chrome.storage.local.get(['login-code'], function (result) {
-  console.log('Value currently is ' + result['login-code']);
-  document.getElementById("login-code").value = result['login-code']
+const codes = ["login-code-production", "login-code-staging", "login-code-local"]
+const buttons = document.getElementsByName("bot")
+
+// load saved login codes
+codes.forEach(code_name => {
+  chrome.storage.local.get([code_name], function (result) {
+    console.log(code_name + ' Value currently is ' + result[code_name]);
+    document.getElementById(code_name).value = result[code_name]
+  })
+})
+
+// load saved bot selection
+chrome.storage.local.get(['button_id'], function (result) {
+  console.log('bot currently is ' + result['button_id']);
+  document.getElementById(result['button_id']).checked = true;
 });
 
-document.getElementById("save-btn").onclick = async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  let result;
-  try {
-    [{ result }] = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: () => getSelection().toString(),
-    });
-
-    let subdomain = document.getElementById('subdomain').value;
-    let site = `http://${subdomain}.renzen.io/forward`
-
-    chrome.storage.local.get(['login-code'], function (login_result) {
-      fetch(site, {
-        method: 'POST', headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        }, body: JSON.stringify({ "snippet": result, "login-code": login_result['login-code'], "URL": tab.url, })
-      }).then(r => r.text()).then(result2 => {
-        // Result now contains the response text, do what you want...
-        document.body.append(result2);
-      })
-    });
-
-  } catch (e) {
-    return; // ignoring an unsupported page like chrome://extensions
-  }
-  document.body.append('Selection: ' + result);
-};
-
+// save login codes on
 document.getElementById("login-btn").onclick = async () => {
-
-  code = document.getElementById("login-code").value
-
-  chrome.storage.local.set({ 'login-code': code }, function () {
-    console.log('Value is set to ' + code);
-  });
+  codes.forEach(code_name => {
+    code_value = document.getElementById(code_name).value
+    console.log(code_name)
+    console.log(code_value)
+    chrome.storage.local.set({ [code_name]: code_value }).then(() => {
+      console.log(code_name + ' Code is set to ' + code_value);
+    });
+  })
 }
+
+// save bot selection
+buttons.forEach(button => {
+  button.onclick = () => {
+    if (button.checked) {
+      // alert(button.value + " selected as contact option!");
+      selected = document.querySelector('input[name="bot"]:checked')
+      bot_path = button.value
+      button_id = button.id
+
+      chrome.storage.local.set({ 'bot_path': bot_path }, function () {
+        console.log('bot_path is set to ' + bot_path);
+      });
+
+      chrome.storage.local.set({ 'button_id': button_id }, function () {
+        console.log('button_id is set to ' + button_id);
+      });
+
+    }
+
+  }
+})

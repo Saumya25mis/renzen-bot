@@ -1,12 +1,9 @@
 boto3
 boto3-stubs
-
-boto3-stubs
 botocore
 botocore-stubs
 pre-commit
 pytest
-s3Fs
 types-boto3
 types-psycopg2
 types-setuptools
