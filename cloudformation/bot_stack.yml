@@ -346,7 +346,7 @@ Resources:
           Environment:
             - Name: CURRENT_ENVIRONMENT
               Value: !Ref CodeEnvironment
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/{CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestSite"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestSite"
           LogConfiguration:
             LogDriver: "awslogs"
             Options:
