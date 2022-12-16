@@ -40,8 +40,7 @@ Parameters:
     Default: None
 
 Conditions:
-  CreateProdResources: !Equals [!Ref CodeEnvironment, prod]
-  CreateStagingResources: !Equals [!Ref CodeEnvironment, prod]
+  CreateProdResources: !Equals [!Ref CodeEnvironment, production]
 
 Resources:
 
