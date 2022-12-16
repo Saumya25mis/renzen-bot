@@ -63,7 +63,7 @@ phases:
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
 
       - echo Building the Docker image REACT-APP...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_REACT -f renzen-app renzen-app
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_REACT -f renzen-app/Dockerfile renzen-app
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_REACT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT
 
   post_build:
@@ -94,6 +94,9 @@ phases:
       - echo Pushing the Docker image site...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
 
+      - echo Pushing the Docker image react...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT
+
       - echo Writing image definitions file...
       - mkdir bot
       - cd bot
@@ -106,7 +109,7 @@ phases:
       - mkdir react
       - cd react
       - printf '[{"name":"%s-react-container","imageUri":"%s"}]' $CURRENT_ENVIRONMENT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT > imagedefinitions.json
-
+      - cd ..
 
       # update cloudformation for appropriate stack
       # - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
@@ -134,6 +137,11 @@ artifacts:
       files:
         - imagedefinitions.json
       name: secondary_artifact_name_2
+    secondary_artifact_name_4:
+      base-directory: react
+      files:
+        - imagedefinitions.json
+      name: secondary_artifact_name_4
     secondary_artifact_name_3:
       files:
         - STACK_PARAMETERS.json

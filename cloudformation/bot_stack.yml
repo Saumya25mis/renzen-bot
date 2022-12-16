@@ -39,7 +39,26 @@ Parameters:
     Description: Discord channel to publish alerts to
     Default: None
 
+Conditions:
+  CreateProdResources: !Equals [!Ref CodeEnvironment, prod]
+  CreateStagingResources: !Equals [!Ref CodeEnvironment, prod]
+
 Resources:
+
+  myDNSRecordRoot:
+
+    Condition: CreateProdResources
+
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId # FROM CONSOLE
+      Comment: Root for site
+      Name: "renzen.io"
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt myLoadBalancerSite.DNSName
+        HostedZoneId: !GetAtt myLoadBalancerSite.CanonicalHostedZoneID
+
   SecretsManagerSecret:
     Type: "AWS::SecretsManager::Secret"
     Properties:
@@ -95,6 +114,7 @@ Resources:
                 - Name: "secondary_artifact_name_1"
                 - Name: "secondary_artifact_name_2"
                 - Name: "secondary_artifact_name_3"
+                - Name: "secondary_artifact_name_4"
               Region: !Ref AWS::Region
               Namespace: "BuildVariables"
               RunOrder: 1
@@ -152,6 +172,20 @@ Resources:
                 - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
               Namespace: "DeployVariablesSite"
+              RunOrder: 1
+            - Name: "DeployMyReact"
+              ActionTypeId:
+                Category: "Deploy"
+                Owner: "AWS"
+                Provider: "ECS"
+                Version: "1"
+              Configuration:
+                ClusterName: !Sub "${CodeEnvironment}-bot-cluster"
+                ServiceName: !Sub "${CodeEnvironment}-react-service"
+              InputArtifacts:
+                - Name: "secondary_artifact_name_4"
+              Region: !Ref AWS::Region
+              Namespace: "DeployVariablesReact"
               RunOrder: 1
 
   CodeBuildProject:
@@ -232,7 +266,7 @@ Resources:
       Protocol: HTTP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref myTargetGroupSiteReact
+          TargetGroupArn: !Ref myTargetGroupReact1
 
   # rule to send to python backend forwarder if pattern is /forward
   # otherwise send to react
@@ -268,16 +302,16 @@ Resources:
       VpcId: !Ref myVPC
 
   # React backend forwarder
-  myTargetGroupReact:
+  myTargetGroupReact1:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckEnabled: true
-      HealthCheckPort: 3000
+      HealthCheckPort: 80
       HealthCheckTimeoutSeconds: 10
       HealthCheckIntervalSeconds: 15
       HealthyThresholdCount: 2
-      Name: !Sub "${CodeEnvironment}-myTargetGroupSite-React"
-      Port: 3000
+      Name: !Sub "${CodeEnvironment}-myTargetGroupReact1"
+      Port: 80
       Protocol: HTTP
       TargetType: ip
       VpcId: !Ref myVPC
@@ -367,7 +401,7 @@ Resources:
           Base: 0
       LoadBalancers:
         - TargetGroupArn:
-            Ref: myTargetGroupReact
+            Ref: myTargetGroupReact1
           ContainerPort: 80
           ContainerName: !Sub "${CodeEnvironment}-react-container"
 
@@ -442,10 +476,10 @@ Resources:
               awslogs-create-group: "true"
               awslogs-group: !Sub "${CodeEnvironment}-bot-react"
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: "site"
+              awslogs-stream-prefix: "react"
           Name: !Sub "${CodeEnvironment}-react-container"
           PortMappings:
-            - ContainerPort: 3000
+            - ContainerPort: 80
       Family: !Sub "${CodeEnvironment}-react-task"
       TaskRoleArn: !Ref botDeployTaskRole
       ExecutionRoleArn: !Ref botecsTaskExecutionRole
@@ -607,6 +641,12 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "${CodeEnvironment}-bot-site"
+      RetentionInDays: 30
+
+  myReactLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${CodeEnvironment}-bot-react"
       RetentionInDays: 30
 
   BotS3Bucket:

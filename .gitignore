@@ -8,3 +8,4 @@ eklie.egg-info/
 .env
 renzen/renzen.egg-info/*
 images/*
+tests/__pycache__/
