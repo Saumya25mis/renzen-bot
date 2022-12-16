@@ -37,13 +37,18 @@ phases:
       - printenv
 
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
+      - IMAGE_TAG_REACT="${CURRENT_ENVIRONMENT}-LatestReact"
+
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
       - echo $AWS_ACCOUNT_ID
       - echo $IMAGE_TAG
       - echo $IMAGE_TAG_SITE
+      - echo $IMAGE_TAG_REACT
+
       - echo $IMAGE_REPO_NAME
 
       - echo Building the Docker image bot...
@@ -56,19 +61,29 @@ phases:
       - echo Building the Docker image site...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f renzen/src/site/Dockerfile renzen
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
+
+      - echo Building the Docker image REACT-APP...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_REACT -f renzen-app renzen-app
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_REACT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT
+
   post_build:
     on-failure: ABORT
     commands:
       - echo Build completed on `date`
 
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
+      - IMAGE_TAG_REACT="${CURRENT_ENVIRONMENT}-LatestReact"
+
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
       - echo $AWS_ACCOUNT_ID
       - echo $IMAGE_TAG
       - echo $IMAGE_TAG_SITE
+      - echo $IMAGE_TAG_REACT
+
       - echo $IMAGE_REPO_NAME
 
       - pytest
@@ -88,6 +103,10 @@ phases:
       - cd site
       - printf '[{"name":"%s-site-container","imageUri":"%s"}]' $CURRENT_ENVIRONMENT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
+      - mkdir react
+      - cd react
+      - printf '[{"name":"%s-react-container","imageUri":"%s"}]' $CURRENT_ENVIRONMENT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT > imagedefinitions.json
+
 
       # update cloudformation for appropriate stack
       # - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM

@@ -223,16 +223,36 @@ Resources:
         - !Ref mySubnet1
         - !Ref mySubnet2
 
+  # listens to requests sent to domain
   myListenerSite:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref myLoadBalancerSite
-      Port: 80
+      Port: 80  # needs to forward to 3000
       Protocol: HTTP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref myTargetGroupSite
+          TargetGroupArn: !Ref myTargetGroupSiteReact
 
+  # rule to send to python backend forwarder if pattern is /forward
+  # otherwise send to react
+  ListenerRule2:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref myTargetGroupSite
+      Conditions:
+        - Field: path-pattern
+          Values: ["*/forward"]
+          # HttpHeaderConfig:
+          #   HttpHeaderName: User-Agent
+          #   Values:
+          #     - Chrome
+      ListenerArn: !Ref myListenerSite
+      Priority: 1
+
+  # Python backend forwarder
   myTargetGroupSite:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -243,6 +263,21 @@ Resources:
       HealthyThresholdCount: 2
       Name: !Sub "${CodeEnvironment}-myTargetGroupSite"
       Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref myVPC
+
+  # React backend forwarder
+  myTargetGroupReact:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckPort: 3000
+      HealthCheckTimeoutSeconds: 10
+      HealthCheckIntervalSeconds: 15
+      HealthyThresholdCount: 2
+      Name: !Sub "${CodeEnvironment}-myTargetGroupSite-React"
+      Port: 3000
       Protocol: HTTP
       TargetType: ip
       VpcId: !Ref myVPC
@@ -307,6 +342,35 @@ Resources:
           ContainerPort: 80
           ContainerName: !Sub "${CodeEnvironment}-site-container"
 
+  ECSServiceReact:
+    Type: AWS::ECS::Service
+    DependsOn: myListenerSite
+    Properties:
+      ServiceName: !Sub "${CodeEnvironment}-react-service"
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: "ECSTaskDefinitionReact"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups:
+            - !Ref InstanceSecurityGroup
+          Subnets:
+            - !Ref mySubnet1
+            - !Ref mySubnet2
+      SchedulingStrategy: "REPLICA"
+      CapacityProviderStrategy:
+        - CapacityProvider: "FARGATE"
+          Weight: 1
+          Base: 0
+      LoadBalancers:
+        - TargetGroupArn:
+            Ref: myTargetGroupReact
+          ContainerPort: 80
+          ContainerName: !Sub "${CodeEnvironment}-react-container"
+
   ECSTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
@@ -315,9 +379,6 @@ Resources:
           Environment:
             - Name: CURRENT_ENVIRONMENT
               Value: !Ref CodeEnvironment
-          # Environment: !Sub
-          #   - '[{"name":"CURRENT_ENVIRONMENT", "value": "${CodeEnvironment}"}]'
-          #   - CodeEnvironment: !Ref CodeEnvironment
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestBot"
           LogConfiguration:
             LogDriver: "awslogs"
@@ -358,6 +419,34 @@ Resources:
           PortMappings:
             - ContainerPort: 80
       Family: !Sub "${CodeEnvironment}-site-task"
+      TaskRoleArn: !Ref botDeployTaskRole
+      ExecutionRoleArn: !Ref botecsTaskExecutionRole
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities:
+        - "FARGATE"
+      Cpu: "1024"
+      Memory: "3072"
+
+  ECSTaskDefinitionReact:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Environment:
+            - Name: CURRENT_ENVIRONMENT
+              Value: !Ref CodeEnvironment
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestReact"
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: !Sub "${CodeEnvironment}-bot-react"
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: "site"
+          Name: !Sub "${CodeEnvironment}-react-container"
+          PortMappings:
+            - ContainerPort: 3000
+      Family: !Sub "${CodeEnvironment}-react-task"
       TaskRoleArn: !Ref botDeployTaskRole
       ExecutionRoleArn: !Ref botecsTaskExecutionRole
       NetworkMode: "awsvpc"

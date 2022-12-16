@@ -3,6 +3,15 @@ version: "3.8"
 
 services:
 
+  renzen-app:
+    environment:
+      - RUN_LOCAL=1
+    image: renzen-app
+    build:
+      context: renzen-app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
   bot:
     environment:
       - RUN_LOCAL=1
