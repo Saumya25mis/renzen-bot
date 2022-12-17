@@ -38,7 +38,11 @@ class BatchForwardSnippets(commands.Cog):
                 if not message:
                     continue
 
-                message_json = json.loads(message)
+                if message_type == "aws":
+                    message_json = json.loads(message.body)
+                else:
+                    message_json = json.loads(message)
+
                 db_id = json.loads(message_json["request_content"])
 
                 snippet = db_utils.load_snippet_from_db(db_id)
@@ -56,7 +60,7 @@ class BatchForwardSnippets(commands.Cog):
                 await temp_user.send(embed=embed)
 
             except Exception as e:  # pylint:disable=broad-except, invalid-name
-                logger.info("Could not deliver message. Will not retry\n %s", e)
+                logger.exception("Could not deliver message. Will not retry")
                 logger.info(message)
                 if temp_user:
                     await temp_user.send(
