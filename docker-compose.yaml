@@ -12,6 +12,8 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+  #  volumes: ['./renzen-app:/data/app/']
+
   bot:
     environment:
       - RUN_LOCAL=1
@@ -27,6 +29,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    volumes: ['./renzen:/data/app/']
 
   site:
     environment:
@@ -42,6 +45,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    volumes: ['./renzen:/data/app/']
 
   db:
     image: postgres

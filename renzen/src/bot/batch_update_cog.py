@@ -35,37 +35,23 @@ class BatchForwardSnippets(commands.Cog):
             temp_user: Optional[discord.User] = None
 
             try:
-
-                if message_type == "aws":
-                    message_json = json.loads(message.body)
-                    request_content = json.loads(message_json["request_content"])
-                elif message_type == "rabbit":
-                    if not message:
-                        continue
-                    message_json = json.loads(message)
-                    request_content = json.loads(message_json["request_content"])
-                else:
-                    # do nothing
-                    return
-
-                login_user_relation: Optional[
-                    db_utils.LoginCodes
-                ] = db_utils.query_db_by_code(request_content["login-code"])
-
-                if not login_user_relation:
-                    message.delete()
+                if not message:
                     continue
 
-                temp_user = self.bot.get_user(int(login_user_relation.discord_user_id))
+                message_json = json.loads(message)
+                db_id = json.loads(message_json["request_content"])
+
+                snippet = db_utils.load_snippet_from_db(db_id)
+                if snippet:
+                    temp_user = self.bot.get_user(int(snippet.discord_user_id))
+                else:
+                    continue
 
                 if temp_user is None:
                     message.delete()
                     continue
 
-                embed = await bot_utils.send_formatted_discord_message(
-                    request_content=request_content,
-                    user_id=login_user_relation.discord_user_id,
-                )
+                embed = await bot_utils.send_formatted_discord_message(snippet=snippet)
 
                 await temp_user.send(embed=embed)
 

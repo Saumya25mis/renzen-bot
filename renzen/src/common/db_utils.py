@@ -244,3 +244,22 @@ def save_snippet_to_db(
     fetched = cur.fetchone()
 
     return str(fetched["snippet_id"]) if fetched else None
+
+
+def load_snippet_from_db(db_id: str) -> Optional[Snippets]:
+    """Loads snippet using ID"""
+
+    logger.info("Loading snippet from db for id %s", (db_id))
+
+    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
+            FROM snippets
+            WHERE snippet_id=%(snippet_id)s"""
+
+    cur.execute(sql, {"snippet_id": db_id})
+
+    fetched = cur.fetchone()
+
+    if fetched:
+        print(f"{fetched=}")
+        return Snippets(**fetched)
+    return None

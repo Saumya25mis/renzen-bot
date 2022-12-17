@@ -3,7 +3,7 @@
 import json
 import logging
 import os
-import uuid
+from typing import Optional
 
 from aiohttp import web
 from src.common import queue_utils
@@ -26,14 +26,28 @@ async def forward(request: web.Request) -> web.Response:
 
     logger.info("Received forward request.")
 
-    request_id = str(uuid.uuid4())
+    request_content = await request.json()
 
-    request_text = await request.text()
+    print(f"{request_content=}")
 
-    print(f"{request_text=}")
+    login_user_relation: Optional[db_utils.LoginCodes] = db_utils.query_db_by_code(
+        request_content["login-code"]
+    )
 
-    queue_utils.send_message(message={"request_content": request_text})
-    response_obj = {"status": f"success forward {request_id}"}
+    if not login_user_relation:
+        response_obj = {"status": "FAILURE forward NO MATCHING USER ID"}
+        return web.Response(text=json.dumps(response_obj))
+
+    user_id = int(login_user_relation.discord_user_id)
+    snippet = request_content["snippet"]
+    url = request_content["URL"]
+    title = request_content["title"]
+
+    db_id = db_utils.save_snippet_to_db(url, snippet, user_id, title)
+
+    queue_utils.send_message(message={"request_content": str(db_id)})
+    response_obj = {"status": f"success forward {db_id}"}
+
     return web.Response(text=json.dumps(response_obj))
 
 

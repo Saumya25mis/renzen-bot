@@ -12,6 +12,8 @@ WORKDIR $AP
 RUN pip3 install --no-cache-dir -r global-requirements.txt
 RUN pip3 install -e .
 
-RUN ["chmod", "+x", "src/bot/bot_wrapper_script.sh"]
+# RUN ["chmod", "+x", "src/bot/bot_wrapper_script.sh"]
 
-ENTRYPOINT ["src/bot/bot_wrapper_script.sh"]
+# ENTRYPOINT ["src/bot/bot_wrapper_script.sh"]
+
+ENTRYPOINT [ "python3", "src/bot/bot.py" ]

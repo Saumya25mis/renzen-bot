@@ -1,5 +1,5 @@
 """Bot utility functions."""
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
 import discord
@@ -104,28 +104,24 @@ def bold_substring(value: str, substring: str) -> str:
     return bolded_string
 
 
-async def send_formatted_discord_message(
-    request_content: Dict[str, str], user_id: Union[str, int]
-) -> discord.Embed:
+async def send_formatted_discord_message(snippet: db_utils.Snippets) -> discord.Embed:
     """Sends message formatted."""
 
-    snippet = request_content["snippet"]
+    snippet_text = snippet.snippet
 
     # truncate snippet
-    if len(snippet) >= SNIPPET_FORWARD_MAX_SIZE:
-        snippet = snippet[0 : SNIPPET_FORWARD_MAX_SIZE - 3] + "..."
+    if len(snippet_text) >= SNIPPET_FORWARD_MAX_SIZE:
+        snippet_text = snippet_text[0 : SNIPPET_FORWARD_MAX_SIZE - 3] + "..."
 
-    url = request_content["URL"]
-    title = request_content["title"]
-    parsed_url = urlparse(url=url)
-
-    db_id = db_utils.save_snippet_to_db(url, snippet, user_id, title)
+    parsed_url = urlparse(url=snippet.url)
 
     embed = discord.Embed(
-        url=url, colour=discord.Colour.random(), title=parsed_url.netloc
+        url=snippet.url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(name=f"# {db_id}: {title}", value=f"```{snippet}```")
-    embed.set_footer(text=url)
+    embed.add_field(
+        name=f"# {snippet.snippet_id}: {snippet.title}", value=f"```{snippet_text}```"
+    )
+    embed.set_footer(text=snippet.url)
 
     return embed
