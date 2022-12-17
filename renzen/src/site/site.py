@@ -4,10 +4,12 @@ import json
 import logging
 import os
 from typing import Optional
+import dataclasses
 
 from aiohttp import web
 from src.common import queue_utils
 from src.common import db_utils
+
 
 logger = logging.getLogger(__name__)
 
@@ -65,15 +67,19 @@ async def check_valid_code(request: web.Request) -> web.Response:
 
 
 async def get_snippets(request: web.Request) -> web.Response:
-    """Used by chrome extension to check if user can login with code."""
+    """Return snippets when provided login code."""
 
     logger.info("Received valid code request.")
 
-    request_text = await request.text()
-    result = db_utils.query_db_by_code(str(request_text))
+    request_json = await request.json()
+    print(f"{request_json=}")
+    code_query = db_utils.query_db_by_code(request_json["login-code"])
 
-    if result:
-        return web.Response(text="valid")
+    if code_query:
+        snippets = db_utils.search_urls_by_user(code_query.discord_user_id)
+        snippets_dict = [dataclasses.asdict(snippet) for snippet in snippets]
+        return web.Response(text=json.dumps(snippets_dict, default=str))
+
     return web.Response(text="invalid")
 
 

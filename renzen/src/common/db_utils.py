@@ -155,6 +155,21 @@ def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
     return [Snippets(**fetch) for fetch in cur.fetchall()]
 
 
+def search_urls_by_user(discord_user_id: Union[str, int]) -> List[Snippets]:
+    """Search urls and snippets by string."""
+
+    logger.info("Searching in urls for %s", (discord_user_id))
+
+    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
+            FROM snippets
+            WHERE  discord_user_id =%(discord_user_id)s
+        """
+
+    cur.execute(sql, {"discord_user_id": discord_user_id})
+
+    return [Snippets(**fetch) for fetch in cur.fetchall()]
+
+
 def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
     """Queries the DB by code and returns discords user"""
 
