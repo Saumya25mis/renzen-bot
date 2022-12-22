@@ -41,7 +41,12 @@ The project was designed to take advantage of some of the features of VS code. O
 - Clone the [repository](https://github.com/renadvent/renzen-bot)
 - Open the repository in VS code, and then re-open in a [dev container](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container)
 - Run `make create-env-template` and fill in your Bot token in the VS Code terminal
-- NOTE to actually run the local environment, you need to open another terminal OUTSIDE of VS Code, navigate to the repository on your computer, and run `docker compose up`. (This is due to the VS Code terminal now being inside the Docker dev container, which may not have access to Docker itself)
+- NOTE to actually run the local environment, you need to open another terminal OUTSIDE of VS Code, navigate to the repository on your computer, and run `docker compose up --build`. (This is due to the VS Code terminal now being inside the Docker dev container, which may not have access to Docker itself)
+- To use the chrome Extension, follow the instruction for Step 2 [here](https://support.google.com/chrome/a/answer/2714278?hl=en) and load the extension from the cloned repository
+
+## How To Use
+
+![User Flow](./readme_images/Renzen%20Process.jpeg)
 
 # File Documentation
 
@@ -114,6 +119,8 @@ The purpose of this section is to give a brief overview of the files and in the 
     - These are python libraries we need to be able to run our pre-commit checks.
   - [**setup.py**](renzen/setup.py)
     - This file allows us to install our code as a libary in our Docker Containers.
+- renzen-app
+  - TODO: Currently placeholder dummy app for blank website that is deployed at [renzen.io](renzen.io)
 - scripts
   - [**create_env.template.py**](scripts/create_env_template.py)
     - Generates a template to input bot credentials. Do NOT commit this file to your branch.
