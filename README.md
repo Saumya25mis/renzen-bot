@@ -63,7 +63,7 @@ The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec
 Each bot_stack creates the following resources to set up a bot
 
 ![resources 1](./readme_images/Screenshot%202022-12-28%20110259.jpg)
-![resources 2](./readme_images/Screenshot%202022-12-28%20110326.jpg)
+![resources 2](./readme_images/Screenshot%202022-12-28%20110326-fix.jpg)
 ![resources 3](./readme_images/Screenshot%202022-12-28%20110351.jpg)
 
 # File Documentation
