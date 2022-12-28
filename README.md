@@ -44,9 +44,27 @@ The project was designed to take advantage of some of the features of VS code. O
 - NOTE to actually run the local environment, you need to open another terminal OUTSIDE of VS Code, navigate to the repository on your computer, and run `docker compose up --build`. (This is due to the VS Code terminal now being inside the Docker dev container, which may not have access to Docker itself)
 - To use the chrome Extension, follow the instruction for Step 2 [here](https://support.google.com/chrome/a/answer/2714278?hl=en) and load the extension from the cloned repository
 
+## Deploy Process
+
+Upon a push to the Github repository onto a development branch, `pre-commit` tests are run that are defined in the `.github` folder. Upon merging the development branch to the `staging` branch, AWS receives notification of the merge and runs through the CodePipeline for that branch, builds all the necessary docker images, pushes them to ECR, and deploys them.
+
+There are currently 3 docker images that are built and deployed: the [bot image](./renzen/src/bot/Dockerfile), the [backend image](./renzen/src/site/Dockerfile) and the [website image](./renzen-app/Dockerfile).
+
+The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec.yml), and the overall CI/CD process is defined in the CodePipeline portion of the [bot_stack.yml](./cloudformation/bot_stack.yml). Using `bot_stack.yml` allows us to create our staging and production branches using different resources and make them independent of each other. It also allows us to create an arbitrary amount of bots. Each bot deployed on AWS also receives a subdomain on `renzen.io` where requests can be sent. The valid subdomain requests are defined [here](./renzen/src/site/site.py). Valid discord bot commands are defined [here](./renzen/src/bot/bot.py).
+
+![Deploy Process](./readme_images/Screenshot%202022-12-28%20105111.jpg)
+
 ## How To Use
 
 ![User Flow](./readme_images/Renzen%20Process.jpeg)
+
+## bot_stack.yml Resources
+
+Each bot_stack creates the following resources to set up a bot
+
+![resources 1](./readme_images/Screenshot%202022-12-28%20110259.jpg)
+![resources 2](./readme_images/Screenshot%202022-12-28%20110326.jpg)
+![resources 3](./readme_images/Screenshot%202022-12-28%20110351.jpg)
 
 # File Documentation
 
