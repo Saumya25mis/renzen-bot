@@ -19,14 +19,14 @@
     ]
   },
   "dependencies": {
+    "axios": "^1.2.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "terser": "^5.15.0",
-    "yarn": "^1.22.19",
-    "vscode": "^1.1.17"
+    "vscode": "^1.1.17",
+    "yarn": "^1.22.19"
   },
-  "resolutions": {
-  },
+  "resolutions": {},
   "scripts": {
     "vscode:prepublish": "node ./scripts/build-non-split.js && tsc -p tsconfig.extension.json",
     "postinstall": "node ./node_modules/vscode/bin/install",
