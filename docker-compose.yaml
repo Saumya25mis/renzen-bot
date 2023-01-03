@@ -6,13 +6,16 @@ services:
   renzen-app:
     environment:
       - RUN_LOCAL=1
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=false
     image: renzen-app
     build:
       context: renzen-app
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-  #  volumes: ['./renzen-app:/data/app/']
+    volumes: ['./renzen-app:/data/app/']
 
   bot:
     environment:
@@ -24,12 +27,18 @@ services:
       dockerfile: src/bot/Dockerfile
     ports:
       - "80:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    #   rabbitmq:
+    #     condition: service_healthy
     volumes: ['./renzen:/data/app/']
+    deploy:
+      restart_policy:
+        condition: on-failure
+        # delay: 5s
+        # max_attempts: 3
+        # window: 120s
 
   site:
     environment:
@@ -40,12 +49,18 @@ services:
       dockerfile: src/site/Dockerfile
     ports:
       - "81:80"
-    depends_on:
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    #   rabbitmq:
+    #     condition: service_healthy
     volumes: ['./renzen:/data/app/']
+    deploy:
+      restart_policy:
+        condition: on-failure
+        # delay: 5s
+        # max_attempts: 3
+        # window: 120s
 
   db:
     image: postgres

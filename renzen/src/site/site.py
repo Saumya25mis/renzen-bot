@@ -7,6 +7,7 @@ from typing import Optional
 import dataclasses
 
 from aiohttp import web
+import aiohttp_cors  # type: ignore
 from src.common import queue_utils
 from src.common import db_utils
 
@@ -84,10 +85,26 @@ async def get_snippets(request: web.Request) -> web.Response:
 
 
 app = web.Application()
+
+cors = aiohttp_cors.setup(app)
+resource = cors.add(app.router.add_resource("/get_snippets"))
+
+route = cors.add(
+    resource.add_route("POST", get_snippets),
+    {
+        "http://localhost:3000": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers=("X-Custom-Server-Header",),
+            allow_headers=("X-Requested-With", "Content-Type"),
+            max_age=3600,
+        )
+    },
+)
+
 app.router.add_get("/", handle)
 app.router.add_get("/forward", forward)
 app.router.add_route("POST", "/forward", forward)
 app.router.add_route("GET", "/valid_code", check_valid_code)
-app.router.add_route("GET", "/get_snippets", get_snippets)
+# app.router.add_route("POST", "/get_snippets", get_snippets)
 
 web.run_app(app, port=80, host="0.0.0.0")

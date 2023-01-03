@@ -38,10 +38,10 @@ def receive_messages() -> Tuple[str, Any]:
                 queue_name, auto_ack=True
             )
 
-            print(f"{method_frame=}")
-            print(f"{header_frame=}")
-            print(f"{body=}")
             if body:
+                print(f"{method_frame=}")
+                print(f"{header_frame=}")
+                print(f"{body=}")
                 body_str = str(body, "UTF-8")
                 print(f"{body_str=}")
                 return ("rabbit", [body_str])
@@ -64,7 +64,7 @@ def send_message(message: Dict[str, str]) -> None:
             rabbit_channel.basic_publish(
                 exchange="", routing_key=queue_name, body=message_body
             )
-            print(f" [x] Sent {message_body=}'")
+            # print(f" [x] Sent {message_body=}'")
     else:
         if aws_queue:
             response = aws_queue.send_message(
