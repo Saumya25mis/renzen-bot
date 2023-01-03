@@ -429,8 +429,8 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - "FARGATE"
-      Cpu: "1024"
-      Memory: "3072"
+      Cpu: "256"
+      Memory: "512"
 
   ECSTaskDefinitionSite:
     Type: "AWS::ECS::TaskDefinition"
@@ -457,8 +457,8 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - "FARGATE"
-      Cpu: "1024"
-      Memory: "3072"
+      Cpu: "256"
+      Memory: "512"
 
   ECSTaskDefinitionReact:
     Type: "AWS::ECS::TaskDefinition"
@@ -485,8 +485,8 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - "FARGATE"
-      Cpu: "1024"
-      Memory: "3072"
+      Cpu: "256"
+      Memory: "512"
 
   myDNSRecord:
     Type: AWS::Route53::RecordSet
