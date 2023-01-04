@@ -1,6 +1,6 @@
 # Renzen
 
-Renzen is a combination Chrome Extension and Discord Bot that allows you to save snippets from the internet and archive them in Discord.
+Renzen is a combination Web App, Chrome Extension, VS Code Extension, and Discord Bot that allows you to save snippets from the internet using the Chrome Extension and archive them. You can then view them on the website, VS code extension, or in Discord. You can also search through them using commands in the Discord app (currently working on making the site and vs code extension reach feature parity with the Discord Bot).
 
 The intended purpose for the BOT is for making it easier to find specific information when researching something and having 1000 tabs open at a time (for example when trying to fix a bug). The rationale is that when researching, you don't often need the whole webpage, but just the part you found that you need to reference without it getting lost in the other tabs (and also keeping that info when your browsers are closed). And that it's better to search for information through that text than entire webpages.
 
