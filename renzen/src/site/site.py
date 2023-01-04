@@ -81,7 +81,7 @@ async def get_snippets(request: web.Request) -> web.Response:
         snippets_dict = [dataclasses.asdict(snippet) for snippet in snippets]
         return web.Response(text=json.dumps(snippets_dict, default=str))
 
-    return web.Response(text="invalid")
+    return web.Response(text="invalid", headers={"Access-Control-Allow-Origin": "*"})
 
 
 app = web.Application()
@@ -96,8 +96,17 @@ route = cors.add(
             allow_credentials=True,
             expose_headers=("X-Custom-Server-Header",),
             allow_headers=("X-Requested-With", "Content-Type"),
-            max_age=3600,
-        )
+            max_age=10,
+        ),
+        "*": aiohttp_cors.ResourceOptions(
+            expose_headers=("X-Custom-Server-Header",),
+            allow_headers=(
+                "X-Requested-With",
+                "Content-Type",
+                "Access-Control-Allow-Origin",
+            ),
+            max_age=10,
+        ),
     },
 )
 
