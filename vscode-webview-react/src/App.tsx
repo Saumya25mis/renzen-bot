@@ -1,24 +1,37 @@
 import './App.css';
 import {useState } from "react"
 import axios from 'axios';
+import {DiscordEmbedField, DiscordMessage, DiscordMessages, DiscordEmbed, DiscordEmbedFields  } from '@danktuary/react-discord-message'
 
 interface SnippetProps {
-  id: String,
-  title: String;
-  url: String;
-  snippet: String;
+  snippet_id: string,
+  title: string;
+  url: string;
+  snippet: string;
+  creation_timestamp: string
   // handleClick: () => void;
 }
 
-const Snippet: React.FC<SnippetProps> = ({id, title, url, snippet}) => {
+const Snippet: React.FC<SnippetProps> = ({snippet_id, title, url, snippet, creation_timestamp}) => {
   return (
-    <div>
-      <p>{title}</p>
-      <p>{url}</p>
-      <p>{snippet}</p>
+    <div className="border">
+      <DiscordMessage author="renzen">
+        <DiscordEmbed
+          authorName="renzen" url={url} embedTitle={"parsedURL"} timestamp={creation_timestamp}>
+            {url}
+          <DiscordEmbedFields slot="fields">
+            <DiscordEmbedField fieldTitle={snippet_id+": "+title} inline={true}>
+              {snippet}
+            </DiscordEmbedField>
+          </DiscordEmbedFields>
+          <span slot="footer">{url}</span>
+        </DiscordEmbed>
+      </DiscordMessage>
     </div>
   )
 }
+
+
 
 function App() {
 
@@ -57,20 +70,22 @@ function App() {
     <div className="container">
       <div className="col">
         <label htmlFor="login-code-local">Login Code</label>
-        <input type="text" id="login-code-local" name="login-code-local"></input>
+        <input type="text" id="login-code-local" name="login-code-local" defaultValue={"4827c4c8-1416-4d74-8771-1c18a6bfeea4"}></input>
         <button onClick={() => fetchSnippets()}> Load Data</button>
       </div>
       <div className="col">
+        <DiscordMessages>
         <ul>
           {response.map(snippet => {
             return (
               <div className="list-group-item">
-                <Snippet id={snippet.id} title={snippet.title} url={snippet.url} snippet={snippet.snippet} />
+                <Snippet snippet_id={snippet.snippet_id} title={snippet.title} url={snippet.url} snippet={snippet.snippet} creation_timestamp={snippet.creation_timestamp} />
               </div>
             )
           }
           )}
         </ul>
+        </DiscordMessages>
       </div>
     </div>
   );
