@@ -104,6 +104,25 @@ cur.execute(
     """
 )
 
+# cur.execute(
+#     """ALTER TABLE IF EXISTS snippets
+#         ADD CONSTRAINT
+#     """
+# )
+
+# table for snippets associated with git(?) pages
+# cur.execute(
+#     """CREATE TABLE IF NOT EXISTS pages (
+#         page_id serial PRIMARY KEY,
+#         creation_timestamp timestamp NOT NULL DEFAULT NOW(),
+#         CONSTRAINT fk_pages_snippet
+#             FOREIGN KEY (snippet_id)
+#                 REFERENCES snippets(snippet_id)
+#                 ON DELETE CASCADE
+#     )
+#     """
+# )
+
 
 def create_code(discord_user_id: Union[str, int], discord_user_name: str) -> str:
     """Creates codes for users to confirm discord for chrome extension"""

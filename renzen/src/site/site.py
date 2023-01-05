@@ -5,6 +5,7 @@ import logging
 import os
 from typing import Optional
 import dataclasses
+from urllib.parse import urlparse
 
 from aiohttp import web
 import aiohttp_cors  # type: ignore
@@ -78,8 +79,14 @@ async def get_snippets(request: web.Request) -> web.Response:
 
     if code_query:
         snippets = db_utils.search_urls_by_user(code_query.discord_user_id)
-        snippets_dict = [dataclasses.asdict(snippet) for snippet in snippets]
-        return web.Response(text=json.dumps(snippets_dict, default=str))
+        snippets_dicts = [dataclasses.asdict(snippet) for snippet in snippets]
+
+        for snippet in snippets_dicts:
+            parsed_url = urlparse(url=snippet.get("url"))
+            title = parsed_url.netloc
+            snippet.update({"parsed_url": title})
+
+        return web.Response(text=json.dumps(snippets_dicts, default=str))
 
     return web.Response(text="invalid", headers={"Access-Control-Allow-Origin": "*"})
 
