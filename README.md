@@ -63,7 +63,7 @@ The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec
 Each bot_stack creates the following resources to set up a bot
 
 ![resources 1](./readme_images/Screenshot%202022-12-28%20110259.jpg)
-![resources 2](./readme_images/Screenshot%202022-12-28%20110326-fix.jpg)
+![resources 2](./readme_images/Screenshot_20221228_110322.png)
 ![resources 3](./readme_images/Screenshot%202022-12-28%20110351.jpg)
 
 # Extension Screenshots (In Development)
@@ -78,11 +78,11 @@ Chrome Extension Right Click to save selected text to Renzen account
 
 Discord Bot
 
-![Discord Bot](./readme_images/discord_bot.jpg)
+![Discord Bot](./readme_images/discord_bot.png)
 
 VS Code Extension
 
-![VS Code Extension](./readme_images/vs_code_ext.jpg)
+![VS Code Extension](./readme_images/vs_code_ext.png)
 # File Documentation
 
 The purpose of this section is to give a brief overview of the files and in the project and their purpose. This can change as the project develops.
