@@ -15,6 +15,13 @@ interface SnippetProps {
 }
 
 const Snippet: React.FC<SnippetProps> = ({snippet_id, title, url, snippet, creation_timestamp, parsed_url}) => {
+
+  const [showIframe, setShowIframe] = useState<boolean>(false)
+
+  function flipIframe(): void {
+    setShowIframe(!showIframe)
+  }
+
   return (
     <div className="border">
       <DiscordMessage author="renzen">
@@ -29,11 +36,15 @@ const Snippet: React.FC<SnippetProps> = ({snippet_id, title, url, snippet, creat
           <span slot="footer"><a href={url}>{url}</a></span>
         </DiscordEmbed>
         <button type="button" className="btn btn-primary">Star To Current File</button>
-        <button type="button" className="btn btn-primary">Show Web Page</button>
+        <button type="button" className="btn btn-primary" onClick={flipIframe}>Show Web Page</button>
       </DiscordMessage>
+      {showIframe && <iframe width={"100%"} height={"600"} src={url}></iframe>}
+      <></>
     </div>
   )
 }
+
+
 
 
 
