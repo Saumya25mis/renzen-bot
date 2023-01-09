@@ -324,6 +324,7 @@ Resources:
         - "FARGATE_SPOT"
 
   ECSService:
+    DependsOn: myLoadBalancerSite
     Type: AWS::ECS::Service
     Properties:
       ServiceName: !Sub "${CodeEnvironment}-bot-service"

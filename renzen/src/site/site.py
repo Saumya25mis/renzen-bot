@@ -27,12 +27,6 @@ def add_cors(route: str, func: Any, route_type: str = "POST") -> None:
     route = cors.add(
         resource.add_route(route_type, func),
         {
-            "http://localhost:3000": aiohttp_cors.ResourceOptions(
-                allow_credentials=True,
-                expose_headers=("X-Custom-Server-Header",),
-                allow_headers=("X-Requested-With", "Content-Type"),
-                max_age=10,
-            ),
             "*": aiohttp_cors.ResourceOptions(
                 expose_headers=("X-Custom-Server-Header",),
                 allow_headers=(

@@ -40,6 +40,16 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"Boto3typed.boto3-ide",
+				"mgmcdermott.vscode-language-babel",
+				"aws-scripting-guy.cform",
+				"eamodio.gitlens",
+				"esbenp.prettier-vscode",
+				"amazonwebservices.aws-toolkit-vscode",
+				"dbaeumer.vscode-eslint",
+				"ms-python.isort",
+				"DavidAnson.vscode-markdownlint",
+				"christian-kohler.npm-intellisense",
+				"redhat.vscode-yaml"
 			]
 		}
 	},
