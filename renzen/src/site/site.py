@@ -113,7 +113,12 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     else:
         api_response_obj = {"error": "Code does not correspond to user."}
 
-    return web.Response(text=json.dumps(api_response_obj, default=str))
+    return web.Response(
+        text=json.dumps(api_response_obj, default=str),
+        headers={
+            "Access-Control-Allow-Origin": "*",
+        },
+    )
 
 
 async def vs_ext_star(request: web.Request) -> web.Response:
