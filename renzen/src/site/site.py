@@ -19,31 +19,10 @@ logger = logging.getLogger(__name__)
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
 
-def add_cors(route: str, func: Any, route_type: str = "POST") -> None:
-    """adds cors."""
-
-    resource = cors.add(app.router.add_resource(route))
-
-    route = cors.add(
-        resource.add_route(route_type, func),
-        {
-            "*": aiohttp_cors.ResourceOptions(
-                expose_headers=("X-Custom-Server-Header",),
-                allow_headers=(
-                    "X-Requested-With",
-                    "Content-Type",
-                    "Access-Control-Allow-Origin",
-                ),
-                max_age=10,
-            ),
-        },
-    )
-
-
 async def aws_health_check(request: web.Request) -> web.Response:
     """Health check response."""
     response_obj = {"status": "success"}
-    print(response_obj)
+    # print(response_obj)
     return web.Response(text=json.dumps(response_obj))
 
 
@@ -140,12 +119,28 @@ async def vs_ext_star(request: web.Request) -> web.Response:
 
 
 app = web.Application()
-cors = aiohttp_cors.setup(app)
+cors = aiohttp_cors.setup(
+    app,
+    defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            max_age=10,
+        ),
+    },
+)
 
-add_cors("/get_snippets", vs_ext_get_snippets)
-add_cors("/star", vs_ext_star)
-add_cors("/forward", chrome_ext_forward)
-# add_cors("/forward", chrome_ext_forward, "GET")
-add_cors("/", aws_health_check, "GET")
+resource = cors.add(app.router.add_resource("/get_snippets"))
+cors.add(resource.add_route("POST", vs_ext_get_snippets))
+
+resource = cors.add(app.router.add_resource("/star"))
+cors.add(resource.add_route("POST", vs_ext_star))
+
+resource = cors.add(app.router.add_resource("/forward"))
+cors.add(resource.add_route("POST", chrome_ext_forward))
+
+resource = cors.add(app.router.add_resource("/"))
+cors.add(resource.add_route("GET", aws_health_check))
 
 web.run_app(app, port=80, host="0.0.0.0")
