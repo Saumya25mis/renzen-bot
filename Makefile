@@ -30,8 +30,8 @@ deploy-staging:
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
 		--parameter-overrides \
 		ParameterKey="DiscordToken",ParameterValue=${STAGING_DISCORD_TOKEN} \
-		ParameterKey="GitHubRepoName",ParameterValue=${STAGING_DISCORD_REPO} \
-		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_DISCORD_BRANCH} \
+		ParameterKey="GitHubRepoName",ParameterValue=${STAGING_GITHUB_REPO} \
+		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_GITHUB_BRANCH} \
 		ParameterKey="CodeEnvironment",ParameterValue="staging" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
@@ -82,8 +82,8 @@ update-staging:
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
 		--parameters \
 		ParameterKey="DiscordToken",ParameterValue=${STAGING_DISCORD_TOKEN} \
-		ParameterKey="GitHubRepoName",ParameterValue=${STAGING_DISCORD_REPO} \
-		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_DISCORD_BRANCH} \
+		ParameterKey="GitHubRepoName",ParameterValue=${STAGING_GITHUB_REPO} \
+		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_GITHUB_BRANCH} \
 		ParameterKey="CodeEnvironment",ParameterValue="staging" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
