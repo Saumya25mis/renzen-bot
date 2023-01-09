@@ -14,6 +14,7 @@ from aiohttp import web
 from src.common import db_utils, queue_utils
 from src.common.api_types import ForwardRequest, GetSnippetsRequest, StarRequest
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
