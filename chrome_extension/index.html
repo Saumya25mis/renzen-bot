@@ -13,36 +13,34 @@
 <body>
 
     <div class="p-3">
-    <div class="container">
-
-        <div class="border">
-            <fieldset>
-
-                <div class="input-group input-group-sm mb-3 justify-content-center">
-                    <div class="input-group-text">
-                        <input class="form-check-input mt-0" type="radio" id="production" name="bot"
-                            value="http://production.renzen.io/forward" />
-                    </div>
-                    <div class="input-group-text">Production</div>
-                </div>
-
-                <div class="input-group input-group-sm mb-3">
-                    <span class="input-group-text">Login Code</span>
-                    <input class="form-control" type="text" id="login-code-production" name="login-code-production" />
-                </div>
-
-            </fieldset>
-        </div>
-
-        <fieldset>
+        <div class="container">
 
             <div class="border">
                 <fieldset>
 
                     <div class="input-group input-group-sm mb-3 justify-content-center">
                         <div class="input-group-text">
-                            <!-- <input class="form-check-input mt-0" type="radio" id="production" name="bot"
-                                value="http://production.renzen.io/forward" /> -->
+                            <input class="form-check-input mt-0" type="radio" id="production" name="bot"
+                                value="http://production.renzen.io/forward" />
+                        </div>
+                        <div class="input-group-text">Production</div>
+                    </div>
+
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Login Code</span>
+                        <input class="form-control" type="text" id="login-code-production"
+                            name="login-code-production" />
+                    </div>
+
+                </fieldset>
+            </div>
+
+
+            <div class="border">
+                <fieldset>
+
+                    <div class="input-group input-group-sm mb-3 justify-content-center">
+                        <div class="input-group-text">
                             <input class="form-check-input mt-0" type="radio" id="staging" name="bot"
                                 value="http://staging.renzen.io/forward" />
                         </div>
@@ -51,42 +49,17 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">Login Code</span>
-                        <!-- <input class="form-control" type="text" id="login-code-production"
-                            name="login-code-production" /> -->
                         <input class="form-control" type="text" id="login-code-staging" name="login-code-staging" />
                     </div>
 
                 </fieldset>
             </div>
 
-            <!--
-            <div class="row">
-                <input class="form-check-input mt-0" type="radio" id="staging" name="bot"
-                    value="http://staging.renzen.io/forward" />
-            </div>
-            <div class="row">
-                <label for="staging">Staging</label>
-            </div>
-
-
-            <div class="row">
-                <label for="login-code-staging">Login Code</label>
-            </div>
-            <div class="row">
-                <input type="text" id="login-code-staging" name="login-code-staging" />
-            </div> -->
-
-            <!-- </fieldset> -->
-
-
-
             <div class="border">
                 <fieldset>
 
                     <div class="input-group input-group-sm mb-3 justify-content-center">
                         <div class="input-group-text">
-                            <!-- <input class="form-check-input mt-0" type="radio" id="production" name="bot"
-                        value="http://production.renzen.io/forward" /> -->
                             <input class="form-check-input" type="radio" id="local" name="bot"
                                 value="http://localhost:81/forward" />
                         </div>
@@ -95,28 +68,8 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">Login Code</span>
-                        <!-- <input class="form-control" type="text" id="login-code-production"
-                    name="login-code-production" /> -->
                         <input class="form-control" type="text" id="login-code-local" name="login-code-local" />
                     </div>
-
-                    <!-- <div class="row">
-                <label for="local">Local</label>
-            </div>
-            <div class="row">
-
-                <input class="form-check-input" type="radio" id="local" name="bot"
-                    value="http://localhost:81/forward" />
-            </div>
-
-            <div class="row">
-
-                <label for="login-code-local">Login Code</label>
-            </div>
-            <div class="row">
-
-                <input type="text" id="login-code-local" name="login-code-local" />
-            </div> -->
 
                 </fieldset>
             </div>
@@ -125,18 +78,10 @@
                 <button class="btn btn-primary" id="login-btn">Login All</button>
             </div>
 
+        </div>
     </div>
-</div>
-    <!-- <button id="save-btn">Send to Discord</button> -->
+
     <script src="index.js"></script>
-    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"
-        integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
-        crossorigin="anonymous"></script> -->
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
         crossorigin="anonymous"></script>

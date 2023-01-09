@@ -1,299 +1,481 @@
 # pylint: disable=invalid-name
 """DB utils."""
-import datetime
+# import itertools
 import logging
 import os
 import uuid
-from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+from urllib.parse import urlparse
 
-
-import psycopg2
-import psycopg2.extras
-from src.common import secret_utils
+from src.common.api_types import VsExtSnippetProps
+from src.common.db_tables import cur
+from src.common.db_types import DiscordUserInfo, LoginCode, RenzenUserInfo, Snippet
 
 logger = logging.getLogger(__name__)
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
 
-# get access to aws postgres
-conn = psycopg2.connect(
-    database=secret_utils.DB_DB,
-    user=secret_utils.DB_USERNAME,
-    password=secret_utils.DB_PASSWORD,
-    host=secret_utils.DB_ENDPOINT,
-    port=secret_utils.DB_PORT,
-    # sslmode="require",
-)
+class DBUtilsException(Exception):
+    """DB Utils Except -> None:"""
 
-conn.autocommit = True
-
-cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    def __init__(self) -> None:
+        super()
 
 
-@dataclass(frozen=True)
-class DiscordUserInfo:
-    """Holds data from discord_user_info table"""
-
-    discord_user_id: str
-    discord_user_name: str
-    creation_timestamp: datetime.datetime
-
-
-# create user table if it does not exist.
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS discord_user_info (
-        discord_user_id BIGINT PRIMARY KEY,
-        discord_user_name varchar(255),
-        creation_timestamp timestamp NOT NULL DEFAULT NOW()
-    )
-    """
-)
-
-
-@dataclass(frozen=True)
-class LoginCodes:
-    """Data from login_codes table."""
-
-    code: str
-    discord_user_id: str
-    creation_timestamp: datetime.datetime
-
-
-# create login_codes table if it does not exist.
-# login codes have foreign keys to discord_user_info
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS login_codes (
-        code varchar(255) UNIQUE,
-        discord_user_id BIGINT,
-        creation_timestamp timestamp NOT NULL DEFAULT NOW(),
-        CONSTRAINT fk_login_codes_discord_user_info
-            FOREIGN KEY (discord_user_id)
-                REFERENCES discord_user_info(discord_user_id)
-                ON DELETE CASCADE
-    )
-    """
-)
-
-
-@dataclass(frozen=True)
-class Snippets:
-    "Data from snippets table"
-    snippet_id: str
-    title: str
-    url: str
-    snippet: str
-    discord_user_id: str
-    creation_timestamp: datetime.datetime
-
-
-# create snippets table if it does not exist.
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS snippets (
-        snippet_id serial PRIMARY KEY,
-        title TEXT,
-        url TEXT,
-        snippet TEXT,
-        discord_user_id BIGINT,
-        creation_timestamp timestamp NOT NULL DEFAULT NOW(),
-        CONSTRAINT fk_snippets_discord_user_info
-            FOREIGN KEY (discord_user_id)
-                REFERENCES discord_user_info(discord_user_id)
-                ON DELETE CASCADE
-    )
-    """
-)
-
-# cur.execute(
-#     """ALTER TABLE IF EXISTS snippets
-#         ADD CONSTRAINT
-#     """
-# )
-
-# table for snippets associated with git(?) pages
-# cur.execute(
-#     """CREATE TABLE IF NOT EXISTS pages (
-#         page_id serial PRIMARY KEY,
-#         creation_timestamp timestamp NOT NULL DEFAULT NOW(),
-#         CONSTRAINT fk_pages_snippet
-#             FOREIGN KEY (snippet_id)
-#                 REFERENCES snippets(snippet_id)
-#                 ON DELETE CASCADE
-#     )
-#     """
-# )
-
-
-def create_code(discord_user_id: Union[str, int], discord_user_name: str) -> str:
-    """Creates codes for users to confirm discord for chrome extension"""
-
-    logger.info("Generating code for %s", (discord_user_name))
-
-    # check if user has been add to discord_user_info table
-    sql = """SELECT *
-            FROM discord_user_info
-            WHERE discord_user_id = (%s)
-        """
-    cur.execute(sql, (discord_user_id,))
-
-    if not cur.fetchone():
-
-        # user has not been added to discord_user_info table, so add them
-        sql = """INSERT INTO discord_user_info
-                (discord_user_id, discord_user_name) VALUES (%s, %s)
-            """
-        cur.execute(sql, (discord_user_id, discord_user_name))
-
-    code = str(uuid.uuid4())  # create new code
-
-    # add new code to login_codes table
-    sql = """INSERT INTO login_codes (discord_user_id, code) VALUES (%s, %s)"""
-    cur.execute(sql, (discord_user_id, code))
-
-    return code  # return code to be sent to user
-
-
-def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
-    """Query today."""
-
-    logger.info("Querying by date")
-
-    if not date:
-        date = str(datetime.datetime.now().date())
-
-    sql = """select snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-        from   snippets
-        where  creation_timestamp >= (%(value)s::timestamp)
-        and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
-        """
-    cur.execute(
-        sql,
-        {"value": date},
-    )
-
-    return [Snippets(**fetch) for fetch in cur.fetchall()]
-
-
-def search_urls_by_user(discord_user_id: Union[str, int]) -> List[Snippets]:
-    """Search urls and snippets by string."""
-
-    logger.info("Searching in urls for %s", (discord_user_id))
-
-    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-            FROM snippets
-            WHERE  discord_user_id =%(discord_user_id)s
-        """
-
-    cur.execute(sql, {"discord_user_id": discord_user_id})
-
-    return [Snippets(**fetch) for fetch in cur.fetchall()]
-
-
-def query_db_by_code(code: Union[str, int]) -> Optional[LoginCodes]:
-    """Queries the DB by code and returns discords user"""
-
-    logger.info("Querying by code")
-
-    sql = """SELECT discord_user_id, code, creation_timestamp
-            FROM login_codes WHERE code = %(value)s
-        """
-    cur.execute(
-        sql,
-        {"value": code},
-    )
-
-    fetched = cur.fetchone()
-    if fetched:
-        return LoginCodes(**fetched)
-    return None
-
-
-def invalidate_codes(discord_user_id: Union[str, int]) -> None:
-    """Queries the DB by discord_user_id and deletes all codes"""
-
-    logger.info("Invalidating codes for %s", (discord_user_id))
-
-    sql = """DELETE FROM login_codes
-            WHERE discord_user_id = %(value)s
-        """
-    cur.execute(
-        sql,
-        {"value": discord_user_id},
-    )
-
-
-def search_urls_by_str(
-    search_string: str, discord_user_id: Union[str, int]
-) -> List[Snippets]:
-    """Search urls and snippets by string."""
-
-    logger.info("Searching in urls for %s", (search_string))
-
-    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-            FROM snippets
-            WHERE url ILIKE %(search_string)s
-            AND  discord_user_id =%(discord_user_id)s
-        """
-
-    cur.execute(
-        sql, {"search_string": f"%{search_string}%", "discord_user_id": discord_user_id}
-    )
-
-    return [Snippets(**fetch) for fetch in cur.fetchall()]
-
-
-def search_snippets_by_str(
-    search_string: str, discord_user_id: Union[str, int]
-) -> List[Snippets]:
-    """Search urls and snippets by string."""
-
-    logger.info("Searching in snippets for %s", (search_string))
-
-    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-            FROM snippets
-            WHERE snippet ILIKE %(search_string)s
-            AND  discord_user_id =%(discord_user_id)s
-        """
-
-    cur.execute(
-        sql, {"search_string": f"%{search_string}%", "discord_user_id": discord_user_id}
-    )
-
-    return [Snippets(**fetch) for fetch in cur.fetchall()]
+# CHROME EXTENSION ACTIONS
 
 
 def save_snippet_to_db(
-    url: str, snippet: str, discord_user_id: Union[str, int], title: str
+    url: str, snippet: str, renzen_user_id: Union[str, int], title: str
 ) -> Optional[str]:
     """Saves snippet to db."""
 
     logger.info("Saving snippet in db for %s", (url))
 
-    sql = """INSERT INTO snippets
-                (url, snippet, discord_user_id, title) VALUES (%s, %s, %s, %s)
-                RETURNING snippet_id
-            """
-    cur.execute(sql, (url, snippet, discord_user_id, title))
+    # generate parsed urls
+    parsed_url = urlparse(url=url).netloc
+
+    sql = """
+    INSERT INTO snippets
+    (url, snippet, renzen_user_id, title, parsed_url)
+    VALUES (%(url)s, %(snippet)s, %(renzen_user_id)s, %(title)s, %(parsed_url)s)
+    RETURNING snippet_id
+    """
+
+    cur.execute(
+        sql,
+        {
+            "url": url,
+            "snippet": snippet,
+            "renzen_user_id": renzen_user_id,
+            "title": title,
+            "parsed_url": parsed_url,
+        },
+    )
 
     fetched = cur.fetchone()
 
     return str(fetched["snippet_id"]) if fetched else None
 
 
-def load_snippet_from_db(db_id: str) -> Optional[Snippets]:
-    """Loads snippet using ID"""
+# VS EXTENSION ACTIONS
+
+
+def star(
+    renzen_user_id: str,
+    path: str,
+    snippet_id: str,
+    fetch_url: str,
+    req_type: bool,
+    star_id: Optional[str] = None,
+) -> Optional[str]:
+    """Associates snippet with page"""
+
+    logger.warning(f"{path=}")
+    logger.warning(f"{req_type=}")
+
+    if req_type is False:
+        if not star_id:
+            raise DBUtilsException
+        # attempt to delete star instead of add
+        logger.warning("Deleting star")
+        sql = """
+        DELETE FROM snippet_page_junction
+        WHERE star_id = %(star_id)s
+        """
+
+        values: Dict[Any, Any] = {"star_id": int(star_id)}
+
+        cur.execute(sql, values)
+
+        return ""
+
+    # search for page by path
+    sql = """
+    SELECT page_id FROM pages
+    WHERE renzen_user_id=%(renzen_user_id)s
+    AND path=%(path)s
+    AND fetch_url=%(fetch_url)s
+    """
+
+    values = {
+        "renzen_user_id": renzen_user_id,
+        "path": path,
+        "fetch_url": fetch_url,
+    }
+
+    logger.warning(f"{values=}")
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    if not fetched:
+        # create page in table since it doesn't exist
+        sql = """
+        INSERT INTO pages
+        (renzen_user_id, path, fetch_url)
+        VALUES (%(renzen_user_id)s, %(path)s, %(fetch_url)s)
+        RETURNING page_id
+        """
+
+        values = {
+            "renzen_user_id": renzen_user_id,
+            "path": path,
+            "fetch_url": fetch_url,
+        }
+
+        cur.execute(sql, values)
+        fetched = cur.fetchone()
+
+    if not fetched:
+        raise DBUtilsException
+
+    # create star/asscociation
+    sql = """
+    INSERT INTO snippet_page_junction (renzen_user_id, page_id, snippet_id, branch_name)
+    VALUES (%(renzen_user_id)s, %(page_id)s, %(snippet_id)s, %(branch_name)s)
+    RETURNING star_id
+    """
+
+    snippet = load_snippet_from_db(snippet_id)
+
+    if snippet:
+
+        cur.execute(
+            sql,
+            {
+                "renzen_user_id": renzen_user_id,
+                "page_id": fetched["page_id"],
+                "snippet_id": snippet_id,
+                "branch_name": "None",
+            },
+        )
+
+        fetched = cur.fetchone()
+
+        return_value = str(fetched["star_id"]) if fetched else None
+        logger.info(f"{return_value=}")
+        return return_value
+
+    logger.info(None)
+    return None
+
+
+# SEARCHES
+
+
+def vs_ext_get_mapped_paths_to_snippets(
+    renzen_user_id: str, fetch_url: str
+) -> List[VsExtSnippetProps]:
+    """Get data by user and repo, and stars so VS CODE ext can correctly sort snippets."""
+
+    # return which current users snippets are starred to which pages in repository
+    sql = """
+    SELECT s.snippet_id, s.title, s.snippet, s.url, s.parsed_url, p.path, s.creation_timestamp, s.renzen_user_id, spj.star_id
+    FROM snippet_page_junction spj
+    JOIN snippets s ON s.snippet_id = spj.snippet_id
+    JOIN pages p ON p.page_id = spj.page_id
+    WHERE p.fetch_url=%(fetch_url)s
+    AND spj.renzen_user_id = %(renzen_user_id)s
+    """
+
+    values = {"renzen_user_id": renzen_user_id, "fetch_url": fetch_url}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchall()
+
+    # logger.warning(f'vs_ext_get_mapped_paths_to_snippets {fetched=}')
+    # logger.warning(locals())
+    return [VsExtSnippetProps(**fetch) for fetch in fetched]
+
+
+def vs_ext_get_all_user_snippets(renzen_user_id: str) -> List[Snippet]:
+    """Gets all the users snippets they have saved"""
+
+    sql = """
+    SELECT renzen_user_id, snippet_id, title, url, parsed_url, snippet, creation_timestamp, renzen_user_id
+    FROM snippets
+    WHERE renzen_user_id = %(renzen_user_id)s
+    """
+
+    values = {"renzen_user_id": renzen_user_id}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchall()
+
+    # logger.warning(f"vs_ext_get_all_user_snippets {fetched=}")
+    # logger.warning(locals())
+    return [Snippet(**fetch) for fetch in fetched]
+
+
+# ID CONVERSIONS
+
+
+def get_renzen_user_by_discord_id(
+    discord_user_id: Union[str, int]
+) -> Optional[RenzenUserInfo]:
+    """Gets renzen id from discord id."""
+
+    sql = """
+    Select renzen_user_id from discord_user_info
+    WHERE discord_user_id = %(discord_user_id)s
+    """
+
+    values = {"discord_user_id": discord_user_id}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    return RenzenUserInfo(**fetched) if fetched else None
+
+
+def get_discord_user_by_renzen_user_id(
+    renzen_user_id: Union[str, int]
+) -> Optional[DiscordUserInfo]:
+    """Queries the DB by code and returns discords user"""
+
+    logger.info("Querying by renzen_user_id")
+
+    sql = """
+    SELECT discord_user_id, renzen_user_id, discord_user_name, creation_timestamp
+    FROM discord_user_info WHERE renzen_user_id = %(renzen_user_id)s
+    """
+
+    values = {"renzen_user_id": renzen_user_id}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    return DiscordUserInfo(**fetched) if fetched else None
+
+
+def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
+    """Queries the DB by code and returns discords user"""
+
+    logger.info("Querying by code")
+
+    sql = """
+    SELECT ri.renzen_user_id, ri.creation_timestamp, ri.renzen_user_name
+    FROM login_codes lc
+    JOIN renzen_user_info ri
+    ON lc.renzen_user_id = ri.renzen_user_id
+    WHERE lc.code = %(code)s
+    """
+
+    values = {"code": code}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    return RenzenUserInfo(**fetched) if fetched else None
+
+
+# DISCORD BOT ACTIONS
+
+
+def create_code_for_discord_user(
+    discord_user_id: Union[str, int], discord_user_name: str
+) -> LoginCode:
+    """Creates codes for users to confirm discord for chrome extension"""
+
+    logger.info("Generating code for %s", (discord_user_name))
+
+    renzen_user_info = get_renzen_user_by_discord_id(discord_user_id)
+    if not renzen_user_info:
+        renzen_user_info = create_renzen_user_from_discord_user_name(discord_user_name)
+
+    # check if user has been add to discord_user_info table
+    discord_user_info = get_discord_user_info_by_discord_id(discord_user_id)
+
+    if not discord_user_info:
+        # user has not been added to discord_user_info table, so create them
+        create_discord_user_info(discord_user_id, discord_user_name, renzen_user_info)
+
+    code = str(uuid.uuid4())  # create new code
+
+    # add new code to login_codes table
+    sql = """
+    INSERT INTO login_codes (renzen_user_id, code)
+    VALUES (%(renzen_user_id)s, %(code)s)
+    RETURNING code, renzen_user_id, creation_timestamp
+    """
+
+    values = {"renzen_user_id": renzen_user_info.renzen_user_id, "code": code}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+    if not fetched:
+        raise DBUtilsException
+    login_code = LoginCode(**fetched)
+
+    return login_code
+
+
+def get_discord_user_info_by_discord_id(
+    discord_user_id: Union[str, int]
+) -> Optional[DiscordUserInfo]:
+    """Get discord user info by discord id"""
+    sql = """
+    SELECT *
+    FROM discord_user_info
+    WHERE discord_user_id = (%(discord_user_id)s)
+    """
+
+    values: Dict[str, Union[str, int]] = {"discord_user_id": discord_user_id}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+    return DiscordUserInfo(**fetched) if fetched else None
+
+
+def create_discord_user_info(
+    discord_user_id: Union[str, int],
+    discord_user_name: str,
+    renzen_user_info: RenzenUserInfo,
+) -> DiscordUserInfo:
+    """Create discord user info."""
+    sql = """
+        INSERT INTO discord_user_info
+        (discord_user_id, discord_user_name, renzen_user_id)
+        VALUES (%(discord_user_id)s, %(discord_user_name)s, %(renzen_user_id)s)
+        RETURNING discord_user_name, discord_user_id, renzen_user_id, creation_timestamp
+        """
+
+    values = {
+        "discord_user_id": discord_user_id,
+        "discord_user_name": discord_user_name,
+        "renzen_user_id": renzen_user_info.renzen_user_id,
+    }
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+    if not fetched:
+        raise DBUtilsException
+
+    return DiscordUserInfo(**fetched)
+
+
+def create_renzen_user_from_discord_user_name(discord_user_name: str) -> RenzenUserInfo:
+    """Creeat renzen user from discord user name"""
+    sql = """
+            INSERT INTO renzen_user_info
+            (renzen_user_name) VALUES (%(renzen_user_name)s)
+            RETURNING renzen_user_id, renzen_user_name, creation_timestamp
+            """
+
+    values = {"renzen_user_name": discord_user_name}
+
+    cur.execute(sql, values)
+
+    fetched = cur.fetchone()
+    if not fetched:
+        raise DBUtilsException
+    renzen_user_info = RenzenUserInfo(**fetched)
+
+    return renzen_user_info
+
+
+def load_snippet_from_db(db_id: str) -> Optional[Snippet]:
+    """Loads snippet using ID (current used by bot to load from queue)"""
 
     logger.info("Loading snippet from db for id %s", (db_id))
 
-    sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-            FROM snippets
-            WHERE snippet_id=%(snippet_id)s"""
+    sql = """
+    SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp, parsed_url
+    FROM snippets
+    WHERE snippet_id=%(snippet_id)s"""
 
-    cur.execute(sql, {"snippet_id": db_id})
+    values = {"snippet_id": db_id}
+
+    cur.execute(sql, values)
 
     fetched = cur.fetchone()
 
-    if fetched:
-        print(f"{fetched=}")
-        return Snippets(**fetched)
-    return None
+    return Snippet(**fetched) if fetched else None
+
+
+# def invalidate_codes(discord_user_id: Union[str, int]) -> None:
+#     """Queries the DB by discord_user_id and deletes all codes"""
+
+#     logger.info("Invalidating codes for %s", (discord_user_id))
+
+#     sql = """DELETE FROM login_codes
+#             WHERE discord_user_id = %(value)s
+#         """
+#     cur.execute(
+#         sql,
+#         {"value": discord_user_id},
+#     )
+
+
+# def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
+#     """Query today.
+#     need to do by user also
+#     """
+
+#     logger.info("Querying by date")
+
+#     if not date:
+#         date = str(datetime.datetime.now().date())
+
+#     sql = """select snippet_id, url, snippet, title, discord_user_id, creation_timestamp
+#         from   snippets
+#         where  creation_timestamp >= (%(value)s::timestamp)
+#         and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
+#         """
+#     cur.execute(
+#         sql,
+#         {"value": date},
+#     )
+
+#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+
+
+# def search_urls_by_str(
+#     search_string: str, discord_user_id: Union[str, int]
+# ) -> List[Snippets]:
+#     """Search urls and snippets by string."""
+
+#     logger.info("Searching in urls for %s", (search_string))
+#     renzen_user_id = get_renzen_id_from_discord_id(discord_user_id)
+
+#     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
+#             FROM snippets
+#             WHERE url ILIKE %(search_string)s
+#             AND  renzen_user_id =%(renzen_user_id)s
+#         """
+
+#     cur.execute(
+#         sql, {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
+#     )
+
+#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+
+
+# def search_snippets_by_str(
+#     search_string: str, discord_user_id: Union[str, int]
+# ) -> List[Snippets]:
+#     """Search urls and snippets by string."""
+
+#     logger.info("Searching in snippets for %s", (search_string))
+#     renzen_user_id = get_renzen_id_from_discord_id(discord_user_id)
+
+#     sql = """SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp
+#             FROM snippets
+#             WHERE snippet ILIKE %(search_string)s
+#             AND  renzen_user_id =%(renzen_user_id)s
+#         """
+
+#     cur.execute(
+#         sql, {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
+#     )
+
+#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+
+
+# sql = """
+#         SELECT spj.star_id, spj.renzen_user_id, spj.page_id, p.path
+#         FROM snippet_page_junction spj
+#         JOIN pages p ON spj.renzen_user_id=p.renzen_user_id
+#         WHERE sp.renzen_user_id = (%s)
+# """

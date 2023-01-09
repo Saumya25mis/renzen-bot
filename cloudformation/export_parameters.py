@@ -3,10 +3,9 @@
 
 Updates environments cloudformation from the production (main) and staging branches.
 """
-import os
-
 # from typing import List
 import json
+import os
 
 import boto3
 

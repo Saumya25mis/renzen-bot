@@ -3,19 +3,19 @@ version: "3.8"
 
 services:
 
-  renzen-app:
-    environment:
-      - RUN_LOCAL=1
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      - FAST_REFRESH=false
-    image: renzen-app
-    build:
-      context: renzen-app
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    volumes: ['./renzen-app:/data/app/']
+  # renzen-app:
+  #   environment:
+  #     - RUN_LOCAL=1
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - WATCHPACK_POLLING=true
+  #     - FAST_REFRESH=false
+  #   image: renzen-app
+  #   build:
+  #     context: renzen-app
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - "3000:3000"
+  #   volumes: ['./renzen-app:/data/app/']
 
   bot:
     environment:
@@ -65,6 +65,8 @@ services:
   db:
     image: postgres
     restart: always
+    container_name: postgres
+    # network_mode: host
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -78,6 +80,20 @@ services:
       timeout: 10s
 #     volumes:
 #       - pgdata:/var/lib/postgresql/data
+
+  # http://localhost:15432/
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 15432:80
+    # volumes:
+    #   - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - db
 
 # volumes:
 #   pgdata:

@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(async () => {
   chrome.contextMenus.create({
     id: "forward_id",
-    title: "send to discord",
+    title: "send to renzen",
     type: "normal",
     contexts: ["selection"],
   });
@@ -39,8 +39,8 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
           },
           body: JSON.stringify({
             "snippet": result,
-            "login-code": login_result["login-code-" + selected_bot],
-            "URL": tab.url,
+            "login_code": login_result["login-code-" + selected_bot],
+            "url": tab.url,
             "title": tab.title
           }),
         });

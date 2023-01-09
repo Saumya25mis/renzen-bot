@@ -232,7 +232,7 @@ Resources:
   BotCodeBuildRole:
     Type: "AWS::IAM::Role"
     Properties:
-      Path: "/service-role/"
+      Path: "/"
       RoleName: !Sub "${CodeEnvironment}-BotCodeBuildRole"
       AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
       MaxSessionDuration: 3600

@@ -1,126 +1,157 @@
-"""Expose endpoint for aiohttp server"""
+"""Expose endpoint for aiohttp server
 
+Used by Chrome Extension and VS code Extension
+"""
+
+import dataclasses
 import json
 import logging
 import os
-from typing import Optional
-import dataclasses
-from urllib.parse import urlparse
+from typing import Any, Dict
 
-from aiohttp import web
 import aiohttp_cors  # type: ignore
-from src.common import queue_utils
-from src.common import db_utils
-
+from aiohttp import web
+from src.common import db_utils, queue_utils
+from src.common.api_types import ForwardRequest, GetSnippetsRequest, StarRequest
 
 logger = logging.getLogger(__name__)
 
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
 
 
-async def handle(request: web.Request) -> web.Response:
+def add_cors(route: str, func: Any, route_type: str = "POST") -> None:
+    """adds cors."""
+
+    resource = cors.add(app.router.add_resource(route))
+
+    route = cors.add(
+        resource.add_route(route_type, func),
+        {
+            "http://localhost:3000": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers=("X-Custom-Server-Header",),
+                allow_headers=("X-Requested-With", "Content-Type"),
+                max_age=10,
+            ),
+            "*": aiohttp_cors.ResourceOptions(
+                expose_headers=("X-Custom-Server-Header",),
+                allow_headers=(
+                    "X-Requested-With",
+                    "Content-Type",
+                    "Access-Control-Allow-Origin",
+                ),
+                max_age=10,
+            ),
+        },
+    )
+
+
+async def aws_health_check(request: web.Request) -> web.Response:
     """Health check response."""
     response_obj = {"status": "success"}
     print(response_obj)
     return web.Response(text=json.dumps(response_obj))
 
 
-async def forward(request: web.Request) -> web.Response:
+async def chrome_ext_forward(request: web.Request) -> web.Response:
     """forward check response."""
 
-    logger.info("Received forward request.")
+    logger.warning("Received forward request.")
 
+    # get request object
     request_content = await request.json()
+    logger.warning(f"{request_content=}")
+    forward_request: ForwardRequest = ForwardRequest(**request_content)
 
-    print(f"{request_content=}")
+    # get renzen user id from code
+    renzen_user_info = db_utils.get_renzen_user_by_code(forward_request.login_code)
 
-    login_user_relation: Optional[db_utils.LoginCodes] = db_utils.query_db_by_code(
-        request_content["login-code"]
-    )
+    if not renzen_user_info:
+        api_response_obj = {"status": "FAILURE forward NO MATCHING USER ID"}
+    else:
 
-    if not login_user_relation:
-        response_obj = {"status": "FAILURE forward NO MATCHING USER ID"}
-        return web.Response(text=json.dumps(response_obj))
+        # save snippet to database
+        forward_save_object = {
+            "renzen_user_id": str(renzen_user_info.renzen_user_id),
+            "snippet": forward_request.snippet,
+            "url": forward_request.url,
+            "title": forward_request.title,
+        }
+        db_id = db_utils.save_snippet_to_db(**forward_save_object)
 
-    user_id = int(login_user_relation.discord_user_id)
-    snippet = request_content["snippet"]
-    url = request_content["URL"]
-    title = request_content["title"]
+        # save snippet id to queue (for pickup by listeners (bot))
+        forward_queue_object = {"request_content": str(db_id)}
+        queue_utils.send_message(message=forward_queue_object)
 
-    db_id = db_utils.save_snippet_to_db(url, snippet, user_id, title)
+        api_response_obj = {"status": f"success forward snipped id: {db_id}"}
 
-    queue_utils.send_message(message={"request_content": str(db_id)})
-    response_obj = {"status": f"success forward {db_id}"}
-
-    return web.Response(text=json.dumps(response_obj))
-
-
-async def check_valid_code(request: web.Request) -> web.Response:
-    """Used by chrome extension to check if user can login with code."""
-
-    logger.info("Received valid code request.")
-
-    request_text = await request.text()
-    result = db_utils.query_db_by_code(str(request_text))
-
-    if result:
-        return web.Response(text="valid")
-    return web.Response(text="invalid")
+    return web.Response(text=json.dumps(api_response_obj, default=str))
 
 
-async def get_snippets(request: web.Request) -> web.Response:
+async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     """Return snippets when provided login code."""
 
-    logger.info("Received valid code request.")
+    logger.warning("Received get snippets code request.")
 
     request_json = await request.json()
-    print(f"{request_json=}")
-    code_query = db_utils.query_db_by_code(request_json["login-code"])
+    logger.warning(f"vs_ext_get_snippets {request_json=}")
+    get_snippets_request: GetSnippetsRequest = GetSnippetsRequest(**request_json)
 
-    if code_query:
-        snippets = db_utils.search_urls_by_user(code_query.discord_user_id)
-        snippets_dicts = [dataclasses.asdict(snippet) for snippet in snippets]
+    renzen_user_info = db_utils.get_renzen_user_by_code(get_snippets_request.login_code)
 
-        for snippet in snippets_dicts:
-            parsed_url = urlparse(url=snippet.get("url"))
-            title = parsed_url.netloc
-            snippet.update({"parsed_url": title})
+    if renzen_user_info:
 
-        return web.Response(text=json.dumps(snippets_dicts, default=str))
+        starred_snippets = db_utils.vs_ext_get_mapped_paths_to_snippets(
+            renzen_user_id=renzen_user_info.renzen_user_id,
+            fetch_url=get_snippets_request.fetch_url,
+        )
+        all_snippets = db_utils.vs_ext_get_all_user_snippets(
+            renzen_user_info.renzen_user_id
+        )
 
-    return web.Response(text="invalid", headers={"Access-Control-Allow-Origin": "*"})
+        api_response_obj: Dict[Any, Any] = {
+            "all_dicts": [dataclasses.asdict(snippet) for snippet in all_snippets],
+            "starred_dicts": [
+                dataclasses.asdict(snippet) for snippet in starred_snippets
+            ],
+        }
+
+    else:
+        api_response_obj = {"error": "Code does not correspond to user."}
+
+    return web.Response(text=json.dumps(api_response_obj, default=str))
+
+
+async def vs_ext_star(request: web.Request) -> web.Response:
+    """Associates file page with snippet."""
+
+    logger.warning("Received star request.")
+
+    request_json = await request.json()
+    logger.warning(f"{request_json=}")
+
+    star_request: StarRequest = StarRequest(**request_json)
+
+    result = db_utils.star(
+        renzen_user_id=star_request.renzen_user_id,
+        path=star_request.page_path,
+        snippet_id=star_request.snippet_id,
+        fetch_url=star_request.fetch_url,
+        req_type=star_request.req_type,
+        star_id=star_request.star_id,
+    )
+    return web.Response(
+        text=json.dumps(result, default=str),
+    )
 
 
 app = web.Application()
-
 cors = aiohttp_cors.setup(app)
-resource = cors.add(app.router.add_resource("/get_snippets"))
 
-route = cors.add(
-    resource.add_route("POST", get_snippets),
-    {
-        "http://localhost:3000": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers=("X-Custom-Server-Header",),
-            allow_headers=("X-Requested-With", "Content-Type"),
-            max_age=10,
-        ),
-        "*": aiohttp_cors.ResourceOptions(
-            expose_headers=("X-Custom-Server-Header",),
-            allow_headers=(
-                "X-Requested-With",
-                "Content-Type",
-                "Access-Control-Allow-Origin",
-            ),
-            max_age=10,
-        ),
-    },
-)
-
-app.router.add_get("/", handle)
-app.router.add_get("/forward", forward)
-app.router.add_route("POST", "/forward", forward)
-app.router.add_route("GET", "/valid_code", check_valid_code)
-# app.router.add_route("POST", "/get_snippets", get_snippets)
+add_cors("/get_snippets", vs_ext_get_snippets)
+add_cors("/star", vs_ext_star)
+add_cors("/forward", chrome_ext_forward)
+# add_cors("/forward", chrome_ext_forward, "GET")
+add_cors("/", aws_health_check, "GET")
 
 web.run_app(app, port=80, host="0.0.0.0")

@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
 import discord
-from src.common import db_utils
+from src.common import db_types
 
 EMBED_MAX_SIZE = 6000
 SNIPPET_FORWARD_MAX_SIZE = 1024
@@ -14,7 +14,7 @@ MAX_SEARCH_SNIPPET_TEXT_LENGTH = 150
 
 
 async def format_search_embed(
-    snippet_matches: List[db_utils.Snippets],
+    snippet_matches: List[db_types.Snippet],
     search_for: Optional[str] = None,
     exclude_message_ids: Optional[List[str]] = None,
     title: str = "Formatted",
@@ -104,7 +104,7 @@ def bold_substring(value: str, substring: str) -> str:
     return bolded_string
 
 
-async def send_formatted_discord_message(snippet: db_utils.Snippets) -> discord.Embed:
+async def send_formatted_discord_message(snippet: db_types.Snippet) -> discord.Embed:
     """Sends message formatted."""
 
     snippet_text = snippet.snippet

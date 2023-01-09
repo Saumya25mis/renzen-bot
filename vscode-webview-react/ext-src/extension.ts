@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { API as BuiltInGitApi, GitExtension } from './@types/git';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -51,6 +52,42 @@ class ReactPanel {
 
 		// Set the webview's initial html content
 		this._panel.webview.html = this._getHtmlForWebview();
+
+		this._panel.webview.onDidReceiveMessage(data => {
+			switch (data.type) {
+				case 'myMessage':
+					{
+						vscode.window.showErrorMessage('Received message from Webview');
+						// vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+						break;
+					}
+			}
+		});
+
+		vscode.window.onDidChangeActiveTextEditor(async data => {
+			try {
+				const extension = vscode.extensions.getExtension('vscode.git') as vscode.Extension<GitExtension> //vscode.Extension<GitExtension>;
+				if (extension !== undefined) {
+					const gitExtension = extension.isActive ? extension.exports : await extension.activate();
+
+					let api= gitExtension.getAPI(1);
+					// console.log(api.git)
+					// console.log(api.repositories)
+					// let branch_name = api.repositories[0].state.HEAD?.name
+					// let repo_name = api.repositories[0].state.HEAD?.remote //undefined
+					// let upstream = api.repositories[0].state.HEAD?.upstream?.name
+					// let upstream7 = api.repositories[0].state.HEAD?.upstream?.remote.toString()  //orgin
+					// let upstream2 = api.repositories[0].state.refs[0].remote
+					// let upstream3 = api.repositories[0].rootUri.path
+					let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl
+					console.log('active_name: '+data?.document.fileName)
+					console.log('fetchUrl: '+fetchUrl)
+					this._panel.webview.postMessage({"active_name": data?.document.fileName, "git_repo": fetchUrl})
+
+				}
+			} catch {}
+
+		})
 
 		// Listen for when the panel is disposed
 		// This happens when the user closes the panel or when the panel is closed programatically

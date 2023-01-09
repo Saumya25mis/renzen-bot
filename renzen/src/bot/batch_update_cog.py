@@ -6,11 +6,17 @@ from typing import Optional
 
 import discord
 from discord.ext import commands, tasks
-from src.common import queue_utils
 from src.bot import bot_utils
-from src.common import db_utils
+from src.common import db_utils, queue_utils
 
 logger = logging.getLogger(__name__)
+
+
+class CogException(Exception):
+    """Bot Cog Exception."""
+
+    def __init__(self) -> None:
+        super()
 
 
 class BatchForwardSnippets(commands.Cog):
@@ -47,7 +53,15 @@ class BatchForwardSnippets(commands.Cog):
 
                 snippet = db_utils.load_snippet_from_db(db_id)
                 if snippet:
-                    temp_user = self.bot.get_user(int(snippet.discord_user_id))
+                    discord_user_info = db_utils.get_discord_user_by_renzen_user_id(
+                        snippet.renzen_user_id
+                    )
+                    if discord_user_info:
+                        temp_user = self.bot.get_user(
+                            int(discord_user_info.discord_user_id)
+                        )
+                    else:
+                        raise CogException
                 else:
                     continue
 
@@ -59,7 +73,10 @@ class BatchForwardSnippets(commands.Cog):
 
                 await temp_user.send(embed=embed)
 
-            except Exception as e:  # pylint:disable=broad-except, invalid-name
+            except (  # pylint:disable=broad-except, invalid-name
+                Exception,
+                CogException,
+            ) as e:
                 logger.exception("Could not deliver message. Will not retry")
                 logger.info(message)
                 if temp_user:
