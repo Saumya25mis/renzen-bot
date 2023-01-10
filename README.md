@@ -82,7 +82,7 @@ Discord Bot
 
 VS Code Extension
 
-![VS Code Extension](./readme_images/vs_code_ext.png)
+![VS Code Extension](./readme_images/vs-ext-demo.jpg)
 # File Documentation
 
 The purpose of this section is to give a brief overview of the files and in the project and their purpose. This can change as the project develops.

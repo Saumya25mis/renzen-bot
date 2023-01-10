@@ -92,17 +92,17 @@ function App() {
     try {
       let url = botPath  //"http://localhost:81/get_snippets";
       if (login_code) {
-        let options: RequestInit = {
-          method: "POST",
-          cache: "reload",
-          headers: {
-            "Content-Type": "application/json;charset=utf-8",
-          },
-          body: JSON.stringify({
-            "login_code": login_code,
-            "fetch_url": gitRepo
-          }),
-        };
+let options: RequestInit = {
+  method: "POST",
+  cache: "reload",
+  headers: {
+    "Content-Type": "application/json;charset=utf-8",
+  },
+  body: JSON.stringify({
+    "login_code": login_code,
+    "fetch_url": gitRepo
+  }),
+};
         console.log(options)
         let snippetData = await fetch(url, options);
         let data = await snippetData.json();
@@ -216,7 +216,7 @@ function App() {
         <button className="btn btn-primary" onClick={() => Login()}>Fetch Data</button> */}
       </div>
       <div className="col">
-        STARRED SNIPPETS <br />
+        STARRED TO THIS PAGE <br />
         {debug && <div>
           DEBUG <br />
           {JSON.stringify(starResponse)}
