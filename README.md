@@ -1,14 +1,15 @@
 # Renzen
 
-Renzen is a combination Web App, Chrome Extension, VS Code Extension, and Discord Bot that allows you to save snippets from the internet using the Chrome Extension and archive them. You can then view them on the website, VS code extension, or in Discord. You can also search through them using commands in the Discord app (currently working on making the site and vs code extension reach feature parity with the Discord Bot).
+Renzen is the combination of a Chrome Extension and VS Code Extension (with Discord Bot Integration) that allows you to save snippets from the internet using the Renzen Chrome Extension. You can then view them on the Renzen VS code extension, or in Discord. You can also search through the snippets using commands in the Discord app (currently working on making  the VS Code extension reach feature parity with the Discord Bot).
 
-The intended purpose for the BOT is for making it easier to find specific information when researching something and having 1000 tabs open at a time (for example when trying to fix a bug). The rationale is that when researching, you don't often need the whole webpage, but just the part you found that you need to reference without it getting lost in the other tabs (and also keeping that info when your browsers are closed). And that it's better to search for information through that text than entire webpages.
+The intended functional purpose of the project is to be able to keep information that helped you as close to the source as possible. For example if working on a file, you find answers/solutions on the web, you can attach them to that file so it is always there for you to reference when you need to work on that file again. This would also be useful for open-source projects that have many people contributing to them and to help new developers find resources applicable to specific files when trying to contribute.
 
-The intended purpose for the PROJECT as a whole is to create a continuously deployed codebase that can be contributed to by anyone who wants to join an Open Source Project that functions somewhat as a Product. This allows experience in seeing how everything works as a whole, for example at a company.
+The intended learning purpose for the project is to create a continuously deployed codebase that can be contributed to by anyone who wants to join an Open Source Project that functions somewhat as a Product.
 
 The project is a combination of a lot of different parts you'd see at many companies. Such as
 
 - Production and staging CI/CD infrastructure on Amazon Web Services
+- Frontend and Backend Development
 - Use of Docker and Docker Compose for local development
 - Linter and test checks to monitor the quality of submitted code (Pre-Commit, Pytest)
 - Integration with a third party API (Discord)
@@ -54,18 +55,6 @@ The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec
 
 ![Deploy Process](./readme_images/Screenshot%202022-12-28%20105111.jpg)
 
-## How To Use
-
-![User Flow](./readme_images/Renzen%20Process.jpeg)
-
-## bot_stack.yml Resources
-
-Each bot_stack creates the following resources to set up a bot
-
-![resources 1](./readme_images/Screenshot%202022-12-28%20110259.jpg)
-![resources 2](./readme_images/Screenshot_20221228_110322.png)
-![resources 3](./readme_images/Screenshot%202022-12-28%20110351.jpg)
-
 # Extension Screenshots (In Development)
 
 Current Chrome Extension popup for logging into renzen accounts
@@ -76,13 +65,25 @@ Chrome Extension Right Click to save selected text to Renzen account
 
 ![Chrome Extension Right Click](./readme_images/chrome_ext_right_click.jpg)
 
-Discord Bot
-
-![Discord Bot](./readme_images/discord_bot.png)
-
 VS Code Extension
 
 ![VS Code Extension](./readme_images/vs-ext-demo.jpg)
+
+Discord Bot Integration
+
+![Discord Bot](./readme_images/discord_bot.png)
+
+## How To Use
+
+![User Flow](./readme_images/Renzen%20Process.jpeg)
+## bot_stack.yml Resources
+
+Each bot_stack creates the following resources to set up a bot
+
+![resources 1](./readme_images/Screenshot%202022-12-28%20110259.jpg)
+![resources 2](./readme_images/Screenshot_20221228_110322.png)
+![resources 3](./readme_images/Screenshot%202022-12-28%20110351.jpg)
+
 # File Documentation
 
 The purpose of this section is to give a brief overview of the files and in the project and their purpose. This can change as the project develops.
