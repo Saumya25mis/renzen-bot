@@ -30,6 +30,7 @@ export interface SnippetProps {
     starred: boolean  // is this a starred snippet?
     fetch_url: string  // the current github repository
     debug: boolean
+    getLoginCodesFromInputs: any
 }
 
 export const Snippet: React.FC<SnippetProps> = ({
@@ -38,7 +39,8 @@ export const Snippet: React.FC<SnippetProps> = ({
     active_page,
     starred,
     fetch_url,
-    debug
+    debug,
+    getLoginCodesFromInputs
 }) => {
     const [showIframe, setShowIframe] = useState<boolean>(false);
     const [render, setRender] = useState<boolean>(true)
@@ -60,10 +62,12 @@ export const Snippet: React.FC<SnippetProps> = ({
     const handleStar = async (req_type: boolean) => {
 
         let page_path = active_page // to star
+        let [url, login_code, prod_type] = getLoginCodesFromInputs()
 
-        if (!req_type) {
-            // unstar
-            let page_path = snippet.path // set to snippet page
+        if (prod_type === "local"){
+            url = "http://localhost:81/star"
+        } else {
+            url = "http://"+prod_type+".renzen.io/star"
         }
 
         let body = {
@@ -77,7 +81,7 @@ export const Snippet: React.FC<SnippetProps> = ({
 
         console.log(body)
 
-        let url = "http://localhost:81/star";
+        // let url = "http://localhost:81/star";
         if (active_page) {
             let options: RequestInit = {
                 method: "POST",

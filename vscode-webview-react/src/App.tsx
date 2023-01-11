@@ -55,7 +55,7 @@ function App() {
   const fetchSnippets = async () => {
     console.log("Fetching Snippets");
 
-    let [url, login_code] = getLoginCodesFromInputs()
+    let [url, login_code, prod_type] = getLoginCodesFromInputs()
 
     if (login_code !== "") {
       try {
@@ -88,14 +88,14 @@ function App() {
     }
   };
 
-  function getLoginCodesFromInputs(): [string, string] {
+  function getLoginCodesFromInputs(): [string, string, string] {
 
     let selected_checkbox = document.querySelector('input[name="bot"]:checked') as HTMLInputElement
     let corresponding_code = document.getElementById('login-code-' + selected_checkbox.id) as HTMLInputElement
 
     console.log([selected_checkbox.value, corresponding_code.value])
 
-    return [selected_checkbox.value, corresponding_code.value]
+    return [selected_checkbox.value, corresponding_code.value, selected_checkbox.id]
   };
 
   function toggleDebugMode(): void {
@@ -228,6 +228,7 @@ function App() {
                     snippet={snippet_object}
                     starred={true}
                     fetchSnippets={fetchSnippets}
+                    getLoginCodesFromInputs={getLoginCodesFromInputs}
                     fetch_url={gitRepo}
                     debug={debug}
                   />
@@ -255,6 +256,7 @@ function App() {
                     active_page={activePage}
                     snippet={snippet_object}
                     starred={false}
+                    getLoginCodesFromInputs={getLoginCodesFromInputs}
                     fetchSnippets={fetchSnippets}
                     fetch_url={gitRepo}
                     debug={debug}
