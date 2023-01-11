@@ -132,11 +132,19 @@ cors = aiohttp_cors.setup(
     },
 )
 
-resource = cors.add(app.router.add_resource("/get_snippets"))
-cors.add(resource.add_route("POST", vs_ext_get_snippets))
+app.add_routes(
+    routes=[
+        web.post("/get_snippets", vs_ext_get_snippets),
+        web.post("/star", vs_ext_star),
+    ]
+)
 
-resource = cors.add(app.router.add_resource("/star"))
-cors.add(resource.add_route("POST", vs_ext_star))
+
+# resource = cors.add(app.router.add_resource("/get_snippets"))
+# cors.add(resource.add_route("POST", vs_ext_get_snippets))
+
+# resource = cors.add(app.router.add_resource("/star"))
+# cors.add(resource.add_route("POST", vs_ext_star))
 
 resource = cors.add(app.router.add_resource("/forward"))
 cors.add(resource.add_route("POST", chrome_ext_forward))
