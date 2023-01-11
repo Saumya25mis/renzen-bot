@@ -11,8 +11,8 @@ function App() {
   const [snippetResponse, setSnippetResponse] = useState<SnippetObject[]>([]);
   const [starResponse, setStarResponse] = useState<SnippetObject[]>([]);
   const [debug, setDebug] = useState<boolean>(false);
-  const [botPath, setBotPath] = useState<string>("");
-  const [buttonID, setButtonID] = useState<string>("");
+  const [visibleStarredSnippets, setVisibleStarredSnippets] = useState<Array<string>>([])
+  const [visibleNonStarredSnippets, setVisibleNonStarredSnippets] = useState<Array<string>>([])
 
   useEffect(() => {
     // @ts-ignore
@@ -106,6 +106,74 @@ function App() {
     vscode.postMessage({ type: "myMessage", value: message });
   }
 
+  let visible_starred_snippets: Array<string> = []
+  // let visible_starred_snippets: Array<string> = []
+
+  function renderStarred() {
+
+    // let visible_snippets: Array<string> = []
+    let render_snippets: Array<any> = []
+
+    starResponse.map((snippet_object) => {
+
+      if (snippet_object.path === activePage) {
+        visible_starred_snippets.push(snippet_object.snippet_id)
+
+        render_snippets.push(
+          <Snippet
+            key={snippet_object.star_id}
+            active_page={activePage}
+            snippet={snippet_object}
+            starred={true}
+            fetchSnippets={fetchSnippets}
+            getLoginCodesFromInputs={getLoginCodesFromInputs}
+            fetch_url={gitRepo}
+            debug={debug}
+          />
+        );
+      }
+    })
+
+
+    // setVisibleStarredSnippets(visible_snippets)
+
+    return render_snippets
+
+  }
+
+  function renderNonStarred() {
+
+    // let non_starred_snippets: Array<any> = []
+    let render_snippets: Array<any> = []
+
+    snippetResponse.map((snippet_object) => {
+
+      let found = visible_starred_snippets.includes(snippet_object.snippet_id)
+
+      if (!found) {
+        // non_starred_snippets.push(snippet_object.snippet_id)
+        render_snippets.push(
+          <Snippet
+            key={snippet_object.snippet_id}
+            active_page={activePage}
+            snippet={snippet_object}
+            starred={false}
+            getLoginCodesFromInputs={getLoginCodesFromInputs}
+            fetchSnippets={fetchSnippets}
+            fetch_url={gitRepo}
+            debug={debug}
+          />
+        );
+      }
+    })
+
+    // setVisibleNonStarredSnippets(non_starred_snippets)
+
+    visible_starred_snippets = []
+
+    return render_snippets
+  }
+
 
   return (
     <div className="container">
@@ -122,6 +190,10 @@ function App() {
             <div>{activePage}</div>
             <br />
             <div>{gitRepo}</div>
+            {/* <br />
+            Visible Starred: {visibleStarredSnippets}
+            <br />
+            Visible NonStarred: {visibleNonStarredSnippets} */}
           </div>
         )}
         <div className="p-3">
@@ -218,24 +290,7 @@ function App() {
           </div>
         )}
         <DiscordMessages>
-          <ul>
-            {starResponse.map((snippet_object) => {
-              return (
-                <div className="list-group-item">
-                  <Snippet
-                    key={snippet_object.star_id}
-                    active_page={activePage}
-                    snippet={snippet_object}
-                    starred={true}
-                    fetchSnippets={fetchSnippets}
-                    getLoginCodesFromInputs={getLoginCodesFromInputs}
-                    fetch_url={gitRepo}
-                    debug={debug}
-                  />
-                </div>
-              );
-            })}
-          </ul>
+          {renderStarred()}
         </DiscordMessages>
       </div>
       <div className="col">
@@ -247,24 +302,7 @@ function App() {
           </div>
         )}
         <DiscordMessages>
-          <ul>
-            {snippetResponse.map((snippet_object) => {
-              return (
-                <div className="list-group-item">
-                  <Snippet
-                    key={snippet_object.snippet_id}
-                    active_page={activePage}
-                    snippet={snippet_object}
-                    starred={false}
-                    getLoginCodesFromInputs={getLoginCodesFromInputs}
-                    fetchSnippets={fetchSnippets}
-                    fetch_url={gitRepo}
-                    debug={debug}
-                  />
-                </div>
-              );
-            })}
-          </ul>
+          {renderNonStarred()}
         </DiscordMessages>
       </div>
     </div>

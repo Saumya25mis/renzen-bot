@@ -49,25 +49,25 @@ export const Snippet: React.FC<SnippetProps> = ({
         setShowIframe(!showIframe);
     }
 
-    useEffect(() => {
-        if (starred) {
-            if (snippet.path !== active_page) {
-                setRender(false)
-            } else {
-                setRender(true)
-            }
-        }
-    })
+    // useEffect(() => {
+    //     if (starred) {
+    //         if (snippet.path !== active_page) {
+    //             setRender(false)
+    //         } else {
+    //             setRender(true)
+    //         }
+    //     }
+    // })
 
     const handleStar = async (req_type: boolean) => {
 
         let page_path = active_page // to star
         let [url, login_code, prod_type] = getLoginCodesFromInputs()
 
-        if (prod_type === "local"){
+        if (prod_type === "local") {
             url = "http://localhost:81/star"
         } else {
-            url = "http://"+prod_type+".renzen.io/star"
+            url = "http://" + prod_type + ".renzen.io/star"
         }
 
         let body = {
