@@ -17,6 +17,7 @@ function App() {
   useEffect(() => {
     // @ts-ignore
     setVsCode(acquireVsCodeApi());
+    (document.getElementById('local') as HTMLInputElement).checked = true
   }, []);
 
   // receive messages from vs code (current active page and git repository)
@@ -189,7 +190,6 @@ function App() {
                       id="local"
                       name="bot"
                       value="http://localhost:81/get_snippets"
-                      checked={true}
                     />
                   </div>
                   <div className="input-group-text">Local</div>
