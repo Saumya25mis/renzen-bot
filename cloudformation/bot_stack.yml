@@ -277,7 +277,7 @@ Resources:
           TargetGroupArn: !Ref myTargetGroupSite
       Conditions:
         - Field: path-pattern
-          Values: ["*/forward"]
+          Values: ["*/forward", "*/get_snippets", "*/star"]
           # HttpHeaderConfig:
           #   HttpHeaderName: User-Agent
           #   Values:
