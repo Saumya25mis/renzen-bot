@@ -2,17 +2,6 @@
 import datetime
 from dataclasses import dataclass
 
-# from src.common.db_tables import cur
-
-# class ORMBase:
-
-#     table: str
-
-#     # def __init__(self, table: str) -> None:
-#     #     self.table=table
-
-#     def get_by(field: str, value: any):
-
 
 @dataclass(frozen=True)
 class RenzenUserInfo:

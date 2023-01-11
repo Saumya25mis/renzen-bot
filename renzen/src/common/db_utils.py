@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name
 """DB utils."""
 # import itertools
+import datetime
 import logging
 import os
 import uuid
@@ -217,7 +218,10 @@ def get_renzen_user_by_discord_id(
     """Gets renzen id from discord id."""
 
     sql = """
-    Select renzen_user_id from discord_user_info
+    Select ri.renzen_user_id, ri.renzen_user_name, ri.creation_timestamp
+    FROM discord_user_info di
+    JOIN renzen_user_info ri
+    ON ri.renzen_user_id = di.renzen_user_id
     WHERE discord_user_id = %(discord_user_id)s
     """
 
@@ -394,88 +398,87 @@ def load_snippet_from_db(db_id: str) -> Optional[Snippet]:
     return Snippet(**fetched) if fetched else None
 
 
-# def invalidate_codes(discord_user_id: Union[str, int]) -> None:
-#     """Queries the DB by discord_user_id and deletes all codes"""
+def query_db_by_date(
+    renzen_user_id: Union[str, int], date: Optional[str] = None
+) -> List[Snippet]:
+    """Query today.
+    need to do by user also
+    """
 
-#     logger.info("Invalidating codes for %s", (discord_user_id))
+    logger.info("Querying by date")
 
-#     sql = """DELETE FROM login_codes
-#             WHERE discord_user_id = %(value)s
-#         """
-#     cur.execute(
-#         sql,
-#         {"value": discord_user_id},
-#     )
+    if not date:
+        date = str(datetime.datetime.now().date())
 
+    sql = """
+    SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp, parsed_url
+    FROM snippets
+    WHERE creation_timestamp >= (%(value)s::timestamp)
+    AND creation_timestamp < (((%(value)s::date)+1)::timestamp)
+    AND renzen_user_id =%(renzen_user_id)s
+    """
 
-# def query_db_by_date(date: Optional[str] = None) -> List[Snippets]:
-#     """Query today.
-#     need to do by user also
-#     """
+    values = {"value": date, "renzen_user_id": renzen_user_id}
 
-#     logger.info("Querying by date")
+    cur.execute(
+        sql,
+        values,
+    )
 
-#     if not date:
-#         date = str(datetime.datetime.now().date())
-
-#     sql = """select snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-#         from   snippets
-#         where  creation_timestamp >= (%(value)s::timestamp)
-#         and    creation_timestamp < ((%(value)s::date)+1)::timestamp;
-#         """
-#     cur.execute(
-#         sql,
-#         {"value": date},
-#     )
-
-#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+    return [Snippet(**fetch) for fetch in cur.fetchall()]
 
 
-# def search_urls_by_str(
-#     search_string: str, discord_user_id: Union[str, int]
-# ) -> List[Snippets]:
-#     """Search urls and snippets by string."""
+def search_urls_by_str(
+    search_string: str, renzen_user_id: Union[str, int]
+) -> List[Snippet]:
+    """Search urls and snippets by string."""
 
-#     logger.info("Searching in urls for %s", (search_string))
-#     renzen_user_id = get_renzen_id_from_discord_id(discord_user_id)
+    logger.info("Searching in urls for %s", (search_string))
 
-#     sql = """SELECT snippet_id, url, snippet, title, discord_user_id, creation_timestamp
-#             FROM snippets
-#             WHERE url ILIKE %(search_string)s
-#             AND  renzen_user_id =%(renzen_user_id)s
-#         """
+    sql = """
+    SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp, parsed_url
+    FROM snippets
+    WHERE url ILIKE %(search_string)s
+    AND  renzen_user_id =%(renzen_user_id)s
+    """
 
-#     cur.execute(
-#         sql, {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
-#     )
+    values = {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
 
-#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+    cur.execute(sql, values)
 
-
-# def search_snippets_by_str(
-#     search_string: str, discord_user_id: Union[str, int]
-# ) -> List[Snippets]:
-#     """Search urls and snippets by string."""
-
-#     logger.info("Searching in snippets for %s", (search_string))
-#     renzen_user_id = get_renzen_id_from_discord_id(discord_user_id)
-
-#     sql = """SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp
-#             FROM snippets
-#             WHERE snippet ILIKE %(search_string)s
-#             AND  renzen_user_id =%(renzen_user_id)s
-#         """
-
-#     cur.execute(
-#         sql, {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
-#     )
-
-#     return [Snippets(**fetch) for fetch in cur.fetchall()]
+    return [Snippet(**fetch) for fetch in cur.fetchall()]
 
 
-# sql = """
-#         SELECT spj.star_id, spj.renzen_user_id, spj.page_id, p.path
-#         FROM snippet_page_junction spj
-#         JOIN pages p ON spj.renzen_user_id=p.renzen_user_id
-#         WHERE sp.renzen_user_id = (%s)
-# """
+def search_snippets_by_str(
+    search_string: str, renzen_user_id: Union[str, int]
+) -> List[Snippet]:
+    """Search urls and snippets by string."""
+
+    logger.info("Searching in snippets for %s", (search_string))
+
+    sql = """
+    SELECT snippet_id, url, snippet, title, renzen_user_id, creation_timestamp, parsed_url
+    FROM snippets
+    WHERE snippet ILIKE %(search_string)s
+    AND  renzen_user_id =%(renzen_user_id)s
+    """
+
+    cur.execute(
+        sql, {"search_string": f"%{search_string}%", "renzen_user_id": renzen_user_id}
+    )
+
+    return [Snippet(**fetch) for fetch in cur.fetchall()]
+
+
+def invalidate_codes(renzen_user_id: Union[str, int]) -> None:
+    """Queries the DB by discord_user_id and deletes all codes"""
+
+    logger.info("Invalidating codes for %s", renzen_user_id)
+
+    sql = """DELETE FROM login_codes
+            WHERE renzen_user_id = %(value)s
+        """
+    cur.execute(
+        sql,
+        {"value": renzen_user_id},
+    )
