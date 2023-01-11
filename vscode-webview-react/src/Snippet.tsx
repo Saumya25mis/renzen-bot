@@ -8,9 +8,7 @@ import {
 } from "@danktuary/react-discord-message";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-
-export interface SnippetProps {
-    // from back-end
+export interface SnippetObject {
     snippet_id: string;
     renzen_user_id: string;
     title: string;
@@ -20,6 +18,12 @@ export interface SnippetProps {
     creation_timestamp: string;
     path: string
     star_id: string
+}
+
+
+export interface SnippetProps {
+    // from back-end
+    snippet: SnippetObject
     // from front-end
     fetchSnippets: any // function to reload snippets
     active_page: string;  // current active page in vs code
@@ -29,15 +33,7 @@ export interface SnippetProps {
 }
 
 export const Snippet: React.FC<SnippetProps> = ({
-    snippet_id,
-    renzen_user_id,
-    title,
     snippet,
-    url,
-    parsed_url,
-    creation_timestamp,
-    path,
-    star_id,
     fetchSnippets,
     active_page,
     starred,
@@ -53,7 +49,7 @@ export const Snippet: React.FC<SnippetProps> = ({
 
     useEffect(() => {
         if (starred) {
-            if (path !== active_page) {
+            if (snippet.path !== active_page) {
                 setRender(false)
             } else {
                 setRender(true)
@@ -67,15 +63,15 @@ export const Snippet: React.FC<SnippetProps> = ({
 
         if (!req_type) {
             // unstar
-            let page_path = path // set to snippet page
+            let page_path = snippet.path // set to snippet page
         }
 
         let body = {
             "page_path": page_path,
-            "snippet_id": snippet_id,
-            "renzen_user_id": renzen_user_id,
+            "snippet_id": snippet.snippet_id,
+            "renzen_user_id": snippet.renzen_user_id,
             "req_type": req_type,
-            "star_id": star_id,
+            "star_id": snippet.star_id,
             "fetch_url": fetch_url
         }
 
@@ -102,21 +98,21 @@ export const Snippet: React.FC<SnippetProps> = ({
             {render && <div className="border">
                 <DiscordMessage author="renzen">
                     <DiscordEmbed
-                        url={url}
-                        embedTitle={parsed_url}
-                        timestamp={creation_timestamp}
+                        url={snippet.url}
+                        embedTitle={snippet.parsed_url}
+                        timestamp={snippet.creation_timestamp}
                     >
-                        <a href={url}>{parsed_url}</a>
+                        <a href={snippet.url}>{snippet.parsed_url}</a>
                         <DiscordEmbedFields slot="fields">
                             <DiscordEmbedField
-                                fieldTitle={"#" + snippet_id + ": " + title}
+                                fieldTitle={"#" + snippet.snippet_id + ": " + snippet.title}
                                 inline={true}
                             >
-                                {snippet}
+                                {snippet.snippet}
                             </DiscordEmbedField>
                         </DiscordEmbedFields>
                         <span slot="footer">
-                            <a href={url}>{url}</a>
+                            <a href={snippet.url}>{snippet.url}</a>
                         </span>
                     </DiscordEmbed>
                     {!starred && <button type="button" className="btn btn-primary" onClick={() => handleStar(true)}>
@@ -133,12 +129,12 @@ export const Snippet: React.FC<SnippetProps> = ({
                         Show Web Page
                     </button>
                 </DiscordMessage>
-                {showIframe && <iframe width={"100%"} height={"600"} src={url}></iframe>}
+                {showIframe && <iframe width={"100%"} height={"600"} src={snippet.url}></iframe>}
                 <></>
                 {debug && <div>
                     DEBUG <br />
-                    Path: {path} <br />
-                    Star ID: {star_id} <br />
+                    Path: {snippet.path} <br />
+                    Star ID: {snippet.star_id} <br />
                     Starred: {starred.valueOf()} <br />
                     Fetch Url: {fetch_url} <br />
                     Active Page: {active_page} <br />

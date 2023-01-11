@@ -57,7 +57,7 @@ class ReactPanel {
 			switch (data.type) {
 				case 'myMessage':
 					{
-						vscode.window.showErrorMessage('Received message from Webview');
+						vscode.window.showErrorMessage(data.value);
 						// vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 						break;
 					}
@@ -70,7 +70,7 @@ class ReactPanel {
 				if (extension !== undefined) {
 					const gitExtension = extension.isActive ? extension.exports : await extension.activate();
 
-					let api= gitExtension.getAPI(1);
+					let api = gitExtension.getAPI(1);
 					// console.log(api.git)
 					// console.log(api.repositories)
 					// let branch_name = api.repositories[0].state.HEAD?.name
@@ -80,12 +80,12 @@ class ReactPanel {
 					// let upstream2 = api.repositories[0].state.refs[0].remote
 					// let upstream3 = api.repositories[0].rootUri.path
 					let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl
-					console.log('active_name: '+data?.document.fileName)
-					console.log('fetchUrl: '+fetchUrl)
-					this._panel.webview.postMessage({"active_name": data?.document.fileName, "git_repo": fetchUrl})
+					console.log('active_name: ' + data?.document.fileName)
+					console.log('fetchUrl: ' + fetchUrl)
+					this._panel.webview.postMessage({ "active_name": data?.document.fileName, "git_repo": fetchUrl })
 
 				}
-			} catch {}
+			} catch { }
 
 		})
 
