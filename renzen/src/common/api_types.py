@@ -49,3 +49,12 @@ class GetSnippetsRequest:
 
     login_code: str
     fetch_url: str
+
+
+@dataclass(frozen=True)
+class GithubAccessTokenResponse:
+    """Data received from https://github.com/login/oauth/access_token"""
+
+    access_token: str
+    scope: str
+    token_type: str

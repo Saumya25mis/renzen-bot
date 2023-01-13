@@ -1,22 +1,28 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { DiscordMessages } from "@danktuary/react-discord-message";
+import { DiscordMessages, DiscordMessage } from "@danktuary/react-discord-message";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Snippet, SnippetObject } from "./Snippet";
 
+// @ts-ignore
+let vscode = acquireVsCodeApi()
+
+const GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
+const GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
+const GITHUB_LOCAL_OAUTH_PATH = "/"
+
 function App() {
-  const [vscode, setVsCode] = useState<any>(null);
+  // const [vscode, setVsCode] = useState<any>(null);
   const [activePage, setActivePage] = useState<string>("");
   const [gitRepo, setGitRepo] = useState<string>("");
   const [snippetResponse, setSnippetResponse] = useState<SnippetObject[]>([]);
   const [starResponse, setStarResponse] = useState<SnippetObject[]>([]);
   const [debug, setDebug] = useState<boolean>(false);
-  const [visibleStarredSnippets, setVisibleStarredSnippets] = useState<Array<string>>([])
-  const [visibleNonStarredSnippets, setVisibleNonStarredSnippets] = useState<Array<string>>([])
+  const [callbackUri, setCallbackUri] = useState<string>("")
 
   useEffect(() => {
     // @ts-ignore
-    setVsCode(acquireVsCodeApi());
+    // setVsCode(acquireVsCodeApi());
     (document.getElementById('local') as HTMLInputElement).checked = true
   }, []);
 
@@ -34,6 +40,13 @@ function App() {
         setGitRepo(message["git_repo"]);
         console.log("Set gitRepo to: " + message["git_repo"]);
       }
+
+      let callback_string = message["callback"]
+      console.log(callback_string)
+
+      setCallbackUri(callback_string)
+
+
     });
   }, []);
 
@@ -88,6 +101,14 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    window.onload = function () {
+      vscode.postMessage({
+        type: "onPageLoaded",
+      });
+    }
+  }, [])
+
   function getLoginCodesFromInputs(): [string, string, string] {
 
     let selected_checkbox = document.querySelector('input[name="bot"]:checked') as HTMLInputElement
@@ -137,7 +158,10 @@ function App() {
 
     // setVisibleStarredSnippets(visible_snippets)
 
-    return render_snippets
+    return (
+      <DiscordMessage author="Starred Snippets">
+        {render_snippets}
+      </DiscordMessage>)
 
   }
 
@@ -171,8 +195,47 @@ function App() {
 
     visible_starred_snippets = []
 
-    return render_snippets
+    return (
+      <DiscordMessage author="All Snippets">
+        {render_snippets}
+      </DiscordMessage>)
   }
+
+  // async function fetchGithubOauth() {
+
+  //   let options: RequestInit = {
+  //     method: "POST",
+  //     cache: "reload",
+  //     headers: { "Accept": "application/json" }
+  //     // body: JSON.stringify(body),
+  //   };
+
+  //   let url = 'https://github.com/login/oauth/authorize?client_id=${GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_LOCAL_OAUTH_REDIRECT_URI}?path=${GITHUB_LOCAL_OAUTH_PATH}&scope=user:email'
+
+  //   let res = await fetch(url, options);
+
+  //   console.log(res.body)
+
+  // }
+        //  href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_LOCAL_OAUTH_REDIRECT_URI}?path=${GITHUB_LOCAL_OAUTH_PATH}&scope=user:email`}
+
+  // }
+
+
+
+  // const [callbackUri, setCallbackUri] = useState<string>("")
+
+  // useEffect(() => {
+  //   setupCallbackUri();
+  // });
+
+  // const setupCallbackUri = async () => {
+  //   const extensionId = 'renzen.react-webview';
+  //   const awaited_callbackUri = await vscode.env.asExternalUri(
+  //     vscode.Uri.parse(`${vscode.env.uriScheme}://${extensionId}/auth-complete`)
+  //   );
+  //     setCallbackUri(awaited_callbackUri)
+  // }
 
 
   return (
@@ -184,6 +247,13 @@ function App() {
       >
         Toggle Developer Mode
       </button>
+      {callbackUri !=="" && <a
+      href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_LOCAL_OAUTH_REDIRECT_URI}?path=${callbackUri}&scope=user:email`}
+   >
+     Github Oauth
+   </a>}
+
+
       <div className="col">
         {debug && (
           <div>
@@ -282,7 +352,7 @@ function App() {
         </div>
       </div>
       <div className="col">
-        STARRED TO THIS PAGE <br />
+        {/* STARRED TO THIS PAGE <br /> */}
         {debug && (
           <div>
             DEBUG <br />
@@ -294,7 +364,7 @@ function App() {
         </DiscordMessages>
       </div>
       <div className="col">
-        ALL SNIPPETS
+        {/* ALL SNIPPETS */} <br />
         {debug && (
           <div>
             DEBUG <br />

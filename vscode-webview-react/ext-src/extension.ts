@@ -2,11 +2,43 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { API as BuiltInGitApi, GitExtension } from './@types/git';
 
+// This is ${publisher}.${name} from package.json
+const extensionId = 'renzen.vscode-webview-react';
+
 export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('react-webview.start', () => {
 		ReactPanel.createOrShow(context.extensionPath);
 	}));
+
+	// vscode.window.
+
+	vscode.window.registerUriHandler({
+		handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+			// Add your code for what to do when the authentication completes here.
+			if (uri.path === '/auth-complete') {
+				vscode.window.showInformationMessage('Sign in successful!');
+			}
+			console.log('Sign in successful-ish!')
+			vscode.window.showInformationMessage('Sign in successful-ish!');
+		}
+	});
+
+	// Register a sign in command
+	context.subscriptions.push(
+		vscode.commands.registerCommand(`react-webview.signin`, async () => {
+			// Get an externally addressable callback URI for the handler that the authentication provider can use
+			const callbackUri = await vscode.env.asExternalUri(
+				vscode.Uri.parse(`${vscode.env.uriScheme}://${extensionId}/auth-complete`)
+			);
+
+			// Add your code to integrate with an authentication provider here - we'll fake it.
+			vscode.env.clipboard.writeText(callbackUri.toString());
+			await vscode.window.showInformationMessage(
+				'Open the URI copied to the clipboard in a browser window to authorize.'
+			);
+		})
+	);
 }
 
 /**
@@ -61,33 +93,41 @@ class ReactPanel {
 						// vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 						break;
 					}
+				case 'onPageLoaded':
+					{
+						vscode.window.onDidChangeActiveTextEditor(async data => {
+							try {
+								const extension = vscode.extensions.getExtension('vscode.git') as vscode.Extension<GitExtension> //vscode.Extension<GitExtension>;
+								if (extension !== undefined && data !== undefined) {
+									const gitExtension = extension.isActive ? extension.exports : await extension.activate();
+
+									let api = gitExtension.getAPI(1);
+									let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl
+
+									const awaited_callbackUri = await vscode.env.asExternalUri(
+										vscode.Uri.parse(`${vscode.env.uriScheme}://${extensionId}/auth-complete`)
+									);
+									const callback_string = awaited_callbackUri.toString()
+
+									console.log(callback_string)
+
+									if (data.document?.fileName !== null) {
+										console.log('active_name: ' + data.document?.fileName)
+										console.log('fetchUrl: ' + fetchUrl)
+										this._panel.webview.postMessage({ "active_name": data.document.fileName, "git_repo": fetchUrl, "callback": callback_string })
+									}
+								}
+							} catch {
+								console.log("No document or data.")
+							}
+
+						})
+
+					}
 			}
 		});
 
-		vscode.window.onDidChangeActiveTextEditor(async data => {
-			try {
-				const extension = vscode.extensions.getExtension('vscode.git') as vscode.Extension<GitExtension> //vscode.Extension<GitExtension>;
-				if (extension !== undefined) {
-					const gitExtension = extension.isActive ? extension.exports : await extension.activate();
 
-					let api = gitExtension.getAPI(1);
-					// console.log(api.git)
-					// console.log(api.repositories)
-					// let branch_name = api.repositories[0].state.HEAD?.name
-					// let repo_name = api.repositories[0].state.HEAD?.remote //undefined
-					// let upstream = api.repositories[0].state.HEAD?.upstream?.name
-					// let upstream7 = api.repositories[0].state.HEAD?.upstream?.remote.toString()  //orgin
-					// let upstream2 = api.repositories[0].state.refs[0].remote
-					// let upstream3 = api.repositories[0].rootUri.path
-					let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl
-					console.log('active_name: ' + data?.document.fileName)
-					console.log('fetchUrl: ' + fetchUrl)
-					this._panel.webview.postMessage({ "active_name": data?.document.fileName, "git_repo": fetchUrl })
-
-				}
-			} catch { }
-
-		})
 
 		// Listen for when the panel is disposed
 		// This happens when the user closes the panel or when the panel is closed programatically
@@ -144,7 +184,7 @@ class ReactPanel {
 				<meta name="theme-color" content="#000000">
 				<title>React App</title>
 				<link rel="stylesheet" type="text/css" href="${styleUri}">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:* localhost:* *; img-src vscode-resource: https:; script-src 'nonce-${nonce}';style-src vscode-resource: 'unsafe-inline' http: https: data:;">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:* localhost:* *; img-src vscode-resource: https:; script-src 'nonce-${nonce}';style-src 'self' vscode-resource: 'unsafe-inline' http: https: data:;">
 				<base href="${vscode.Uri.file(path.join(this._extensionPath, 'build')).with({ scheme: 'vscode-resource' })}/">
 			</head>
 

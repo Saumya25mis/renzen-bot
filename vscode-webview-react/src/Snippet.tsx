@@ -100,7 +100,7 @@ export const Snippet: React.FC<SnippetProps> = ({
     return (
         <div>
             {render && <div className="border">
-                <DiscordMessage author="renzen">
+                {/* <DiscordMessage author="renzen"> */}
                     <DiscordEmbed
                         url={snippet.url}
                         embedTitle={snippet.parsed_url}
@@ -132,7 +132,7 @@ export const Snippet: React.FC<SnippetProps> = ({
                     >
                         Show Web Page
                     </button>
-                </DiscordMessage>
+                {/* </DiscordMessage> */}
                 {showIframe && <iframe width={"100%"} height={"600"} src={snippet.url}></iframe>}
                 <></>
                 {debug && <div>

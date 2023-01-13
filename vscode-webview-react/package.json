@@ -2,9 +2,9 @@
   "name": "vscode-webview-react",
   "version": "0.1.0",
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.55.2"
   },
-  "publisher": "rebornix",
+  "publisher": "renzen",
   "activationEvents": [
     "onCommand:react-webview.start"
   ],
@@ -13,8 +13,13 @@
     "commands": [
       {
         "command": "react-webview.start",
-        "title": "Start React Webview",
-        "category": "React"
+        "title": "Start Renzen Webview",
+        "category": "Renzen"
+      },
+      {
+        "command": "react-webview.signin",
+        "title": "Renzen Sign In",
+        "category": "Renzen"
       }
     ]
   },
@@ -22,26 +27,25 @@
     "@danktuary/react-discord-message": "^1.0.2",
     "axios": "^1.2.2",
     "bootstrap": "5.3.0-alpha1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "terser": "^5.15.0",
-    "vscode": "^1.1.17",
     "yarn": "^1.22.19"
   },
   "resolutions": {},
   "scripts": {
     "vscode:prepublish": "node ./scripts/build-non-split.js && tsc -p tsconfig.extension.json",
-    "postinstall": "node ./node_modules/vscode/bin/install",
     "start": "react-scripts start",
     "build": "node ./scripts/build-non-split.js && tsc -p tsconfig.extension.json",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.13",
-    "@types/node": "^10.1.2",
-    "@types/react": "^16.3.14",
-    "@types/react-dom": "^16.0.5",
+    "@types/jest": "^29.2.5",
+    "@types/node": "^18.11.18",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "@types/vscode": "^1.55.2",
     "react-scripts": "^5.0.1",
     "rewire": "^6.0.0",
     "typescript": "^4.9.4"

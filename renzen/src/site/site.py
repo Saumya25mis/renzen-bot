@@ -1,3 +1,5 @@
+# pylint: disable=line-too-long
+
 """Expose endpoint for aiohttp server
 
 Used by Chrome Extension and VS code Extension
@@ -9,15 +11,31 @@ import logging
 import os
 from typing import Any, Dict
 
+# import requests
+import aiohttp
 import aiohttp_cors  # type: ignore
+
+# import jwt  # type: ignore
 from aiohttp import web
 from src.common import db_utils, queue_utils
-from src.common.api_types import ForwardRequest, GetSnippetsRequest, StarRequest
+from src.common.api_types import (
+    ForwardRequest,
+    GetSnippetsRequest,
+    GithubAccessTokenResponse,
+    StarRequest,
+)
+
+# from urllib import parse
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
+GITHUB_LOCAL_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
+GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
+GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
+GITHUB_LOCAL_OAUTH_PATH = "/"
 
 
 async def aws_health_check(request: web.Request) -> web.Response:
@@ -132,12 +150,54 @@ cors = aiohttp_cors.setup(
     },
 )
 
-# app.add_routes(
-#     routes=[
-#         web.post("/get_snippets", vs_ext_get_snippets),
-#         web.post("/star", vs_ext_star),
-#     ]
-# )
+
+async def get_github_user(code: str) -> Any:
+    """Get bearer token and fetch user."""
+
+    # step 2 Users are redirected back to your site by GitHub
+    async with aiohttp.request(
+        method="post",
+        url=f"https://github.com/login/oauth/access_token?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&client_secret={GITHUB_LOCAL_OAUTH_CLIENT_SECRET}&code={code}",
+        headers={"Accept": "application/json"},
+    ) as res:
+
+        res_json = await res.json()
+        logger.warning(res_json)
+
+        access_token_response = GithubAccessTokenResponse(**res_json)
+
+        # 3. Use the access token to access the API
+        async with aiohttp.request(
+            method="get",
+            url="https://api.github.com/user",
+            headers={
+                "Authorization": f"{access_token_response.token_type} {access_token_response.access_token}"
+            },
+        ) as user_data:
+
+            # do something with user data
+
+            return await user_data.json()
+
+
+async def github_oauth(request: web.Request) -> None:
+    """Github Oauth."""
+
+    logger.warning("Received github oauth request.")
+
+    code = request.url.query["code"]
+    path = request.url.query["path"]
+
+    user_data = await get_github_user(code=code)
+
+    # temp_secret = "temp_secret"
+
+    # token = jwt.encode(user_data, key=temp_secret)
+
+    # redirect?
+    # temporary query encode
+    # raise web.HTTPFound(path + parse.urlencode({"token": token}), text="HELLO")
+    raise web.HTTPFound(path)
 
 
 resource = cors.add(app.router.add_resource("/get_snippets"))
@@ -151,5 +211,8 @@ cors.add(resource.add_route("POST", chrome_ext_forward))
 
 resource = cors.add(app.router.add_resource("/"))
 cors.add(resource.add_route("GET", aws_health_check))
+
+resource = cors.add(app.router.add_resource("/api/auth/github"))
+cors.add(resource.add_route("GET", github_oauth))
 
 web.run_app(app, port=80, host="0.0.0.0")
