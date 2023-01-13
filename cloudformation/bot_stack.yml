@@ -67,7 +67,7 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: !Sub "${CodeEnvironment} Code Pipeline"
+      Name: !Sub "${CodeEnvironment}-Code-Pipeline"
       RoleArn: !GetAtt BotPipelineRole.Arn
       ArtifactStore:
         Location: !Ref AccountBaseS3Bucket
@@ -113,7 +113,7 @@ Resources:
               RunOrder: 1
         - Name: UpdateCloudformation
           Actions:
-            - Name: "Update Cloudformation"
+            - Name: "Update-Cloudformation"
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -136,7 +136,7 @@ Resources:
 
         - Name: "Deploy"
           Actions:
-            - Name: "Deploy Bot"
+            - Name: "Deploy-Bot"
               ActionTypeId:
                 Category: "Deploy"
                 Owner: "AWS"
@@ -150,7 +150,7 @@ Resources:
               Region: !Ref AWS::Region
               Namespace: "DeployVariables"
               RunOrder: 1
-            - Name: "Deploy API Site"
+            - Name: "Deploy-API-Site"
               ActionTypeId:
                 Category: "Deploy"
                 Owner: "AWS"
