@@ -3,20 +3,6 @@ version: "3.8"
 
 services:
 
-  # renzen-app:
-  #   environment:
-  #     - RUN_LOCAL=1
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - WATCHPACK_POLLING=true
-  #     - FAST_REFRESH=false
-  #   image: renzen-app
-  #   build:
-  #     context: renzen-app
-  #     dockerfile: Dockerfile.dev
-  #   ports:
-  #     - "3000:3000"
-  #   volumes: ['./renzen-app:/data/app/']
-
   bot:
     environment:
       - RUN_LOCAL=1

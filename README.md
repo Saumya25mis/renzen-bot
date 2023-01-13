@@ -49,7 +49,7 @@ The project was designed to take advantage of some of the features of VS code. O
 
 Upon a push to the Github repository onto a development branch, `pre-commit` tests are run that are defined in the `.github` folder. Upon merging the development branch to the `staging` branch, AWS receives notification of the merge and runs through the CodePipeline for that branch, builds all the necessary docker images, pushes them to ECR, and deploys them.
 
-There are currently 3 docker images that are built and deployed: the [bot image](./renzen/src/bot/Dockerfile), the [backend image](./renzen/src/site/Dockerfile) and the [website image](./renzen-app/Dockerfile).
+There are currently 2 docker images that are built and deployed: the [bot image](./renzen/src/bot/Dockerfile) and the [backend image](./renzen/src/site/Dockerfile).
 
 The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec.yml), and the overall CI/CD process is defined in the CodePipeline portion of the [bot_stack.yml](./cloudformation/bot_stack.yml). Using `bot_stack.yml` allows us to create our staging and production branches using different resources and make them independent of each other. It also allows us to create an arbitrary amount of bots. Each bot deployed on AWS also receives a subdomain on `renzen.io` where requests can be sent. The valid subdomain requests are defined [here](./renzen/src/site/site.py). Valid discord bot commands are defined [here](./renzen/src/bot/bot.py).
 
@@ -155,8 +155,6 @@ The purpose of this section is to give a brief overview of the files and in the 
     - These are python libraries we need to be able to run our pre-commit checks.
   - [**setup.py**](renzen/setup.py)
     - This file allows us to install our code as a libary in our Docker Containers.
-- renzen-app
-  - TODO: Currently placeholder dummy app for blank website that is deployed at [renzen.io](renzen.io)
 - scripts
   - [**create_env.template.py**](scripts/create_env_template.py)
     - Generates a template to input bot credentials. Do NOT commit this file to your branch.

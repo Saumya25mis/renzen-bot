@@ -1,13 +1,5 @@
 version: 0.2
 
-# env:
-  # secrets-manager:
-  #   AWS_ACCOUNT_ID: "BotAWSAccountID"
-  # variables:
-  #   IMAGE_TAG: "LatestBot"
-  #   IMAGE_TAG_SITE: "LatestSite"
-  #   IMAGE_REPO_NAME: "bot-repo"
-
 phases:
   pre_build:
     commands:
@@ -27,8 +19,7 @@ phases:
 
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - pip3 install pytest
-      # - echo deregistering tasks...
-      # - python3 scripts/deregister_tasks.py  # move in future only desirable if build is successful...
+
   build:
     on-failure: ABORT
     commands:
@@ -40,15 +31,11 @@ phases:
 
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
-      - IMAGE_TAG_REACT="${CURRENT_ENVIRONMENT}-LatestReact"
-
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
       - echo $AWS_ACCOUNT_ID
       - echo $IMAGE_TAG
       - echo $IMAGE_TAG_SITE
-      - echo $IMAGE_TAG_REACT
-
       - echo $IMAGE_REPO_NAME
 
       - echo Building the Docker image bot...
@@ -62,10 +49,6 @@ phases:
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_SITE -f renzen/src/site/Dockerfile renzen
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_SITE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
 
-      - echo Building the Docker image REACT-APP...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG_REACT -f renzen-app/Dockerfile renzen-app
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG_REACT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT
-
   post_build:
     on-failure: ABORT
     commands:
@@ -75,15 +58,11 @@ phases:
 
       - IMAGE_TAG="${CURRENT_ENVIRONMENT}-LatestBot"
       - IMAGE_TAG_SITE="${CURRENT_ENVIRONMENT}-LatestSite"
-      - IMAGE_TAG_REACT="${CURRENT_ENVIRONMENT}-LatestReact"
-
       - IMAGE_REPO_NAME="${CURRENT_ENVIRONMENT}-bot-repo"
 
       - echo $AWS_ACCOUNT_ID
       - echo $IMAGE_TAG
       - echo $IMAGE_TAG_SITE
-      - echo $IMAGE_TAG_REACT
-
       - echo $IMAGE_REPO_NAME
 
       - pytest
@@ -94,9 +73,6 @@ phases:
       - echo Pushing the Docker image site...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE
 
-      - echo Pushing the Docker image react...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT
-
       - echo Writing image definitions file...
       - mkdir bot
       - cd bot
@@ -106,20 +82,6 @@ phases:
       - cd site
       - printf '[{"name":"%s-site-container","imageUri":"%s"}]' $CURRENT_ENVIRONMENT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_SITE > imagedefinitions.json
       - cd ..
-      - mkdir react
-      - cd react
-      - printf '[{"name":"%s-react-container","imageUri":"%s"}]' $CURRENT_ENVIRONMENT $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_REACT > imagedefinitions.json
-      - cd ..
-
-      # update cloudformation for appropriate stack
-      # - aws cloudformation update-stack --stack-name ${CURRENT_ENVIRONMENT}deploy --template-body file://cloudformation/bot_stack.yml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM
-
-      # CODEBUILD_BUILD_NUMBER -- only do this after first run
-      # update cloudformation after pushing docker imagses
-      # for potential dev branches, would skip this step.
-      # - echo uploading cloudformation files to s3...
-      # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/cloudformation/"
-      # - aws s3 sync cloudformation "s3://cloudformation-files-renzen/buildspecs/"  # use these uploaded buildspecs in dev environment instead of local
 
       - python3 cloudformation/export_parameters.py
 
@@ -137,11 +99,6 @@ artifacts:
       files:
         - imagedefinitions.json
       name: secondary_artifact_name_2
-    secondary_artifact_name_4:
-      base-directory: react
-      files:
-        - imagedefinitions.json
-      name: secondary_artifact_name_4
     secondary_artifact_name_3:
       files:
         - STACK_PARAMETERS.json

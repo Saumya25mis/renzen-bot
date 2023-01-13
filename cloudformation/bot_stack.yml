@@ -11,9 +11,6 @@ Parameters:
   BuildSpecLocation:
     Type: String
     Description: Buildspec location
-    # arn:aws:s3:::my-codebuild-sample2/buildspec.yml
-    # use buildspec from production branch to keep from modfications?
-    # in dev branches
     Default: "buildspecs/deploy_buildspec.yml"
 
   GitHubBranchName:
@@ -70,7 +67,7 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: !Sub "${CodeEnvironment}-BotCodePipeline"
+      Name: !Sub "${CodeEnvironment} Code Pipeline"
       RoleArn: !GetAtt BotPipelineRole.Arn
       ArtifactStore:
         Location: !Ref AccountBaseS3Bucket
@@ -111,15 +108,12 @@ Resources:
                 - Name: "secondary_artifact_name_1"
                 - Name: "secondary_artifact_name_2"
                 - Name: "secondary_artifact_name_3"
-                - Name: "secondary_artifact_name_4"
               Region: !Ref AWS::Region
               Namespace: "BuildVariables"
               RunOrder: 1
-
-        #     # https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-CloudFormation.html
         - Name: UpdateCloudformation
           Actions:
-            - Name: "UpdateCloudformation"
+            - Name: "Update Cloudformation"
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -140,9 +134,9 @@ Resources:
                 - Name: SourceArtifact
                 - Name: secondary_artifact_name_3
 
-        - Name: "DeployBot"
+        - Name: "Deploy"
           Actions:
-            - Name: "DeployMyBot"
+            - Name: "Deploy Bot"
               ActionTypeId:
                 Category: "Deploy"
                 Owner: "AWS"
@@ -156,7 +150,7 @@ Resources:
               Region: !Ref AWS::Region
               Namespace: "DeployVariables"
               RunOrder: 1
-            - Name: "DeployMySite"
+            - Name: "Deploy API Site"
               ActionTypeId:
                 Category: "Deploy"
                 Owner: "AWS"
@@ -169,20 +163,6 @@ Resources:
                 - Name: "secondary_artifact_name_2"
               Region: !Ref AWS::Region
               Namespace: "DeployVariablesSite"
-              RunOrder: 1
-            - Name: "DeployMyReact"
-              ActionTypeId:
-                Category: "Deploy"
-                Owner: "AWS"
-                Provider: "ECS"
-                Version: "1"
-              Configuration:
-                ClusterName: !Sub "${CodeEnvironment}-bot-cluster"
-                ServiceName: !Sub "${CodeEnvironment}-react-service"
-              InputArtifacts:
-                - Name: "secondary_artifact_name_4"
-              Region: !Ref AWS::Region
-              Namespace: "DeployVariablesReact"
               RunOrder: 1
 
   CodeBuildProject:
@@ -263,25 +243,7 @@ Resources:
       Protocol: HTTP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref myTargetGroupReact1
-
-  # rule to send to python backend forwarder if pattern is /forward
-  # otherwise send to react
-  ListenerRule2:
-    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
-    Properties:
-      Actions:
-        - Type: forward
           TargetGroupArn: !Ref myTargetGroupSite
-      Conditions:
-        - Field: path-pattern
-          Values: ["*/forward", "*/get_snippets", "*/star", "*/api/auth/github"]
-          # HttpHeaderConfig:
-          #   HttpHeaderName: User-Agent
-          #   Values:
-          #     - Chrome
-      ListenerArn: !Ref myListenerSite
-      Priority: 1
 
   # Python backend forwarder
   myTargetGroupSite:
@@ -293,21 +255,6 @@ Resources:
       HealthCheckIntervalSeconds: 15
       HealthyThresholdCount: 2
       Name: !Sub "${CodeEnvironment}-myTargetGroupSite"
-      Port: 80
-      Protocol: HTTP
-      TargetType: ip
-      VpcId: !Ref myVPC
-
-  # React backend forwarder
-  myTargetGroupReact1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckEnabled: true
-      HealthCheckPort: 80
-      HealthCheckTimeoutSeconds: 10
-      HealthCheckIntervalSeconds: 15
-      HealthyThresholdCount: 2
-      Name: !Sub "${CodeEnvironment}-myTargetGroupReact1"
       Port: 80
       Protocol: HTTP
       TargetType: ip
@@ -374,35 +321,6 @@ Resources:
           ContainerPort: 80
           ContainerName: !Sub "${CodeEnvironment}-site-container"
 
-  ECSServiceReact:
-    Type: AWS::ECS::Service
-    DependsOn: myListenerSite
-    Properties:
-      ServiceName: !Sub "${CodeEnvironment}-react-service"
-      Cluster:
-        Ref: "ECSCluster"
-      DesiredCount: 1
-      TaskDefinition:
-        Ref: "ECSTaskDefinitionReact"
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
-          SecurityGroups:
-            - !Ref InstanceSecurityGroup
-          Subnets:
-            - !Ref mySubnet1
-            - !Ref mySubnet2
-      SchedulingStrategy: "REPLICA"
-      CapacityProviderStrategy:
-        - CapacityProvider: "FARGATE"
-          Weight: 1
-          Base: 0
-      LoadBalancers:
-        - TargetGroupArn:
-            Ref: myTargetGroupReact1
-          ContainerPort: 80
-          ContainerName: !Sub "${CodeEnvironment}-react-container"
-
   ECSTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
@@ -451,34 +369,6 @@ Resources:
           PortMappings:
             - ContainerPort: 80
       Family: !Sub "${CodeEnvironment}-site-task"
-      TaskRoleArn: !Ref botDeployTaskRole
-      ExecutionRoleArn: !Ref botecsTaskExecutionRole
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities:
-        - "FARGATE"
-      Cpu: "256"
-      Memory: "512"
-
-  ECSTaskDefinitionReact:
-    Type: "AWS::ECS::TaskDefinition"
-    Properties:
-      ContainerDefinitions:
-        - Essential: true
-          Environment:
-            - Name: CURRENT_ENVIRONMENT
-              Value: !Ref CodeEnvironment
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${CodeEnvironment}-bot-repo:${CodeEnvironment}-LatestReact"
-          LogConfiguration:
-            LogDriver: "awslogs"
-            Options:
-              awslogs-create-group: "true"
-              awslogs-group: !Sub "${CodeEnvironment}-bot-react"
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: "react"
-          Name: !Sub "${CodeEnvironment}-react-container"
-          PortMappings:
-            - ContainerPort: 80
-      Family: !Sub "${CodeEnvironment}-react-task"
       TaskRoleArn: !Ref botDeployTaskRole
       ExecutionRoleArn: !Ref botecsTaskExecutionRole
       NetworkMode: "awsvpc"
@@ -639,12 +529,6 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "${CodeEnvironment}-bot-site"
-      RetentionInDays: 30
-
-  myReactLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "${CodeEnvironment}-bot-react"
       RetentionInDays: 30
 
   BotS3Bucket:
