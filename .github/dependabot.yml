@@ -16,7 +16,7 @@ updates:
     directory: "vscode-webview-react/"
     schedule:
       interval: "weekly"
-      
+
   # Maintain dependencies for pip
   - package-ecosystem: "pip"
     directory: "renzen/"
