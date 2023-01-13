@@ -18,7 +18,7 @@ lazy-object-proxy==1.7.1
 mccabe==0.7.0
 multidict==6.0.2
 pika
-platformdirs==2.5.2
+platformdirs==2.6.2
 psycopg2-binary
 pyjwt[crypto]
 pylint==2.15.0
