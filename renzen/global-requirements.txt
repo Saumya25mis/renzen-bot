@@ -21,7 +21,7 @@ pika
 platformdirs==2.6.2
 psycopg2-binary
 pyjwt[crypto]
-pylint==2.15.0
+pylint==2.15.10
 python-dateutil==2.8.2
 s3transfer==0.6.0
 six==1.16.0
