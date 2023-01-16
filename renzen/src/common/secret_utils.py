@@ -79,6 +79,10 @@ if os.getenv("RUN_LOCAL"):
     DB_PORT = 5432
     DB_ENDPOINT = "db"  # "localhost"
     DB_DB = "postgres"
+
+    JWT_SECRET = os.getenv("JWT_LOCAL_SECRET")
+    GITHUB_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
+
 else:
     TOKEN = get_secret(f"{ENV}-DiscordToken")
 
@@ -90,3 +94,6 @@ else:
     DB_USERNAME = DB_INFO["username"]
     DB_PORT = DB_INFO["port"]
     DB_ENDPOINT = DB_INFO["host"]
+
+    JWT_SECRET = get_secret(f"{ENV}-JwtSecret")
+    GITHUB_OAUTH_CLIENT_SECRET = get_secret(f"{ENV}-GithubOauthClientSecret")

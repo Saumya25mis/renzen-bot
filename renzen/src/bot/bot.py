@@ -1,8 +1,10 @@
+# pylint: disable=line-too-long
 """Discord Bot."""
 
 import asyncio
 import logging
 import os
+from urllib import parse
 
 import discord
 from discord.ext import commands
@@ -29,15 +31,34 @@ NOTIFICATION_USER = 273685734483820554
 PRODUCTION_ALERTS_CHANNEL = 1050487198882992268
 STAGING_ALERTS_CHANNEL = 1050487229631451238
 
+GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
+GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
+GITHUB_LOCAL_CALLBACK_URI = "http://localhost:81/"
+
 
 @my_bot.tree.command()
 async def get_code(interaction: discord.Interaction) -> None:
     """Creates code used to sign into chrome extension to save content to discord."""
     logger.info("Command Detected: get_code")
-    login_code = db_utils.create_code_for_discord_user(
-        interaction.user.id, interaction.user.display_name
-    )
-    await interaction.response.send_message(f"Your key is: {login_code.code}")
+    source = "discord"
+    source_id = interaction.user.id
+    source_name = interaction.user.name
+
+    parts = {
+        "dummy_hack": "dummy_hack",  # when uparsing in API this gets mangled instead of needed vars
+        "source": source,
+        "source_id": source_id,
+        "source_name": source_name,
+        "scope": "user:email",
+    }
+
+    params = {
+        "path": (GITHUB_LOCAL_CALLBACK_URI + "?" + parse.urlencode(parts)),
+    }
+    redirect_uri = f"{GITHUB_LOCAL_OAUTH_REDIRECT_URI}?{parse.urlencode(params)}"
+
+    url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri={redirect_uri}"
+    await interaction.response.send_message(f"Your login url is: {url}")
     return
 
 
@@ -67,6 +88,15 @@ async def today(interaction: discord.Interaction) -> None:
     """Returns a summary of snippets saved today."""
     logger.info("Command Detected: today")
     await interaction.response.send_message("Gathering snippets for today...")
+    # embed = discord.Embed(
+    #     title=f"Login through Github",
+    #     description='login',
+    #     colour=discord.Colour.random(),
+    #     url="vscode://renzen.vscode-webview-react/auth-complete?windowId%3D10"
+    # )
+    # await interaction.followup.send(
+    #     embed=embed
+    # )
 
     renzen_user_info = db_utils.get_renzen_user_by_discord_id(interaction.user.id)
     if renzen_user_info:

@@ -5,12 +5,19 @@ import datetime
 import logging
 import os
 import uuid
+from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 from src.common.api_types import VsExtSnippetProps
 from src.common.db_tables import cur
-from src.common.db_types import DiscordUserInfo, LoginCode, RenzenUserInfo, Snippet
+from src.common.db_types import (
+    DiscordUserInfo,
+    GithubUserInfo,
+    LoginCode,
+    RenzenUserInfo,
+    Snippet,
+)
 
 logger = logging.getLogger(__name__)
 CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
@@ -209,6 +216,21 @@ def vs_ext_get_all_user_snippets(renzen_user_id: str) -> List[Snippet]:
     return [Snippet(**fetch) for fetch in fetched]
 
 
+def get_github_user_by_username(github_username: str) -> Optional[GithubUserInfo]:
+    """Get github user by email"""
+
+    sql = """
+    SELECT github_username, github_email, renzen_user_id, creation_timestamp
+    FROM github_user_info
+    WHERE github_username=%(github_username)s
+    """
+    values = {"github_username": github_username}
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    return GithubUserInfo(**fetched) if fetched else None
+
+
 # ID CONVERSIONS
 
 
@@ -277,23 +299,108 @@ def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
 # DISCORD BOT ACTIONS
 
 
-def create_code_for_discord_user(
-    discord_user_id: Union[str, int], discord_user_name: str
+class LoginSource(Enum):
+    """Login Sources."""
+
+    VS_CODE = "vs_code"
+    DISCORD = "discord"
+    CHROME = "chrome"
+
+
+def login_or_create_renzen_user_with_github_oauth(
+    github_username: str,
+    github_email: str,
+    login_source: LoginSource,
+    source_id: Optional[str] = None,
+    source_name: Optional[str] = None,
 ) -> LoginCode:
+    """Creates a renzen user with github credentials.
+    Source id is to associate with discord user for now.
+    """
+
+    github_user_info = get_github_user_by_username(github_username=github_username)
+
+    if not github_user_info:
+        renzen_user_info = create_renzen_user_info(
+            github_username=github_username, github_email=github_email
+        )
+        github_user_info = create_github_user_info(
+            github_username=github_username,
+            github_email=github_email,
+            renzen_user_id=renzen_user_info.renzen_user_id,
+        )
+
+    renzen_user_id = github_user_info.renzen_user_id
+
+    if login_source == LoginSource.DISCORD:
+        if source_id and source_name:
+            discord_user_info = get_discord_user_by_renzen_user_id(
+                renzen_user_id=renzen_user_id
+            )
+            if not discord_user_info:
+                create_discord_user_info(
+                    renzen_user_id=renzen_user_id,
+                    discord_user_id=source_id,
+                    discord_user_name=source_name,
+                )
+        else:
+            raise DBUtilsException
+    elif login_source == LoginSource.VS_CODE:
+        pass
+
+    return create_one_time_code(renzen_user_id=renzen_user_id)
+
+
+def create_renzen_user_info(github_username: str, github_email: str) -> RenzenUserInfo:
+    """Creates code for vs code user"""
+
+    # create renzen user
+    # this is currently the only way to create a renzen user
+    sql = """
+    INSERT INTO renzen_user_info (renzen_user_name, renzen_email)
+    VALUES (%(renzen_user_name)s, %(renzen_email)s)
+    RETURNING renzen_user_id, renzen_user_name, renzen_email, creation_timestamp
+    """
+    values = {"renzen_user_name": github_username, "renzen_email": github_email}
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+    renzen_user_info = RenzenUserInfo(**fetched) if fetched else None
+
+    if not renzen_user_info:
+        raise DBUtilsException
+    return renzen_user_info
+
+
+def create_github_user_info(
+    github_username: str, github_email: str, renzen_user_id: str
+) -> GithubUserInfo:
+    """Creates code for vs code user"""
+
+    # create github user
+    sql = """
+    INSERT INTO github_user_info (github_username, github_email, renzen_user_id)
+    VALUES (%(github_username)s, %(github_email)s, %(renzen_user_id)s)
+    RETURNING github_username, github_email, renzen_user_id, creation_timestamp
+    """
+    values = {
+        "github_username": github_username,
+        "github_email": github_email,
+        "renzen_user_id": renzen_user_id,
+    }
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    github_user_info = GithubUserInfo(**fetched) if fetched else None
+
+    if not github_user_info:
+        raise DBUtilsException
+    return github_user_info
+
+
+def create_one_time_code(renzen_user_id: Union[str, int]) -> LoginCode:
     """Creates codes for users to confirm discord for chrome extension"""
 
-    logger.info("Generating code for %s", (discord_user_name))
-
-    renzen_user_info = get_renzen_user_by_discord_id(discord_user_id)
-    if not renzen_user_info:
-        renzen_user_info = create_renzen_user_from_discord_user_name(discord_user_name)
-
-    # check if user has been add to discord_user_info table
-    discord_user_info = get_discord_user_info_by_discord_id(discord_user_id)
-
-    if not discord_user_info:
-        # user has not been added to discord_user_info table, so create them
-        create_discord_user_info(discord_user_id, discord_user_name, renzen_user_info)
+    logger.info("Generating code for %s", (renzen_user_id))
 
     code = str(uuid.uuid4())  # create new code
 
@@ -304,7 +411,7 @@ def create_code_for_discord_user(
     RETURNING code, renzen_user_id, creation_timestamp
     """
 
-    values = {"renzen_user_id": renzen_user_info.renzen_user_id, "code": code}
+    values = {"renzen_user_id": renzen_user_id, "code": code}
 
     cur.execute(sql, values)
     fetched = cur.fetchone()
@@ -335,7 +442,7 @@ def get_discord_user_info_by_discord_id(
 def create_discord_user_info(
     discord_user_id: Union[str, int],
     discord_user_name: str,
-    renzen_user_info: RenzenUserInfo,
+    renzen_user_id: str,
 ) -> DiscordUserInfo:
     """Create discord user info."""
     sql = """
@@ -348,7 +455,7 @@ def create_discord_user_info(
     values = {
         "discord_user_id": discord_user_id,
         "discord_user_name": discord_user_name,
-        "renzen_user_id": renzen_user_info.renzen_user_id,
+        "renzen_user_id": renzen_user_id,
     }
 
     cur.execute(sql, values)

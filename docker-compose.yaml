@@ -30,6 +30,7 @@ services:
     environment:
       - RUN_LOCAL=1
       - GITHUB_LOCAL_OAUTH_CLIENT_SECRET=${GITHUB_LOCAL_OAUTH_CLIENT_SECRET}
+      - JWT_SECRET=${JWT_LOCAL_SECRET}
     image: site-app
     build:
       context: renzen

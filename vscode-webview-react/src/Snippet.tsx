@@ -42,22 +42,7 @@ export const Snippet: React.FC<SnippetProps> = ({
     debug,
     getLoginCodesFromInputs
 }) => {
-    const [showIframe, setShowIframe] = useState<boolean>(false);
     const [render, setRender] = useState<boolean>(true)
-
-    function flipIframe(): void {
-        setShowIframe(!showIframe);
-    }
-
-    // useEffect(() => {
-    //     if (starred) {
-    //         if (snippet.path !== active_page) {
-    //             setRender(false)
-    //         } else {
-    //             setRender(true)
-    //         }
-    //     }
-    // })
 
     const handleStar = async (req_type: boolean) => {
 
@@ -79,9 +64,6 @@ export const Snippet: React.FC<SnippetProps> = ({
             "fetch_url": fetch_url
         }
 
-        console.log(body)
-
-        // let url = "http://localhost:81/star";
         if (active_page) {
             let options: RequestInit = {
                 method: "POST",
@@ -92,7 +74,7 @@ export const Snippet: React.FC<SnippetProps> = ({
                 body: JSON.stringify(body),
             };
             await fetch(url, options);
-            fetchSnippets()  // refresh
+            fetchSnippets()
         }
     };
 
@@ -100,7 +82,6 @@ export const Snippet: React.FC<SnippetProps> = ({
     return (
         <div>
             {render && <div className="border">
-                {/* <DiscordMessage author="renzen"> */}
                     <DiscordEmbed
                         url={snippet.url}
                         embedTitle={snippet.parsed_url}
@@ -125,16 +106,6 @@ export const Snippet: React.FC<SnippetProps> = ({
                     {starred && <button type="button" className="btn btn-primary" onClick={() => handleStar(false)}>
                         Unstar From Current File
                     </button>}
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={flipIframe}
-                    >
-                        Show Web Page
-                    </button>
-                {/* </DiscordMessage> */}
-                {showIframe && <iframe width={"100%"} height={"600"} src={snippet.url}></iframe>}
-                <></>
                 {debug && <div>
                     DEBUG <br />
                     Path: {snippet.path} <br />

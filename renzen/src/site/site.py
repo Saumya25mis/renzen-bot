@@ -10,6 +10,7 @@ import json
 import logging
 import os
 from typing import Any, Dict
+from urllib import parse
 
 # import requests
 import aiohttp
@@ -17,7 +18,7 @@ import aiohttp_cors  # type: ignore
 
 # import jwt  # type: ignore
 from aiohttp import web
-from src.common import db_utils, queue_utils
+from src.common import db_utils, queue_utils, secret_utils
 from src.common.api_types import (
     ForwardRequest,
     GetSnippetsRequest,
@@ -25,23 +26,21 @@ from src.common.api_types import (
     StarRequest,
 )
 
-# from urllib import parse
-
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
-GITHUB_LOCAL_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
+JWT_SECRET = os.environ["JWT_SECRET"]
+# JWT_SECRET = os.getenv("JWT_SECRET")
+# CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
+# GITHUB_LOCAL_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
 GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
 GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
 GITHUB_LOCAL_OAUTH_PATH = "/"
 
 
-async def aws_health_check(request: web.Request) -> web.Response:
+async def privacy_policy_page(request: web.Request) -> web.Response:
     """Health check response."""
     response_obj = {"status": "success"}
-    # print(response_obj)
     return web.Response(text=json.dumps(response_obj))
 
 
@@ -157,7 +156,7 @@ async def get_github_user(code: str) -> Any:
     # step 2 Users are redirected back to your site by GitHub
     async with aiohttp.request(
         method="post",
-        url=f"https://github.com/login/oauth/access_token?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&client_secret={GITHUB_LOCAL_OAUTH_CLIENT_SECRET}&code={code}",
+        url=f"https://github.com/login/oauth/access_token?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&client_secret={secret_utils.GITHUB_OAUTH_CLIENT_SECRET}&code={code}",
         headers={"Accept": "application/json"},
     ) as res:
 
@@ -175,29 +174,81 @@ async def get_github_user(code: str) -> Any:
             },
         ) as user_data:
 
-            # do something with user data
-
             return await user_data.json()
 
 
+GITHUB_LOCAL_CALLBACK_URI = "http://localhost:81/"
+
+
 async def github_oauth(request: web.Request) -> None:
-    """Github Oauth."""
+    """Github Oauth. Returns redirect with one-time code to get jwt"""
 
     logger.warning("Received github oauth request.")
+    logger.warning(request.url.human_repr())
 
-    code = request.url.query["code"]
-    path = request.url.query["path"]
+    converted_path = parse.parse_qs(request.url.query_string)
+    logger.warning(f"First parse: {converted_path=}")
+
+    # HACKY
+    # if "vscode" in converted_path["path"][0]:
+    #     converted_path = parse.parse_qs(converted_path["path"][0])
+    #     logger.warning(f"second parse: {converted_path=}")
+
+    code = converted_path["code"][0]
+    source = db_utils.LoginSource[str(converted_path["source"][0]).upper()]
+
+    source_id_list = converted_path.get("source_id")  # ex: discord id
+    source_id = source_id_list[0] if source_id_list else None
+
+    source_name_list = converted_path.get("source_name")  # ex: discord username
+    source_name = source_name_list[0] if source_name_list else None
 
     user_data = await get_github_user(code=code)
+    logger.warning(user_data)
 
-    # temp_secret = "temp_secret"
+    follow_up_code = db_utils.login_or_create_renzen_user_with_github_oauth(
+        github_email=user_data["email"],  # can be empty
+        github_username=user_data["login"],
+        login_source=source,
+        source_id=source_id,
+        source_name=source_name,
+    )
 
-    # token = jwt.encode(user_data, key=temp_secret)
+    # silly hack
+    path = converted_path["path"][0].replace("?dummy_hack=dummy_hack", "")
 
-    # redirect?
-    # temporary query encode
-    # raise web.HTTPFound(path + parse.urlencode({"token": token}), text="HELLO")
-    raise web.HTTPFound(path)
+    # redirect
+    # Annoying roundabout way to keep jwt out of URL by returning a one-time-use code for user
+
+    if source == db_utils.LoginSource.VS_CODE:
+        build_char = "&"
+    else:
+        build_char = "?"
+
+    built_redirect_path = (
+        path + build_char + parse.urlencode({"follow-up-code": follow_up_code.code})
+    )
+    logger.warning(f"{built_redirect_path}")
+    raise web.HTTPFound(built_redirect_path)
+
+
+async def github_oauth_jwt_followup(request: web.Request) -> web.Response:
+    """Get jwt using one-time-code"""
+
+    # use code to verify user and delete one-time-use code from db
+    follow_up_code = request.url.query["follow-up-code"]
+    renzen_user_info = db_utils.get_renzen_user_by_code(follow_up_code)
+
+    # code to be used for authentication
+    # token = jwt.encode(
+    #     dataclasses.asdict(renzen_user_info), key=secret_utils.JWT_SECRET
+    # )
+
+    token = dataclasses.asdict(renzen_user_info)  # temp
+
+    return web.Response(
+        text=json.dumps(token, default=str),
+    )
 
 
 resource = cors.add(app.router.add_resource("/get_snippets"))
@@ -210,9 +261,12 @@ resource = cors.add(app.router.add_resource("/forward"))
 cors.add(resource.add_route("POST", chrome_ext_forward))
 
 resource = cors.add(app.router.add_resource("/"))
-cors.add(resource.add_route("GET", aws_health_check))
+cors.add(resource.add_route("GET", privacy_policy_page))
 
 resource = cors.add(app.router.add_resource("/api/auth/github"))
 cors.add(resource.add_route("GET", github_oauth))
+
+resource = cors.add(app.router.add_resource("/follow-up-code"))
+cors.add(resource.add_route("GET", github_oauth_jwt_followup))
 
 web.run_app(app, port=80, host="0.0.0.0")

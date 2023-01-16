@@ -34,6 +34,8 @@ deploy-staging:
 		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_GITHUB_BRANCH} \
 		ParameterKey="CodeEnvironment",ParameterValue="staging" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
+		ParameterKey="GithubOauthClientSecret",ParameterValue=${GITHUB_LOCAL_OAUTH_CLIENT_SECRET} \
+		ParameterKey="JwtSecret",ParameterValue=${JWT_LOCAL_SECRET} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 create-prod:
@@ -60,6 +62,8 @@ create-staging:
 		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_GITHUB_BRANCH} \
 		ParameterKey="CodeEnvironment",ParameterValue="staging" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
+		ParameterKey="GithubOauthClientSecret",ParameterValue=${GITHUB_LOCAL_OAUTH_CLIENT_SECRET} \
+		ParameterKey="JwtSecret",ParameterValue=${JWT_LOCAL_SECRET} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 update-prod:
@@ -86,6 +90,8 @@ update-staging:
 		ParameterKey="GitHubBranchName",ParameterValue=${STAGING_GITHUB_BRANCH} \
 		ParameterKey="CodeEnvironment",ParameterValue="staging" \
 		ParameterKey="HostedZoneId",ParameterValue=${HOSTED_ZONE_ID} \
+		ParameterKey="GithubOauthClientSecret",ParameterValue=${GITHUB_LOCAL_OAUTH_CLIENT_SECRET} \
+		ParameterKey="JwtSecret",ParameterValue=${JWT_LOCAL_SECRET} \
 		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM; \
 
 github-connect:

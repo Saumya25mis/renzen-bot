@@ -27,6 +27,16 @@ Parameters:
     Description: Discord token
     NoEcho: true
 
+  JwtSecret:
+    Type: String
+    Description: Discord token
+    NoEcho: true
+
+  GithubOauthClientSecret:
+    Type: String
+    Description: Discord token
+    NoEcho: true
+
   HostedZoneId:
     Type: String
     Description: hosted zone
@@ -58,6 +68,18 @@ Resources:
     Properties:
       Name: !Sub "${CodeEnvironment}-DiscordToken"
       SecretString: !Ref DiscordToken
+
+  SecretsManagerSecretJwt:
+    Type: "AWS::SecretsManager::Secret"
+    Properties:
+      Name: !Sub "${CodeEnvironment}-JwtSecret"
+      SecretString: !Ref JwtSecret
+
+  SecretsManagerSecretGithubOauthClientSecret:
+    Type: "AWS::SecretsManager::Secret"
+    Properties:
+      Name: !Sub "${CodeEnvironment}-GithubOauthClientSecret"
+      SecretString: !Ref GithubOauthClientSecret
 
   AccountBaseS3Bucket:
     Type: "AWS::S3::Bucket"

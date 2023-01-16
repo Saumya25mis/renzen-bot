@@ -27,6 +27,8 @@ stack_summary = client.describe_stacks(StackName=f"{CODE_ENVIRONMENT}deploy")["S
 # GitHubRepoName
 # HostedZoneId
 # AlertsChannelID
+# JwtSecret
+# GithubOauthClientSecret
 parameters = stack_summary[0]["Parameters"]
 
 parameters_json = {k["ParameterKey"]: k["ParameterValue"] for k in parameters}

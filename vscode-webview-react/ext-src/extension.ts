@@ -13,16 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// vscode.window.
 
-	vscode.window.registerUriHandler({
-		handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-			// Add your code for what to do when the authentication completes here.
-			if (uri.path === '/auth-complete') {
-				vscode.window.showInformationMessage('Sign in successful!');
-			}
-			console.log('Sign in successful-ish!')
-			vscode.window.showInformationMessage('Sign in successful-ish!');
-		}
-	});
+
 
 	// Register a sign in command
 	context.subscriptions.push(
@@ -85,6 +76,8 @@ class ReactPanel {
 		// Set the webview's initial html content
 		this._panel.webview.html = this._getHtmlForWebview();
 
+		let web_view = this._panel.webview
+
 		this._panel.webview.onDidReceiveMessage(data => {
 			switch (data.type) {
 				case 'myMessage':
@@ -99,6 +92,22 @@ class ReactPanel {
 							try {
 								const extension = vscode.extensions.getExtension('vscode.git') as vscode.Extension<GitExtension> //vscode.Extension<GitExtension>;
 								if (extension !== undefined && data !== undefined) {
+
+									vscode.window.registerUriHandler({
+										handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+											// Add your code for what to do when the authentication completes here.
+											if (uri.path === '/auth-complete') {
+												vscode.window.showInformationMessage('Sign in successful!');
+											}
+
+											console.log('Sign in successful-ish!')
+											vscode.window.showInformationMessage('Sign in successful-ish!');
+
+											vscode.window.showInformationMessage(uri.query)
+											web_view.postMessage({"URI": uri.query})
+										}
+									});
+
 									const gitExtension = extension.isActive ? extension.exports : await extension.activate();
 
 									let api = gitExtension.getAPI(1);

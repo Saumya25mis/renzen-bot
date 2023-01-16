@@ -9,7 +9,6 @@ let vscode = acquireVsCodeApi()
 
 const GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
 const GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
-const GITHUB_LOCAL_OAUTH_PATH = "/"
 
 function App() {
   // const [vscode, setVsCode] = useState<any>(null);
@@ -19,6 +18,7 @@ function App() {
   const [starResponse, setStarResponse] = useState<SnippetObject[]>([]);
   const [debug, setDebug] = useState<boolean>(false);
   const [callbackUri, setCallbackUri] = useState<string>("")
+  const [UriData, setUriData] = useState<string>("")
 
   useEffect(() => {
     // @ts-ignore
@@ -30,6 +30,11 @@ function App() {
   useEffect(() => {
     window.addEventListener("message", async (event) => {
       const message = event.data; // The json data that the extension sent
+
+      if ('URI' in message){
+        console.log("found uri data.")
+        setUriData(message.get('URI'))
+      }
 
       if (typeof message["active_name"] !== "undefined") {
         setActivePage(message["active_name"]);
@@ -44,7 +49,27 @@ function App() {
       let callback_string = message["callback"]
       console.log(callback_string)
 
-      setCallbackUri(callback_string)
+      let source = "vs_code"
+      let source_id = "None"
+      let source_name = "None"
+
+      let parts = new URLSearchParams({
+        "dummy_hack": "dummy_hack",  // when uparsing in API this gets mangled instead of needed vars
+        "source": source,
+        "source_id": source_id,
+        "source_name": source_name,
+        "scope": "user:email",
+      })
+
+      let params = {
+          "path": (callback_string + "?" + parts.toString()),
+      }
+
+      let redirect_uri = GITHUB_LOCAL_OAUTH_REDIRECT_URI+"?"+ (new URLSearchParams(params)).toString()
+
+      let url = "https://github.com/login/oauth/authorize?client_id="+GITHUB_LOCAL_OAUTH_CLIENT_ID+"&redirect_uri="+redirect_uri
+
+      setCallbackUri(url)
 
 
     });
@@ -248,7 +273,8 @@ function App() {
         Toggle Developer Mode
       </button>
       {callbackUri !=="" && <a
-      href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_LOCAL_OAUTH_REDIRECT_URI}?path=${callbackUri}&scope=user:email`}
+      href = {callbackUri}
+      // href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_LOCAL_OAUTH_REDIRECT_URI}?path=${callbackUri}&scope=user:email?source=vs_code`}
    >
      Github Oauth
    </a>}

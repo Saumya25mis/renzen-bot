@@ -10,7 +10,18 @@ class RenzenUserInfo:
     renzen_user_id: str  # PK
     renzen_user_name: str  # UNIQUE
     creation_timestamp: datetime.datetime
+    renzen_email: str
     password: str = ""  # unused for now
+
+
+@dataclass(frozen=True)
+class GithubUserInfo:
+    """Holds data from github_user_info table"""
+
+    github_username: str
+    github_email: str
+    renzen_user_id: str
+    creation_timestamp: str
 
 
 @dataclass(frozen=True)

@@ -31,8 +31,20 @@ cur.execute(
         renzen_user_id serial PRIMARY KEY,
 
         renzen_user_name varchar(255) UNIQUE,
+        renzen_email varchar(255) UNIQUE,
         password varchar(255),
 
+        creation_timestamp timestamp NOT NULL DEFAULT NOW()
+    )
+    """
+)
+
+# GITHUB_USER_INFO
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS github_user_info (
+        github_username varchar(255) UNIQUE PRIMARY KEY,
+        github_email varchar(255),
+        renzen_user_id BIGINT REFERENCES renzen_user_info NOT NULL,
         creation_timestamp timestamp NOT NULL DEFAULT NOW()
     )
     """
@@ -44,7 +56,7 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS discord_user_info (
 
         discord_user_id BIGINT PRIMARY KEY,
-        renzen_user_id BIGINT REFERENCES renzen_user_info,
+        renzen_user_id BIGINT REFERENCES renzen_user_info NOT NULL,
         discord_user_name varchar(255),
         creation_timestamp timestamp NOT NULL DEFAULT NOW()
     )
