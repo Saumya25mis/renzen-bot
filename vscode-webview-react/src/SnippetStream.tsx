@@ -57,6 +57,9 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
   const [dontShowAsStarred, setDontShowAsStarred] = useState<SnippetObject[]>(
     []
   );
+  const [debugResponse, setdebugResponse] = useState<string>(
+    ""
+  );
 
   useEffect(() => {
     fetchSnippets();
@@ -92,6 +95,8 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
         let visible_starred_snippets: Array<string> = [];
 
         let render_snippets: Array<any> = [];
+
+        setdebugResponse(JSON.stringify(snippet_response))
 
         star_response.map((snippet_object) => {
           if (snippet_object.path === activePage) {
@@ -147,14 +152,17 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
   };
 
   return (
-    <div className="col">
-      <DiscordMessages author="Starred To Page">
+    <div>
+    <DiscordMessages>
+      <DiscordMessage author="Starred To Page">
         {showAsStarred}
-      </DiscordMessages>
+      </DiscordMessage>
       <br />
-      <DiscordMessages author="All Snippets">
+      <DiscordMessage author="All Snippets">
         {dontShowAsStarred}
-      </DiscordMessages>
+      </DiscordMessage>
+    </DiscordMessages>
+    {debug && debugResponse}
     </div>
   );
 };

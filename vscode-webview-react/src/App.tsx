@@ -43,7 +43,7 @@ import {
   GITHUB_LOCAL_OAUTH_REDIRECT_URI,
 } from "./constants";
 
-import settingsImage from "./icons/settings.png";
+// import settingsImage from "./icons/settings.png";
 
 function App() {
   // const [vscode, setVsCode] = useState<any>(null);
@@ -59,14 +59,16 @@ function App() {
     // @ts-ignore
     (document.getElementById("apiDropdown") as HTMLSelectElement).value =
       "local";
-    (document.getElementById("github-oauth") as HTMLButtonElement).disabled =
-      true;
+    (document.getElementById("github-oauth") as HTMLAnchorElement).href = "#";
     setApiVersion(ApiLocal);
   }, []);
 
   // receive messages from vs code (current active page and git repository)
   useEffect(() => {
-    window.addEventListener("message", async (event) => {
+    // window.removeEventListener("message", resolveMessages)
+    window.addEventListener("message", resolveMessages);
+
+    async function resolveMessages(event: any) {
       const message = event.data; // The json data that the extension sent
 
       if ("URI" in message && message["URI"]) {
@@ -94,19 +96,29 @@ function App() {
 
       if ("active_file_name" in message) {
         if (typeof message["active_file_name"] !== "undefined") {
-          console.log('setActivePage to '+message["active_file_name"]+" previous value: "+activePage)
+          console.log(
+            "setActivePage to " +
+              message["active_file_name"] +
+              " previous value: " +
+              activePage
+          );
           setActivePage(message["active_file_name"]);
         }
       }
 
       if ("git_repo" in message) {
         if (message["git_repo"] !== "") {
-          console.log('setGitRepo to '+message["git_repo"]+" previous value: "+gitRepo)
+          console.log(
+            "setGitRepo to " +
+              message["git_repo"] +
+              " previous value: " +
+              gitRepo
+          );
           setGitRepo(message["git_repo"]);
         }
       }
 
-      if ("github_login_uri_callback" in message && githubLoginUri == "") {
+      if ("github_login_uri_callback" in message) {
         let github_login_uri_callback = message["github_login_uri_callback"];
 
         let parts = new URLSearchParams({
@@ -136,14 +148,16 @@ function App() {
           redirect_uri;
 
         // final url used by HREF in login link
-        console.log('setGithubLoginUri to '+message["github_login_uri_callback"]+" previous value: "+githubLoginUri)
+        console.log(
+          "setGithubLoginUri to " +
+            message["github_login_uri_callback"] +
+            " previous value: " +
+            githubLoginUri
+        );
         setGithubLoginUri(url);
-        (
-          document.getElementById("github-oauth") as HTMLButtonElement
-        ).disabled = false;
       }
-    });
-  }, []);
+    }
+  }); //, [githubLoginUri, activePage, gitRepo]);
 
   useEffect(() => {
     window.onload = function () {
@@ -153,84 +167,98 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (githubLoginUri !== "" && gitRepo !== "") {
+      (document.getElementById("github-oauth") as HTMLAnchorElement).href =
+        githubLoginUri;
+    } else {
+      (document.getElementById("github-oauth") as HTMLAnchorElement).href = "#";
+    }
+  }, [githubLoginUri, gitRepo]);
+
   return (
     <div className="container">
-      <VSCodePanels>
-        <VSCodePanelTab id="tab-1">Home</VSCodePanelTab>
-        <VSCodePanelTab id="tab-2">
-          Settings<span> </span>
-          <img src={settingsImage} width="15px" height="15px" />
-        </VSCodePanelTab>
+      <div className="col">
+        <VSCodePanels>
+          <VSCodePanelTab id="tab-1">Home</VSCodePanelTab>
+          <VSCodePanelTab id="tab-2">
+            Settings<span> </span>
+            {/* <img src={settingsImage} width="15px" height="15px" /> */}
+          </VSCodePanelTab>
 
-        <VSCodePanelView id="view-1">
-          <div className="row">
-            <div className="col">
-              {/* For some reason 'fetch' doesn't work instead of href
+          <VSCodePanelView id="view-1">
+            <div className="row">
+              <div className="col">
+                {/* For some reason 'fetch' doesn't work instead of href
                 So haven't figured out how to use `VSCodeButton` for this... */}
-              <a
-                id="github-oauth"
-                className="btn btn-dark"
-                role="button"
-                href={githubLoginUri}
-              >
-                Github Oauth
-              </a>
-            </div>
-            <div className="col">
-              {decodedJwt && <div>Welcome! {decodedJwt.renzen_user_name}</div>}
-            </div>
-            <div className="col"></div>
-          </div>
-        </VSCodePanelView>
-        <VSCodePanelView id="view-2">
-          <div className="container">
-            <div className="col">
-              <div className="row">
-                <VSCodeButton
-                  onClick={() => {
-                    setDebug(!debug);
-                  }}
+                <a
+                  id="github-oauth"
+                  className="btn btn-dark"
+                  role="button"
+                  href={"#"}
+                  // href={githubLoginUri}
                 >
-                  Toggle Developer Mode
-                </VSCodeButton>
+                  Github Oauth
+                </a>
               </div>
-              <div className="row">
-                <div>
-                  API Version
-                  <VSCodeDropdown id="apiDropdown">
-                    <VSCodeOption
-                      value={"production"}
-                      onClick={() => {
-                        setApiVersion(ApiProduction);
-                      }}
-                    >
-                      Production
-                    </VSCodeOption>
-                    <VSCodeOption
-                      value={"staging"}
-                      onClick={() => {
-                        setApiVersion(ApiStaging);
-                      }}
-                    >
-                      Staging
-                    </VSCodeOption>
-                    <VSCodeOption
-                      value={"local"}
-                      onClick={() => {
-                        setApiVersion(ApiLocal);
-                      }}
-                    >
-                      Local
-                    </VSCodeOption>
-                  </VSCodeDropdown>
+              <div className="col">
+                {decodedJwt && (
+                  <div>Welcome! {decodedJwt.renzen_user_name}</div>
+                )}
+              </div>
+              <div className="col"></div>
+            </div>
+          </VSCodePanelView>
+          <VSCodePanelView id="view-2">
+            <div className="container">
+              <div className="col">
+                <div className="row">
+                  <VSCodeButton
+                    onClick={() => {
+                      setDebug(!debug);
+                    }}
+                  >
+                    Toggle Developer Mode
+                  </VSCodeButton>
+                </div>
+                <div className="row">
+                  <div className="row">
+                    API Version
+                  </div>
+                  <div className="row">
+                    <VSCodeDropdown id="apiDropdown">
+                      <VSCodeOption
+                        value={"production"}
+                        onClick={() => {
+                          setApiVersion(ApiProduction);
+                        }}
+                      >
+                        Production
+                      </VSCodeOption>
+                      <VSCodeOption
+                        value={"staging"}
+                        onClick={() => {
+                          setApiVersion(ApiStaging);
+                        }}
+                      >
+                        Staging
+                      </VSCodeOption>
+                      <VSCodeOption
+                        value={"local"}
+                        onClick={() => {
+                          setApiVersion(ApiLocal);
+                        }}
+                      >
+                        Local
+                      </VSCodeOption>
+                    </VSCodeDropdown>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </VSCodePanelView>
-      </VSCodePanels>
+          </VSCodePanelView>
+        </VSCodePanels>
 
-      <div className="col">
         {debug && (
           <div>
             <div>{activePage}</div>
@@ -238,18 +266,17 @@ function App() {
             <div>{gitRepo}</div>
           </div>
         )}
-        <div className="p-3">
-          <div className="container"></div>
-        </div>
+
+          <SnippetStream
+            activePage={activePage}
+            apiVersion={apiVersion}
+            gitRepo={gitRepo}
+            debug={debug}
+            jwt={jwt}
+            decodedJwt={decodedJwt}
+          />
+
       </div>
-      <SnippetStream
-        activePage={activePage}
-        apiVersion={apiVersion}
-        gitRepo={gitRepo}
-        debug={debug}
-        jwt={jwt}
-        decodedJwt={decodedJwt}
-      />
     </div>
   );
 }

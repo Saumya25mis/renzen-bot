@@ -11,6 +11,16 @@ export function activate(context: vscode.ExtensionContext) {
       ReactPanel.createOrShow(context.extensionPath, context.extensionUri);
     })
   );
+
+  vscode.window.registerUriHandler({
+    handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+      if (uri.path === "/auth-complete") {
+        vscode.window.showInformationMessage("Sign in successful!")
+        ReactPanel.currentPanel?._panel?.webview.postMessage({ URI: uri.query });
+      }
+    },
+  })
+
 }
 
 /**
@@ -24,7 +34,7 @@ class ReactPanel {
 
   private static readonly viewType = "react";
 
-  private readonly _panel: vscode.WebviewPanel;
+  public readonly _panel: vscode.WebviewPanel;
   private readonly _extensionPath: string;
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
@@ -63,6 +73,7 @@ class ReactPanel {
       {
         // Enable javascript in the webview
         enableScripts: true,
+        retainContextWhenHidden: true,
       }
     );
 
@@ -71,6 +82,10 @@ class ReactPanel {
 
     let web_view = this._panel.webview;
 
+    function handleActiveChange(data: any) {
+      web_view.postMessage(data);
+    }
+
     this._panel.webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
         case "myMessage": {
@@ -78,54 +93,46 @@ class ReactPanel {
           break;
         }
         case "onPageLoaded": {
-          const extension = vscode.extensions.getExtension(
-            "vscode.git"
-          ) as vscode.Extension<GitExtension>;
           console.log("ONPAGELOADED");
-          //if (extension !== undefined && data !== undefined) {
-          vscode.window.registerUriHandler({
-            handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-              if (uri.path === "/auth-complete") {
-                vscode.window.showInformationMessage("Sign in successful!");
-              }
-              web_view.postMessage({ URI: uri.query });
-            },
-          });
 
-          const gitExtension = extension.isActive
-            ? extension.exports
-            : await extension.activate();
-
-          let api = gitExtension.getAPI(1);
           vscode.window.onDidChangeActiveTextEditor(async (data) => {
-            try {
-              console.log("onDidChangeActiveTextEditor");
+            console.log("onDidChangeActiveTextEditor");
 
-              let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl;
+            const extension = vscode.extensions.getExtension(
+              "vscode.git"
+            ) as vscode.Extension<GitExtension>;
 
-              const github_login_uri_callback = (
-                await vscode.env.asExternalUri(
-                  vscode.Uri.parse(
-                    `${vscode.env.uriScheme}://${extensionId}/auth-complete`
-                  )
+            const gitExtension = extension.isActive
+              ? extension.exports
+              : await extension.activate();
+
+            let api = gitExtension.getAPI(1);
+
+            let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl;
+
+            const github_login_uri_callback = (
+              await vscode.env.asExternalUri(
+                vscode.Uri.parse(
+                  `${vscode.env.uriScheme}://${extensionId}/auth-complete`
                 )
-              ).toString();
+              )
+            ).toString();
 
-              console.log("active_file_name: " + data?.document?.fileName);
-              console.log(
-                "github_login_uri_callback: " + github_login_uri_callback
-              );
-              console.log("fetchUrl: " + fetchUrl);
-
+            console.log("active_file_name: " + data?.document?.fileName);
+            console.log(
+              "github_login_uri_callback: " + github_login_uri_callback
+            );
+            console.log("fetchUrl: " + fetchUrl);
+            try {
               if (data?.document?.fileName !== null && fetchUrl !== "") {
-                this._panel.webview.postMessage({
+                handleActiveChange({
                   active_file_name: data?.document?.fileName,
                   git_repo: fetchUrl,
                   github_login_uri_callback: github_login_uri_callback,
                 });
               }
             } catch (error) {
-              console.log("CATCH No document or data. " + error);
+              console.log("CATCH No fileName or fetchUrl. " + error);
             }
           });
         }

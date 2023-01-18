@@ -4,16 +4,16 @@
         "target": "es6",
         "outDir": "build",
         "lib": [
-			"es6",
-			"dom"
+            "es6",
+            "dom"
         ],
         "sourceMap": true,
         "rootDir": ".",
         "strict": true
-	},
-	"include": [
-		"ext-src"
-	],
+    },
+    "include": [
+        "ext-src"
+    ],
     "exclude": [
         "node_modules",
         ".vscode-test"

@@ -83,17 +83,17 @@ export const Snippet: React.FC<SnippetProps> = ({
 
   return (
     <div>
-      <div className="border">
         <DiscordEmbed
           url={snippet.url}
           embedTitle={snippet.parsed_url}
           timestamp={snippet.creation_timestamp}
+          slot="embeds"
         >
           <a href={snippet.url}>{snippet.parsed_url}</a>
           <DiscordEmbedFields slot="fields">
             <DiscordEmbedField
               fieldTitle={snippet.title}
-              inline={true}
+              // inline={true}
             >
               {snippet.snippet}
             </DiscordEmbedField>
@@ -122,7 +122,6 @@ export const Snippet: React.FC<SnippetProps> = ({
             Active Page: {active_page} <br />
           </div>
         )}
-      </div>
     </div>
   );
 };
