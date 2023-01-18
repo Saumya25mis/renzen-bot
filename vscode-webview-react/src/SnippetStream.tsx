@@ -60,7 +60,7 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
 
   useEffect(() => {
     fetchSnippets();
-  }, [activePage, apiVersion, gitRepo, jwt, decodedJwt]);
+  }, [activePage, apiVersion, gitRepo, jwt, decodedJwt, debug]);
 
   const fetchSnippets = async () => {
     console.log("Fetching Snippets");
