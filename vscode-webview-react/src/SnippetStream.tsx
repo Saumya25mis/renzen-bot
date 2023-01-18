@@ -4,6 +4,8 @@ import {
   DiscordMessages,
   DiscordMessage,
   DiscordMention,
+  DiscordDefaultOptions,
+  DiscordOptionsContext,
 } from "@danktuary/react-discord-message";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Snippet } from "./Snippet";
@@ -45,6 +47,12 @@ import {
   sendMessage,
 } from "./constants";
 
+const discordOptions = {
+  ...DiscordDefaultOptions,
+  lightTheme: true,
+  darkThemse: false,
+};
+
 export const SnippetStream: React.FC<SnippetStreamProps> = ({
   activePage,
   apiVersion,
@@ -57,9 +65,7 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
   const [dontShowAsStarred, setDontShowAsStarred] = useState<SnippetObject[]>(
     []
   );
-  const [debugResponse, setdebugResponse] = useState<string>(
-    ""
-  );
+  const [debugResponse, setdebugResponse] = useState<string>("");
 
   useEffect(() => {
     fetchSnippets();
@@ -96,7 +102,7 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
 
         let render_snippets: Array<any> = [];
 
-        setdebugResponse(JSON.stringify(snippet_response))
+        setdebugResponse(JSON.stringify(snippet_response));
 
         star_response.map((snippet_object) => {
           if (snippet_object.path === activePage) {
@@ -153,16 +159,22 @@ export const SnippetStream: React.FC<SnippetStreamProps> = ({
 
   return (
     <div>
-    <DiscordMessages>
-      <DiscordMessage author="Starred To Page">
-        {showAsStarred}
-      </DiscordMessage>
-      <br />
-      <DiscordMessage author="All Snippets">
-        {dontShowAsStarred}
-      </DiscordMessage>
-    </DiscordMessages>
-    {debug && debugResponse}
+      <DiscordOptionsContext.Provider value={discordOptions}>
+        <DiscordMessages>
+          <DiscordMessage author="Starred To Page">
+            {showAsStarred}
+          </DiscordMessage>
+        </DiscordMessages>
+        <br />
+        <VSCodeDivider />
+        <br />
+        <DiscordMessages>
+          <DiscordMessage author="All Snippets">
+            {dontShowAsStarred}
+          </DiscordMessage>
+        </DiscordMessages>
+        {debug && debugResponse}
+      </DiscordOptionsContext.Provider>
     </div>
   );
 };

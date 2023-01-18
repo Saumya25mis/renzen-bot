@@ -1190,7 +1190,7 @@
 
 "@danktuary/react-discord-message@https://github.com/renadvent/react-discord-message":
   version "1.0.2"
-  resolved "https://github.com/renadvent/react-discord-message#04650e470f07fa76cd8a9528472e57d6fee72de8"
+  resolved "https://github.com/renadvent/react-discord-message#8852159f56e0292f7a1a805707c783022d925e7d"
   dependencies:
     "@babel/runtime" "^7.12.5"
     hex-to-rgba "^1.0.2"

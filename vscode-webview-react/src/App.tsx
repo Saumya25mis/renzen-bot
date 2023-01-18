@@ -202,6 +202,12 @@ function App() {
                 </a>
               </div>
               <div className="col">
+                {!decodedJwt && (
+                  <div>
+                    Click on a page in your Repository, then click on the Github
+                    Oauth button to begin
+                  </div>
+                )}
                 {decodedJwt && (
                   <div>Welcome! {decodedJwt.renzen_user_name}</div>
                 )}
@@ -218,13 +224,11 @@ function App() {
                       setDebug(!debug);
                     }}
                   >
-                    Toggle Developer Mode
+                    Toggle Debug Mode
                   </VSCodeButton>
                 </div>
                 <div className="row">
-                  <div className="row">
-                    API Version
-                  </div>
+                  <div className="row">API Version</div>
                   <div className="row">
                     <VSCodeDropdown id="apiDropdown">
                       <VSCodeOption
@@ -252,12 +256,28 @@ function App() {
                         Local
                       </VSCodeOption>
                     </VSCodeDropdown>
+                    {/* <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br /> */}
+                    <div className="row">
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </VSCodePanelView>
         </VSCodePanels>
+
+        <br />
+        <VSCodeDivider />
+        <br />
 
         {debug && (
           <div>
@@ -267,15 +287,14 @@ function App() {
           </div>
         )}
 
-          <SnippetStream
-            activePage={activePage}
-            apiVersion={apiVersion}
-            gitRepo={gitRepo}
-            debug={debug}
-            jwt={jwt}
-            decodedJwt={decodedJwt}
-          />
-
+        <SnippetStream
+          activePage={activePage}
+          apiVersion={apiVersion}
+          gitRepo={gitRepo}
+          debug={debug}
+          jwt={jwt}
+          decodedJwt={decodedJwt}
+        />
       </div>
     </div>
   );
