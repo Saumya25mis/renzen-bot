@@ -240,7 +240,7 @@ def get_renzen_user_by_discord_id(
     """Gets renzen id from discord id."""
 
     sql = """
-    Select ri.renzen_user_id, ri.renzen_user_name, ri.creation_timestamp
+    Select ri.renzen_user_id, ri.renzen_user_name, ri.creation_timestamp, ri.renzen_email
     FROM discord_user_info di
     JOIN renzen_user_info ri
     ON ri.renzen_user_id = di.renzen_user_id
@@ -276,12 +276,12 @@ def get_discord_user_by_renzen_user_id(
 
 
 def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
-    """Queries the DB by code and returns discords user"""
+    """Queries the DB by code and returns renzen user"""
 
     logger.info("Querying by code")
 
     sql = """
-    SELECT ri.renzen_user_id, ri.creation_timestamp, ri.renzen_user_name
+    SELECT ri.renzen_user_id, ri.creation_timestamp, ri.renzen_user_name, ri.renzen_email
     FROM login_codes lc
     JOIN renzen_user_info ri
     ON lc.renzen_user_id = ri.renzen_user_id
@@ -289,6 +289,25 @@ def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
     """
 
     values = {"code": code}
+
+    cur.execute(sql, values)
+    fetched = cur.fetchone()
+
+    return RenzenUserInfo(**fetched) if fetched else None
+
+
+def get_renzen_user_by_username(username: Union[str, int]) -> Optional[RenzenUserInfo]:
+    """Queries the DB by username and returns renzen user"""
+
+    logger.info("Querying by username")
+
+    sql = """
+    SELECT renzen_user_id, creation_timestamp, renzen_user_name, renzen_email
+    FROM renzen_user_info
+    WHERE renzen_user_name = %(username)s
+    """
+
+    values = {"username": username}
 
     cur.execute(sql, values)
     fetched = cur.fetchone()
@@ -588,4 +607,18 @@ def invalidate_codes(renzen_user_id: Union[str, int]) -> None:
     cur.execute(
         sql,
         {"value": renzen_user_id},
+    )
+
+
+def invalidate_code(code: Union[str, int]) -> None:
+    """Queries the DB by discord_user_id and deletes all codes"""
+
+    logger.info("Invalidating code %s", code)
+
+    sql = """DELETE FROM login_codes
+            WHERE code = %(code)s
+        """
+    cur.execute(
+        sql,
+        {"code": code},
     )

@@ -47,7 +47,7 @@ class ForwardRequest:
 class GetSnippetsRequest:
     """Data received for get snippets request"""
 
-    login_code: str
+    # login_code: str
     fetch_url: str
 
 

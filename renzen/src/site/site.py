@@ -15,8 +15,7 @@ from urllib import parse
 # import requests
 import aiohttp
 import aiohttp_cors  # type: ignore
-
-# import jwt  # type: ignore
+import jwt  # type: ignore
 from aiohttp import web
 from src.common import db_utils, queue_utils, secret_utils
 from src.common.api_types import (
@@ -82,13 +81,22 @@ async def chrome_ext_forward(request: web.Request) -> web.Response:
 async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     """Return snippets when provided login code."""
 
+    # CHECK HEADER
+    auth_header = request.headers["Authorization"]
+    logger.warning(f"{auth_header=}")
+    to_decode = auth_header.split(" ")[1]
+    logger.warning(f"{to_decode=}")
+    token = jwt.decode(to_decode, secret_utils.JWT_SECRET, algorithms=["HS256"])
+
+    logger.warning(f"{token=}")
+
+    renzen_user_info = db_utils.get_renzen_user_by_username(token["renzen_user_name"])
+
     logger.warning("Received get snippets code request.")
 
     request_json = await request.json()
     logger.warning(f"vs_ext_get_snippets {request_json=}")
     get_snippets_request: GetSnippetsRequest = GetSnippetsRequest(**request_json)
-
-    renzen_user_info = db_utils.get_renzen_user_by_code(get_snippets_request.login_code)
 
     if renzen_user_info:
 
@@ -108,13 +116,15 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
         }
 
     else:
-        api_response_obj = {"error": "Code does not correspond to user."}
+        api_response_obj = {"error": "Something went wrong."}
 
     return web.Response(text=json.dumps(api_response_obj, default=str))
 
 
 async def vs_ext_star(request: web.Request) -> web.Response:
     """Associates file page with snippet."""
+
+    # CHECK HEADER
 
     logger.warning("Received star request.")
 
@@ -238,16 +248,15 @@ async def github_oauth_jwt_followup(request: web.Request) -> web.Response:
     # use code to verify user and delete one-time-use code from db
     follow_up_code = request.url.query["follow-up-code"]
     renzen_user_info = db_utils.get_renzen_user_by_code(follow_up_code)
+    db_utils.invalidate_code(code=follow_up_code)
 
-    # code to be used for authentication
-    # token = jwt.encode(
-    #     dataclasses.asdict(renzen_user_info), key=secret_utils.JWT_SECRET
-    # )
+    payload = dataclasses.asdict(renzen_user_info)
+    payload.pop("creation_timestamp")
 
-    token = dataclasses.asdict(renzen_user_info)  # temp
+    encoded_jwt = jwt.encode(payload, secret_utils.JWT_SECRET, algorithm="HS256")  # type: ignore
 
     return web.Response(
-        text=json.dumps(token, default=str),
+        text=encoded_jwt,
     )
 
 
@@ -267,6 +276,6 @@ resource = cors.add(app.router.add_resource("/api/auth/github"))
 cors.add(resource.add_route("GET", github_oauth))
 
 resource = cors.add(app.router.add_resource("/follow-up-code"))
-cors.add(resource.add_route("GET", github_oauth_jwt_followup))
+cors.add(resource.add_route("POST", github_oauth_jwt_followup))
 
 web.run_app(app, port=80, host="0.0.0.0")

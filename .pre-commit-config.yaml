@@ -46,6 +46,8 @@ repos:
             botocore==1.27.64,
             discord.py==2.0.1,
             psycopg2-binary,
+            PyJWT,
+            cryptography
             # types-psycopg2,
             # boto3-stubs,
             # types-setuptools,

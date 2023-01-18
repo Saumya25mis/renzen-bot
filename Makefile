@@ -7,6 +7,12 @@ endif
 
 AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
 
+package:
+	vsce package
+
+install-vs-ext:
+	code --install-extension vscode-webview-react-0.1.0.vsix
+
 run-local:
 	docker compose up --build
 

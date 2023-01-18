@@ -24,9 +24,13 @@
     ]
   },
   "dependencies": {
-    "@danktuary/react-discord-message": "^1.0.2",
+    "@danktuary/react-discord-message": "https://github.com/renadvent/react-discord-message",
+    "@microsoft/fast-react-wrapper": "^0.3.16-0",
+    "@types/jwt-decode": "^3.1.0",
+    "@vscode/webview-ui-toolkit": "^1.2.1",
     "axios": "^1.2.2",
     "bootstrap": "5.3.0-alpha1",
+    "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "terser": "^5.15.0",

@@ -80,7 +80,7 @@ if os.getenv("RUN_LOCAL"):
     DB_ENDPOINT = "db"  # "localhost"
     DB_DB = "postgres"
 
-    JWT_SECRET = os.getenv("JWT_LOCAL_SECRET")
+    JWT_SECRET = os.getenv("JWT_SECRET")
     GITHUB_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
 
 else:

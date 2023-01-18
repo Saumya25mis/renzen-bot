@@ -37,7 +37,7 @@ GITHUB_LOCAL_CALLBACK_URI = "http://localhost:81/"
 
 
 @my_bot.tree.command()
-async def get_code(interaction: discord.Interaction) -> None:
+async def login_with_github(interaction: discord.Interaction) -> None:
     """Creates code used to sign into chrome extension to save content to discord."""
     logger.info("Command Detected: get_code")
     source = "discord"
@@ -59,6 +59,26 @@ async def get_code(interaction: discord.Interaction) -> None:
 
     url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri={redirect_uri}"
     await interaction.response.send_message(f"Your login url is: {url}")
+    return
+
+
+@my_bot.tree.command()
+async def get_chrome_code(interaction: discord.Interaction) -> None:
+    """Creates code used to sign into chrome extension to save content to discord."""
+
+    renzen_user_info = db_utils.get_renzen_user_by_discord_id(interaction.user.id)
+
+    if renzen_user_info:
+        login_code = db_utils.create_one_time_code(renzen_user_info.renzen_user_id)
+
+        # temporary until can
+        await interaction.response.send_message(
+            f"Your Chrome Extension Key is: {login_code.code}"
+        )
+    else:
+        await interaction.response.send_message(
+            "Could not generate Chrome Extension Key"
+        )
     return
 
 
