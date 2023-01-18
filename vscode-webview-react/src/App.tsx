@@ -226,9 +226,12 @@ function App() {
                   >
                     Toggle Debug Mode
                   </VSCodeButton>
+                  <VSCodeDivider/>
                 </div>
                 <div className="row">
-                  <div className="row">API Version</div>
+                  <br />
+                  <div className="row"><br />API Version<br /></div>
+                  <br />
                   <div className="row">
                     <VSCodeDropdown id="apiDropdown">
                       <VSCodeOption
