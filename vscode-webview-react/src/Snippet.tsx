@@ -7,29 +7,40 @@ import {
   DiscordEmbedFields,
 } from "@danktuary/react-discord-message";
 import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  VSCodeTextField,
+  VSCodeDropdown,
+  VSCodeOption,
+  VSCodeBadge,
+  VSCodeButton,
+  VSCodeCheckbox,
+  VSCodeDataGrid,
+  VSCodeDataGridCell,
+  VSCodeDataGridRow,
+  VSCodeDivider,
+  VSCodeLink,
+  VSCodePanels,
+  VSCodePanelTab,
+  VSCodePanelView,
+  VSCodeProgressRing,
+  VSCodeRadio,
+  VSCodeRadioGroup,
+  VSCodeTag,
+  VSCodeTextArea,
+} from "@vscode/webview-ui-toolkit/react";
 
-export interface SnippetObject {
-  snippet_id: string;
-  renzen_user_id: string;
-  title: string;
-  snippet: string;
-  url: string;
-  parsed_url: string;
-  creation_timestamp: string;
-  path: string;
-  star_id: string;
-}
-
-export interface SnippetProps {
-  snippet: SnippetObject;
-  fetchSnippets: any; // function to reload snippets
-  active_page: string; // current active page in vs code
-  starred: boolean; // is this a starred snippet?
-  fetch_url: string; // the current github repository
-  debug: boolean;
-  getLoginCodesFromInputs: any;
-  jwt: any;
-}
+import {
+  DecodedJWt,
+  ApiVersion,
+  ApiProduction,
+  ApiStaging,
+  ApiLocal,
+  SnippetObject,
+  SnippetProps,
+  vscode,
+  GITHUB_LOCAL_OAUTH_CLIENT_ID,
+  GITHUB_LOCAL_OAUTH_REDIRECT_URI,
+} from "./constants";
 
 export const Snippet: React.FC<SnippetProps> = ({
   snippet,
@@ -38,20 +49,13 @@ export const Snippet: React.FC<SnippetProps> = ({
   starred,
   fetch_url,
   debug,
-  getLoginCodesFromInputs,
+  apiVersion,
   jwt,
 }) => {
-  const [render, setRender] = useState<boolean>(true);
-
   const handleStar = async (req_type: boolean) => {
     let page_path = active_page; // to star
-    let [url, login_code, prod_type] = getLoginCodesFromInputs();
 
-    if (prod_type === "local") {
-      url = "http://localhost:81/star";
-    } else {
-      url = "http://" + prod_type + ".renzen.io/star";
-    }
+    let url = apiVersion.url_prefix + "star";
 
     let body = {
       page_path: page_path,
@@ -79,56 +83,46 @@ export const Snippet: React.FC<SnippetProps> = ({
 
   return (
     <div>
-      {render && (
-        <div className="border">
-          <DiscordEmbed
-            url={snippet.url}
-            embedTitle={snippet.parsed_url}
-            timestamp={snippet.creation_timestamp}
-          >
-            <a href={snippet.url}>{snippet.parsed_url}</a>
-            <DiscordEmbedFields slot="fields">
-              <DiscordEmbedField
-                fieldTitle={"#" + snippet.snippet_id + ": " + snippet.title}
-                inline={true}
-              >
-                {snippet.snippet}
-              </DiscordEmbedField>
-            </DiscordEmbedFields>
-            <span slot="footer">
-              <a href={snippet.url}>{snippet.url}</a>
-            </span>
-          </DiscordEmbed>
-          {!starred && (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => handleStar(true)}
+      <div className="border">
+        <DiscordEmbed
+          url={snippet.url}
+          embedTitle={snippet.parsed_url}
+          timestamp={snippet.creation_timestamp}
+        >
+          <a href={snippet.url}>{snippet.parsed_url}</a>
+          <DiscordEmbedFields slot="fields">
+            <DiscordEmbedField
+              fieldTitle={snippet.title}
+              inline={true}
             >
-              Star To Current File
-            </button>
-          )}
-          {starred && (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => handleStar(false)}
-            >
-              Unstar From Current File
-            </button>
-          )}
-          {debug && (
-            <div>
-              DEBUG <br />
-              Path: {snippet.path} <br />
-              Star ID: {snippet.star_id} <br />
-              Starred: {starred.valueOf()} <br />
-              Fetch Url: {fetch_url} <br />
-              Active Page: {active_page} <br />
-            </div>
-          )}
-        </div>
-      )}
+              {snippet.snippet}
+            </DiscordEmbedField>
+          </DiscordEmbedFields>
+          <span slot="footer">
+            <a href={snippet.url}>{snippet.url}</a>
+          </span>
+        </DiscordEmbed>
+        {!starred && (
+          <VSCodeButton onClick={() => handleStar(true)}>
+            Star To Current File
+          </VSCodeButton>
+        )}
+        {starred && (
+          <VSCodeButton onClick={() => handleStar(false)}>
+            Unstar From Current File
+          </VSCodeButton>
+        )}
+        {debug && (
+          <div>
+            DEBUG <br />
+            Path: {snippet.path} <br />
+            Star ID: {snippet.star_id} <br />
+            Starred: {starred.valueOf()} <br />
+            Fetch Url: {fetch_url} <br />
+            Active Page: {active_page} <br />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

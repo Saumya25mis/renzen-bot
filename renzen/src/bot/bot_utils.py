@@ -119,9 +119,7 @@ async def send_formatted_discord_message(snippet: db_types.Snippet) -> discord.E
         url=snippet.url, colour=discord.Colour.random(), title=parsed_url.netloc
     )
 
-    embed.add_field(
-        name=f"# {snippet.snippet_id}: {snippet.title}", value=f"```{snippet_text}```"
-    )
+    embed.add_field(name=f"{snippet.title}", value=f"```{snippet_text}```")
     embed.set_footer(text=snippet.url)
 
     return embed

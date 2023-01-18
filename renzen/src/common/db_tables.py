@@ -28,7 +28,7 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 cur.execute(
     """CREATE TABLE IF NOT EXISTS renzen_user_info (
 
-        renzen_user_id serial PRIMARY KEY,
+        renzen_user_id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
 
         renzen_user_name varchar(255) UNIQUE,
         renzen_email varchar(255) UNIQUE,
@@ -44,7 +44,7 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS github_user_info (
         github_username varchar(255) UNIQUE PRIMARY KEY,
         github_email varchar(255),
-        renzen_user_id BIGINT REFERENCES renzen_user_info NOT NULL,
+        renzen_user_id uuid REFERENCES renzen_user_info NOT NULL,
         creation_timestamp timestamp NOT NULL DEFAULT NOW()
     )
     """
@@ -56,7 +56,7 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS discord_user_info (
 
         discord_user_id BIGINT PRIMARY KEY,
-        renzen_user_id BIGINT REFERENCES renzen_user_info NOT NULL,
+        renzen_user_id uuid REFERENCES renzen_user_info NOT NULL,
         discord_user_name varchar(255),
         creation_timestamp timestamp NOT NULL DEFAULT NOW()
     )
@@ -69,7 +69,7 @@ cur.execute(
 
         code varchar(255) PRIMARY KEY,
         creation_timestamp timestamp NOT NULL DEFAULT NOW(),
-        renzen_user_id BIGINT REFERENCES renzen_user_info ON DELETE CASCADE
+        renzen_user_id uuid REFERENCES renzen_user_info ON DELETE CASCADE
     )
     """
 )
@@ -78,8 +78,8 @@ cur.execute(
 cur.execute(
     """CREATE TABLE IF NOT EXISTS snippets (
 
-        renzen_user_id BIGINT REFERENCES renzen_user_info ON DELETE CASCADE,
-        snippet_id serial PRIMARY KEY,
+        renzen_user_id uuid REFERENCES renzen_user_info ON DELETE CASCADE,
+        snippet_id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
         title TEXT,
         url TEXT,
         parsed_url TEXT,
@@ -93,8 +93,8 @@ cur.execute(
 cur.execute(
     """CREATE TABLE IF NOT EXISTS pages (
 
-        page_id serial PRIMARY KEY,
-        renzen_user_id BIGINT REFERENCES renzen_user_info ON DELETE CASCADE,
+        page_id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+        renzen_user_id uuid REFERENCES renzen_user_info ON DELETE CASCADE,
         path TEXT,
         fetch_url TEXT,
         creation_timestamp timestamp NOT NULL DEFAULT NOW(),
@@ -110,9 +110,9 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS snippet_page_junction (
 
         star_id serial PRIMARY KEY,
-        renzen_user_id BIGINT REFERENCES renzen_user_info ON DELETE CASCADE,
-        page_id BIGINT REFERENCES pages(page_id) ON DELETE CASCADE,
-        snippet_id BIGINT REFERENCES snippets(snippet_id) ON DELETE CASCADE,
+        renzen_user_id uuid REFERENCES renzen_user_info ON DELETE CASCADE,
+        page_id uuid REFERENCES pages(page_id) ON DELETE CASCADE,
+        snippet_id uuid REFERENCES snippets(snippet_id) ON DELETE CASCADE,
         creation_timestamp timestamp NOT NULL DEFAULT NOW(),
         branch_name TEXT,
 

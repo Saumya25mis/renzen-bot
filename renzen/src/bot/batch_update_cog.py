@@ -49,7 +49,10 @@ class BatchForwardSnippets(commands.Cog):
                 else:
                     message_json = json.loads(message)
 
-                db_id = json.loads(message_json["request_content"])
+                logger.warning(f"cog {message_json=}")
+
+                db_id = message_json["request_content"]
+                # db_id = json.loads(message_json["request_content"])
 
                 snippet = db_utils.load_snippet_from_db(db_id)
                 if snippet:

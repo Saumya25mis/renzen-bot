@@ -6,7 +6,7 @@ import {
   DiscordMention,
 } from "@danktuary/react-discord-message";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Snippet, SnippetObject } from "./Snippet";
+import { SnippetStream } from "./SnippetStream";
 import jwt_decode from "jwt-decode";
 import {
   VSCodeTextField,
@@ -30,29 +30,38 @@ import {
   VSCodeTextArea,
 } from "@vscode/webview-ui-toolkit/react";
 
+import {
+  DecodedJWt,
+  ApiVersion,
+  ApiProduction,
+  ApiStaging,
+  ApiLocal,
+  SnippetObject,
+  SnippetProps,
+  vscode,
+  GITHUB_LOCAL_OAUTH_CLIENT_ID,
+  GITHUB_LOCAL_OAUTH_REDIRECT_URI,
+} from "./constants";
+
 import settingsImage from "./icons/settings.png";
-
-// @ts-ignore
-let vscode = acquireVsCodeApi();
-
-const GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93";
-const GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github";
 
 function App() {
   // const [vscode, setVsCode] = useState<any>(null);
   const [activePage, setActivePage] = useState<string>("");
   const [gitRepo, setGitRepo] = useState<string>("");
-  const [snippetResponse, setSnippetResponse] = useState<SnippetObject[]>([]);
-  const [starResponse, setStarResponse] = useState<SnippetObject[]>([]);
   const [debug, setDebug] = useState<boolean>(false);
-  const [callbackUri, setCallbackUri] = useState<string>("");
-  const [UriData, setUriData] = useState<string>("");
+  const [githubLoginUri, setGithubLoginUri] = useState<string>("");
   const [jwt, setJwt] = useState<object>({});
-  const [decodedJwt, setDecodedJwt] = useState<object>({});
+  const [decodedJwt, setDecodedJwt] = useState<DecodedJWt>();
+  const [apiVersion, setApiVersion] = useState<ApiVersion>(ApiLocal);
 
   useEffect(() => {
     // @ts-ignore
-    (document.getElementById("local") as HTMLInputElement).checked = true;
+    (document.getElementById("apiDropdown") as HTMLSelectElement).value =
+      "local";
+    (document.getElementById("github-oauth") as HTMLButtonElement).disabled =
+      true;
+    setApiVersion(ApiLocal);
   }, []);
 
   // receive messages from vs code (current active page and git repository)
@@ -60,15 +69,13 @@ function App() {
     window.addEventListener("message", async (event) => {
       const message = event.data; // The json data that the extension sent
 
-      if ("URI" in message) {
-        console.log("found uri data.");
-
+      if ("URI" in message && message["URI"]) {
         const params = new URLSearchParams(message["URI"]);
         const follow_up_code = params.get("follow-up-code");
-        console.log("follow up code: " + follow_up_code);
         const url =
-          "http://localhost:81/follow-up-code?follow-up-code=" + follow_up_code;
-        console.log("url: " + url);
+          apiVersion.url_prefix +
+          "follow-up-code?follow-up-code=" +
+          follow_up_code;
 
         let options: RequestInit = {
           method: "POST",
@@ -76,119 +83,67 @@ function App() {
         };
 
         let jwt = await fetch(url, options);
-        console.log("fetched");
         let jwt_text = await jwt.text();
+        let decoded = jwt_decode(jwt_text);
 
-        console.log("jwt text: " + jwt_text);
-        var decoded = jwt_decode(jwt_text);
-        console.log("decoded: " + JSON.stringify(decoded));
         // @ts-ignore
         setJwt(jwt_text);
         // @ts-ignore
         setDecodedJwt(decoded);
-
-        setUriData(message["URI"]);
       }
 
-      if ("active_name" in message) {
-        if (typeof message["active_name"] !== "undefined") {
-          setActivePage(message["active_name"]);
-          console.log("Set activePage to: " + message["active_name"]);
+      if ("active_file_name" in message) {
+        if (typeof message["active_file_name"] !== "undefined") {
+          console.log('setActivePage to '+message["active_file_name"]+" previous value: "+activePage)
+          setActivePage(message["active_file_name"]);
         }
       }
 
       if ("git_repo" in message) {
         if (message["git_repo"] !== "") {
+          console.log('setGitRepo to '+message["git_repo"]+" previous value: "+gitRepo)
           setGitRepo(message["git_repo"]);
-          console.log("Set gitRepo to: " + message["git_repo"]);
         }
       }
 
-      if ("callback" in message) {
-        let callback_string = message["callback"];
-        console.log(callback_string);
-
-        let source = "vs_code";
-        let source_id = "None";
-        let source_name = "None";
+      if ("github_login_uri_callback" in message && githubLoginUri == "") {
+        let github_login_uri_callback = message["github_login_uri_callback"];
 
         let parts = new URLSearchParams({
           dummy_hack: "dummy_hack", // when uparsing in API this gets mangled instead of needed vars
-          source: source,
-          source_id: source_id,
-          source_name: source_name,
+          source: "vs_code",
+          source_id: "None",
+          source_name: "None",
           scope: "user:email",
         });
 
+        // API uses to open VS code (and pass one-time-code) after logging in
         let params = {
-          path: callback_string + "?" + parts.toString(),
+          path: github_login_uri_callback + "?" + parts.toString(),
         };
 
+        // URL to redirect back to API
         let redirect_uri =
           GITHUB_LOCAL_OAUTH_REDIRECT_URI +
           "?" +
           new URLSearchParams(params).toString();
 
+        // URL used to login to github
         let url =
           "https://github.com/login/oauth/authorize?client_id=" +
           GITHUB_LOCAL_OAUTH_CLIENT_ID +
           "&redirect_uri=" +
           redirect_uri;
 
-        setCallbackUri(url);
+        // final url used by HREF in login link
+        console.log('setGithubLoginUri to '+message["github_login_uri_callback"]+" previous value: "+githubLoginUri)
+        setGithubLoginUri(url);
+        (
+          document.getElementById("github-oauth") as HTMLButtonElement
+        ).disabled = false;
       }
     });
   }, []);
-
-  useEffect(() => {
-    const buttons = document.getElementsByName(
-      "bot"
-    ) as NodeListOf<HTMLInputElement>;
-    buttons.forEach((button) => {
-      button.onclick = () => {
-        fetchSnippets();
-      };
-    });
-  }, []);
-
-  useEffect(() => {
-    fetchSnippets();
-  }, [gitRepo, activePage, jwt, UriData, decodedJwt, callbackUri]);
-
-  const fetchSnippets = async () => {
-    console.log("Fetching Snippets");
-
-    let [url, login_code, prod_type] = getLoginCodesFromInputs();
-
-    console.log("Git repo in fetch: " + gitRepo);
-
-    if (gitRepo !== "" && Object.keys(jwt).length !== 0) {
-      try {
-        let options: RequestInit = {
-          method: "POST",
-          cache: "reload",
-          headers: {
-            "Content-Type": "application/json;charset=utf-8",
-            Authorization: "Bearer " + jwt.toString(),
-          },
-          body: JSON.stringify({
-            fetch_url: gitRepo,
-          }),
-        };
-        console.log(options);
-        let snippetData = await fetch(url, options);
-        let data = await snippetData.json();
-        setSnippetResponse(data["all_dicts"]);
-        setStarResponse(data["starred_dicts"]);
-        console.log(data);
-        if (debug) {
-          sendMessage("Fetched: " + " " + "gitRepo");
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
 
   useEffect(() => {
     window.onload = function () {
@@ -198,144 +153,79 @@ function App() {
     };
   }, []);
 
-  function getLoginCodesFromInputs(): [string, string, string] {
-    let selected_checkbox = document.querySelector(
-      'input[name="bot"]:checked'
-    ) as HTMLInputElement;
-    console.log([selected_checkbox.value, ""]);
-    return [selected_checkbox.value, "", selected_checkbox.id];
-  }
-
-  function toggleDebugMode(): void {
-    setDebug(!debug);
-  }
-
-  function sendMessage(message: string): void {
-    vscode.postMessage({ type: "myMessage", value: message });
-  }
-
-  let visible_starred_snippets: Array<string> = [];
-
-  function renderStarred() {
-    let render_snippets: Array<any> = [];
-
-    starResponse.map((snippet_object) => {
-      if (snippet_object.path === activePage) {
-        visible_starred_snippets.push(snippet_object.snippet_id);
-
-        render_snippets.push(
-          <Snippet
-            key={snippet_object.star_id}
-            active_page={activePage}
-            snippet={snippet_object}
-            starred={true}
-            fetchSnippets={fetchSnippets}
-            getLoginCodesFromInputs={getLoginCodesFromInputs}
-            fetch_url={gitRepo}
-            debug={debug}
-            jwt={jwt}
-          />
-        );
-      }
-    });
-
-    return (
-      <DiscordMessage author="Starred Snippets">
-        {render_snippets}
-      </DiscordMessage>
-    );
-  }
-
-  function renderNonStarred() {
-    let render_snippets: Array<any> = [];
-
-    snippetResponse.map((snippet_object) => {
-      let found = visible_starred_snippets.includes(snippet_object.snippet_id);
-
-      if (!found) {
-        render_snippets.push(
-          <Snippet
-            key={snippet_object.snippet_id}
-            active_page={activePage}
-            snippet={snippet_object}
-            starred={false}
-            getLoginCodesFromInputs={getLoginCodesFromInputs}
-            fetchSnippets={fetchSnippets}
-            fetch_url={gitRepo}
-            debug={debug}
-            jwt={jwt}
-          />
-        );
-      }
-    });
-
-    visible_starred_snippets = [];
-
-    return (
-      <DiscordMessage author="All Snippets">{render_snippets}</DiscordMessage>
-    );
-  }
-
   return (
     <div className="container">
       <VSCodePanels>
         <VSCodePanelTab id="tab-1">Home</VSCodePanelTab>
         <VSCodePanelTab id="tab-2">
-          Settings
+          Settings<span> </span>
           <img src={settingsImage} width="15px" height="15px" />
         </VSCodePanelTab>
 
         <VSCodePanelView id="view-1">
-          {callbackUri !== "" && (
-            <a className="btn btn-info" role="button" href={callbackUri}>
-              Github Oauth
-            </a>
-          )}
+          <div className="row">
+            <div className="col">
+              {/* For some reason 'fetch' doesn't work instead of href
+                So haven't figured out how to use `VSCodeButton` for this... */}
+              <a
+                id="github-oauth"
+                className="btn btn-dark"
+                role="button"
+                href={githubLoginUri}
+              >
+                Github Oauth
+              </a>
+            </div>
+            <div className="col">
+              {decodedJwt && <div>Welcome! {decodedJwt.renzen_user_name}</div>}
+            </div>
+            <div className="col"></div>
+          </div>
         </VSCodePanelView>
         <VSCodePanelView id="view-2">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={toggleDebugMode}
-          >
-            Toggle Developer Mode
-          </button>
-          <div>API Version</div>
-          <div className="input-group input-group-sm mb-3 justify-content-center">
-            <div className="input-group-text">
-              <input
-                className="form-check-input"
-                type="radio"
-                id="local"
-                name="bot"
-                value="http://localhost:81/get_snippets"
-              />
+          <div className="container">
+            <div className="col">
+              <div className="row">
+                <VSCodeButton
+                  onClick={() => {
+                    setDebug(!debug);
+                  }}
+                >
+                  Toggle Developer Mode
+                </VSCodeButton>
+              </div>
+              <div className="row">
+                <div>
+                  API Version
+                  <VSCodeDropdown id="apiDropdown">
+                    <VSCodeOption
+                      value={"production"}
+                      onClick={() => {
+                        setApiVersion(ApiProduction);
+                      }}
+                    >
+                      Production
+                    </VSCodeOption>
+                    <VSCodeOption
+                      value={"staging"}
+                      onClick={() => {
+                        setApiVersion(ApiStaging);
+                      }}
+                    >
+                      Staging
+                    </VSCodeOption>
+                    <VSCodeOption
+                      value={"local"}
+                      onClick={() => {
+                        setApiVersion(ApiLocal);
+                      }}
+                    >
+                      Local
+                    </VSCodeOption>
+                  </VSCodeDropdown>
+                </div>
+              </div>
             </div>
-            <div className="input-group-text">Local</div>
-          </div>
-          <div className="input-group input-group-sm mb-3 justify-content-center">
-            <div className="input-group-text">
-              <input
-                className="form-check-input mt-0"
-                type="radio"
-                id="staging"
-                name="bot"
-                value="http://staging.renzen.io/get_snippets"
-              />
-            </div>
-            <div className="input-group-text">Staging</div>
-          </div>
-          <div className="input-group input-group-sm mb-3 justify-content-center">
-            <div className="input-group-text">
-              <input
-                className="form-check-input mt-0"
-                type="radio"
-                id="production"
-                name="bot"
-                value="http://production.renzen.io/get_snippets"
-              />
-            </div>
-            <div className="input-group-text">Production</div>
           </div>
         </VSCodePanelView>
       </VSCodePanels>
@@ -349,38 +239,17 @@ function App() {
           </div>
         )}
         <div className="p-3">
-          <div className="container">
-            <div className="border">
-              <VSCodeDropdown>
-                <VSCodeOption>Option Label #1</VSCodeOption>
-                <VSCodeOption>Option Label #2</VSCodeOption>
-                <VSCodeOption>Option Label #3</VSCodeOption>
-              </VSCodeDropdown>
-
-              <VSCodeTextField value={"hi"} />
-            </div>
-          </div>
+          <div className="container"></div>
         </div>
       </div>
-      <div className="col">
-        {debug && (
-          <div>
-            DEBUG <br />
-            {JSON.stringify(starResponse)}
-          </div>
-        )}
-        <DiscordMessages>{renderStarred()}</DiscordMessages>
-      </div>
-      <div className="col">
-        <br />
-        {debug && (
-          <div>
-            DEBUG <br />
-            {JSON.stringify(snippetResponse)}
-          </div>
-        )}
-        <DiscordMessages>{renderNonStarred()}</DiscordMessages>
-      </div>
+      <SnippetStream
+        activePage={activePage}
+        apiVersion={apiVersion}
+        gitRepo={gitRepo}
+        debug={debug}
+        jwt={jwt}
+        decodedJwt={decodedJwt}
+      />
     </div>
   );
 }

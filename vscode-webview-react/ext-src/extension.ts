@@ -71,59 +71,61 @@ class ReactPanel {
 
     let web_view = this._panel.webview;
 
-    this._panel.webview.onDidReceiveMessage((data) => {
+    this._panel.webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
         case "myMessage": {
-          vscode.window.showErrorMessage(data.value);
+          vscode.window.showInformationMessage(data.value);
           break;
         }
         case "onPageLoaded": {
+          const extension = vscode.extensions.getExtension(
+            "vscode.git"
+          ) as vscode.Extension<GitExtension>;
+          console.log("ONPAGELOADED");
+          //if (extension !== undefined && data !== undefined) {
+          vscode.window.registerUriHandler({
+            handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+              if (uri.path === "/auth-complete") {
+                vscode.window.showInformationMessage("Sign in successful!");
+              }
+              web_view.postMessage({ URI: uri.query });
+            },
+          });
+
+          const gitExtension = extension.isActive
+            ? extension.exports
+            : await extension.activate();
+
+          let api = gitExtension.getAPI(1);
           vscode.window.onDidChangeActiveTextEditor(async (data) => {
             try {
-              const extension = vscode.extensions.getExtension(
-                "vscode.git"
-              ) as vscode.Extension<GitExtension>;
-              if (extension !== undefined && data !== undefined) {
-                vscode.window.registerUriHandler({
-                  handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-                    // Add your code for what to do when the authentication completes here.
-                    if (uri.path === "/auth-complete") {
-                      vscode.window.showInformationMessage(
-                        "Sign in successful!"
-                      );
-                    }
-                    web_view.postMessage({ URI: uri.query });
-                  },
-                });
+              console.log("onDidChangeActiveTextEditor");
 
-                const gitExtension = extension.isActive
-                  ? extension.exports
-                  : await extension.activate();
+              let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl;
 
-                let api = gitExtension.getAPI(1);
-                let fetchUrl = api.repositories[0].state.remotes[0].fetchUrl;
-
-                const awaited_callbackUri = await vscode.env.asExternalUri(
+              const github_login_uri_callback = (
+                await vscode.env.asExternalUri(
                   vscode.Uri.parse(
                     `${vscode.env.uriScheme}://${extensionId}/auth-complete`
                   )
-                );
-                const callback_string = awaited_callbackUri.toString();
+                )
+              ).toString();
 
-                console.log(callback_string);
+              console.log("active_file_name: " + data?.document?.fileName);
+              console.log(
+                "github_login_uri_callback: " + github_login_uri_callback
+              );
+              console.log("fetchUrl: " + fetchUrl);
 
-                if (data.document?.fileName !== null) {
-                  console.log("active_name: " + data.document?.fileName);
-                  console.log("fetchUrl: " + fetchUrl);
-                  this._panel.webview.postMessage({
-                    active_name: data.document.fileName,
-                    git_repo: fetchUrl,
-                    callback: callback_string,
-                  });
-                }
+              if (data?.document?.fileName !== null && fetchUrl !== "") {
+                this._panel.webview.postMessage({
+                  active_file_name: data?.document?.fileName,
+                  git_repo: fetchUrl,
+                  github_login_uri_callback: github_login_uri_callback,
+                });
               }
-            } catch {
-              console.log("No document or data.");
+            } catch (error) {
+              console.log("CATCH No document or data. " + error);
             }
           });
         }
@@ -146,12 +148,6 @@ class ReactPanel {
       null,
       this._disposables
     );
-  }
-
-  public doRefactor() {
-    // Send a message to the webview webview.
-    // You can send any JSON serializable data.
-    this._panel.webview.postMessage({ command: "refactor" });
   }
 
   public dispose() {
@@ -198,7 +194,13 @@ class ReactPanel {
 				<meta name="theme-color" content="#000000">
 				<title>React App</title>
 				<link rel="stylesheet" type="text/css" href="${styleUri}">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:* localhost:* *; img-src vscode-resource: https: data:; script-src 'nonce-${nonce}';style-src 'self' vscode-resource: 'unsafe-inline' http: https: data:;">
+
+				<meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' http://localhost:* localhost:* *;
+        img-src vscode-resource: https: data:;
+        script-src 'nonce-${nonce}';
+        style-src 'self' vscode-resource: 'unsafe-inline' http: https: data:;">
+
 				<base href="${this._panel.webview.asWebviewUri(
           vscode.Uri.joinPath(this._extensionUri, "build")
         )}/">
