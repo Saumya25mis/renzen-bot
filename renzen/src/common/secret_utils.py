@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 def get_secret(secret_name: str) -> Any:
     """Get discord secrets."""
 
+    secret = None
+
     logger.info("Retrieving secrets...")
 
     region_name = "us-west-1"

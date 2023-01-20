@@ -8,7 +8,6 @@ Used by Chrome Extension and VS code Extension
 import dataclasses
 import json
 import logging
-import os
 from typing import Any, Dict
 from urllib import parse
 
@@ -17,7 +16,7 @@ import aiohttp
 import aiohttp_cors  # type: ignore
 import jwt  # type: ignore
 from aiohttp import web
-from src.common import db_utils, queue_utils, secret_utils
+from src.common import constants, db_utils, queue_utils, secret_utils
 from src.common.api_types import (
     ForwardRequest,
     GetSnippetsRequest,
@@ -27,14 +26,6 @@ from src.common.api_types import (
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-JWT_SECRET = os.environ["JWT_SECRET"]
-# JWT_SECRET = os.getenv("JWT_SECRET")
-# CURRENT_ENVIRONMENT = os.getenv("CURRENT_ENVIRONMENT")
-# GITHUB_LOCAL_OAUTH_CLIENT_SECRET = os.getenv("GITHUB_LOCAL_OAUTH_CLIENT_SECRET")
-GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
-GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
-GITHUB_LOCAL_OAUTH_PATH = "/"
 
 
 async def privacy_policy_page(request: web.Request) -> web.Response:
@@ -86,7 +77,7 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     logger.warning(f"{auth_header=}")
     to_decode = auth_header.split(" ")[1]
     logger.warning(f"{to_decode=}")
-    token = jwt.decode(to_decode, secret_utils.JWT_SECRET, algorithms=["HS256"])
+    token = jwt.decode(to_decode, secret_utils.JWT_SECRET, algorithms=["HS256"])  # type: ignore
 
     logger.warning(f"{token=}")
 
@@ -166,7 +157,7 @@ async def get_github_user(code: str) -> Any:
     # step 2 Users are redirected back to your site by GitHub
     async with aiohttp.request(
         method="post",
-        url=f"https://github.com/login/oauth/access_token?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&client_secret={secret_utils.GITHUB_OAUTH_CLIENT_SECRET}&code={code}",
+        url=f"https://github.com/login/oauth/access_token?client_id={constants.GITHUB_CLIENT_ID}&client_secret={secret_utils.GITHUB_OAUTH_CLIENT_SECRET}&code={code}",
         headers={"Accept": "application/json"},
     ) as res:
 
@@ -248,8 +239,12 @@ async def github_oauth_jwt_followup(request: web.Request) -> web.Response:
     # use code to verify user and delete one-time-use code from db
     follow_up_code = request.url.query["follow-up-code"]
     renzen_user_info = db_utils.get_renzen_user_by_code(follow_up_code)
-    db_utils.invalidate_code(code=follow_up_code)
+    # db_utils.invalidate_code(code=follow_up_code)
 
+    logger.warning("AFTER INVALIDATING CODE")
+    logger.warning(f"{renzen_user_info}")
+    # logger.warning(f"{renzen_user_info.renzen_user_name}")
+    logger.warning(f"{dataclasses.asdict(renzen_user_info)}")
     payload = dataclasses.asdict(renzen_user_info)
     payload.pop("creation_timestamp")
 

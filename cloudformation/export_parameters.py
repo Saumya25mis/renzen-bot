@@ -27,21 +27,29 @@ stack_summary = client.describe_stacks(StackName=f"{CODE_ENVIRONMENT}deploy")["S
 # GitHubRepoName
 # HostedZoneId
 # AlertsChannelID
-# JwtSecret
-# GithubOauthClientSecret
 parameters = stack_summary[0]["Parameters"]
 
 parameters_json = {k["ParameterKey"]: k["ParameterValue"] for k in parameters}
 
-# DiscordToken
+# Secrets
 session = boto3.session.Session()
 client = session.client(service_name="secretsmanager")
-get_secret_value_response = client.get_secret_value(
-    SecretId=f"{CODE_ENVIRONMENT}-DiscordToken"
-)
-secret = get_secret_value_response["SecretString"]  # TOKEN
 
+secret = client.get_secret_value(SecretId=f"{CODE_ENVIRONMENT}-DiscordToken")[
+    "SecretString"
+]
 parameters_json.update({"DiscordToken": secret})
+
+secret = client.get_secret_value(SecretId=f"{CODE_ENVIRONMENT}-JwtSecret")[
+    "SecretString"
+]
+parameters_json.update({"JwtSecret": secret})
+
+secret = client.get_secret_value(
+    SecretId=f"{CODE_ENVIRONMENT}-GithubOauthClientSecret"
+)["SecretString"]
+parameters_json.update({"GithubOauthClientSecret": secret})
+
 
 output_json = {"Parameters": parameters_json}
 

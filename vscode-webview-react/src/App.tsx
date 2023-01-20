@@ -39,8 +39,6 @@ import {
   SnippetObject,
   SnippetProps,
   vscode,
-  GITHUB_LOCAL_OAUTH_CLIENT_ID,
-  GITHUB_LOCAL_OAUTH_REDIRECT_URI,
 } from "./constants";
 
 // import settingsImage from "./icons/settings.png";
@@ -136,14 +134,14 @@ function App() {
 
         // URL to redirect back to API
         let redirect_uri =
-          GITHUB_LOCAL_OAUTH_REDIRECT_URI +
+        apiVersion.oauth_redirect_uri +
           "?" +
           new URLSearchParams(params).toString();
 
         // URL used to login to github
         let url =
           "https://github.com/login/oauth/authorize?client_id=" +
-          GITHUB_LOCAL_OAUTH_CLIENT_ID +
+          apiVersion.client_id +
           "&redirect_uri=" +
           redirect_uri;
 

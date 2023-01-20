@@ -41,8 +41,6 @@ import {
   SnippetObject,
   SnippetProps,
   vscode,
-  GITHUB_LOCAL_OAUTH_CLIENT_ID,
-  GITHUB_LOCAL_OAUTH_REDIRECT_URI,
   SnippetStreamProps,
   sendMessage,
 } from "./constants";

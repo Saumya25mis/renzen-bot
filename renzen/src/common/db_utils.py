@@ -278,7 +278,7 @@ def get_discord_user_by_renzen_user_id(
 def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
     """Queries the DB by code and returns renzen user"""
 
-    logger.info("Querying by code")
+    logger.info(f"Querying by code {code=}")
 
     sql = """
     SELECT ri.renzen_user_id, ri.creation_timestamp, ri.renzen_user_name, ri.renzen_email

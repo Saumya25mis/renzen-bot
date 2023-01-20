@@ -38,8 +38,6 @@ import {
   SnippetObject,
   SnippetProps,
   vscode,
-  GITHUB_LOCAL_OAUTH_CLIENT_ID,
-  GITHUB_LOCAL_OAUTH_REDIRECT_URI,
 } from "./constants";
 
 export const Snippet: React.FC<SnippetProps> = ({

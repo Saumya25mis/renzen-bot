@@ -27,11 +27,6 @@ Parameters:
     Description: Discord token
     NoEcho: true
 
-  JwtSecret:
-    Type: String
-    Description: Discord token
-    NoEcho: true
-
   GithubOauthClientSecret:
     Type: String
     Description: Discord token
@@ -44,6 +39,12 @@ Parameters:
   AlertsChannelID:
     Type: String
     Description: Discord channel to publish alerts to
+    Default: None
+
+  JwtSecret:  # not used
+    Type: String
+    Description: Discord token
+    NoEcho: true
     Default: None
 
 Conditions:
@@ -73,7 +74,9 @@ Resources:
     Type: "AWS::SecretsManager::Secret"
     Properties:
       Name: !Sub "${CodeEnvironment}-JwtSecret"
-      SecretString: !Ref JwtSecret
+      GenerateSecretString:
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
 
   SecretsManagerSecretGithubOauthClientSecret:
     Type: "AWS::SecretsManager::Secret"

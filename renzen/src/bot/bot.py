@@ -10,7 +10,7 @@ import discord
 from discord.ext import commands
 from src.bot import bot_utils
 from src.bot.batch_update_cog import BatchForwardSnippets
-from src.common import db_utils, secret_utils
+from src.common import constants, db_utils, secret_utils
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +26,6 @@ my_bot = commands.Bot(
     command_prefix="!",
     intents=intents,
 )
-
-NOTIFICATION_USER = 273685734483820554
-PRODUCTION_ALERTS_CHANNEL = 1050487198882992268
-STAGING_ALERTS_CHANNEL = 1050487229631451238
-
-GITHUB_LOCAL_OAUTH_CLIENT_ID = "b981ba10feff55da4f93"
-GITHUB_LOCAL_OAUTH_REDIRECT_URI = "http://localhost:81/api/auth/github"
-GITHUB_LOCAL_CALLBACK_URI = "http://localhost:81/"
 
 
 @my_bot.tree.command()
@@ -53,11 +45,11 @@ async def login_with_github(interaction: discord.Interaction) -> None:
     }
 
     params = {
-        "path": (GITHUB_LOCAL_CALLBACK_URI + "?" + parse.urlencode(parts)),
+        "path": (constants.GITHUB_CALLBACK_URI + "?" + parse.urlencode(parts)),
     }
-    redirect_uri = f"{GITHUB_LOCAL_OAUTH_REDIRECT_URI}?{parse.urlencode(params)}"
+    redirect_uri = f"{constants.GITHUB_OAUTH_REDIRECT_URI}?{parse.urlencode(params)}"
 
-    url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_LOCAL_OAUTH_CLIENT_ID}&redirect_uri={redirect_uri}"
+    url = f"https://github.com/login/oauth/authorize?client_id={constants.GITHUB_CLIENT_ID}&redirect_uri={redirect_uri}"
     await interaction.response.send_message(f"Your login url is: {url}")
     return
 
@@ -89,16 +81,16 @@ async def on_ready() -> None:
     await my_bot.tree.sync()
 
     # send to notification user
-    user: discord.User = await my_bot.fetch_user(NOTIFICATION_USER)
+    user: discord.User = await my_bot.fetch_user(constants.NOTIFICATION_USER)
 
     await user.send("New Bot Deploy!")
 
     if os.getenv("CURRENT_ENVIRONMENT") == "staging":
-        channel = my_bot.get_channel(STAGING_ALERTS_CHANNEL)
+        channel = my_bot.get_channel(constants.STAGING_ALERTS_CHANNEL)
         if channel:
             await channel.send(content="New Staging Bot Deploy!")  # type: ignore
     elif os.getenv("CURRENT_ENVIRONMENT") == "production":
-        channel = my_bot.get_channel(PRODUCTION_ALERTS_CHANNEL)
+        channel = my_bot.get_channel(constants.PRODUCTION_ALERTS_CHANNEL)
         if channel:
             await channel.send(content="New Staging Bot Deploy!")  # type: ignore
 
