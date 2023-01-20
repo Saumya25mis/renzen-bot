@@ -1,3 +1,21 @@
+# Extension Screenshots (In Development)
+
+Renzen VS Code Extension
+
+![VS Code Extension](./readme_images/newui.jpg)
+
+Chrome Extension Right Click to save selected text to Renzen account
+
+![Chrome Extension Right Click](./readme_images/send_to_renzen.jpg)
+
+Discord Bot Integration
+
+![Discord Bot](./readme_images/discord_bot.png)
+
+Current Chrome Extension popup for logging into renzen accounts (Currently being reworked to use Github Oauth)
+
+![Chrome Extension Popup](./readme_images//current_chrome_ext.jpg)
+
 # Renzen
 
 Renzen is the combination of a Chrome Extension and VS Code Extension (with Discord Bot Integration) that allows you to save snippets from the internet using the Renzen Chrome Extension. You can then view them on the Renzen VS code extension, or in Discord. You can also search through the snippets using commands in the Discord app (currently working on making  the VS Code extension reach feature parity with the Discord Bot).
@@ -55,25 +73,7 @@ The build process is defined in in the [buildspec](./buildspecs/deploy_buildspec
 
 ![Deploy Process](./readme_images/Screenshot%202022-12-28%20105111.jpg)
 
-# Extension Screenshots (In Development)
-
-Current Chrome Extension popup for logging into renzen accounts
-
-![Chrome Extension Popup](./readme_images//current_chrome_ext.jpg)
-
-Chrome Extension Right Click to save selected text to Renzen account
-
-![Chrome Extension Right Click](./readme_images/chrome_ext_right_click.jpg)
-
-VS Code Extension
-
-![VS Code Extension](./readme_images/vs-ext-demo.jpg)
-
-Discord Bot Integration
-
-![Discord Bot](./readme_images/discord_bot.png)
-
-## How To Use
+## How To Use (without VS code extension)
 
 ![User Flow](./readme_images/Renzen%20Process.jpeg)
 ## bot_stack.yml Resources
