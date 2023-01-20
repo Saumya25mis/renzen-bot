@@ -10,3 +10,4 @@ renzen/renzen.egg-info/*
 images/*
 tests/__pycache__/
 **__pycache__**
+*.Identifier
