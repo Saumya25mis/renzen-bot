@@ -18,14 +18,23 @@ import jwt  # type: ignore
 from aiohttp import web
 from src.common import constants, db_utils, queue_utils, secret_utils
 from src.common.api_types import (
+    DeleteSnippetRequest,
     ForwardRequest,
     GetSnippetsRequest,
     GithubAccessTokenResponse,
     StarRequest,
 )
+from src.common.db_types import RenzenUserInfo
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+class HeaderException(Exception):
+    """DB Utils Except -> None:"""
+
+    def __init__(self) -> None:
+        super()
 
 
 async def privacy_policy_page(request: web.Request) -> web.Response:
@@ -69,9 +78,22 @@ async def chrome_ext_forward(request: web.Request) -> web.Response:
     return web.Response(text=json.dumps(api_response_obj, default=str))
 
 
-async def vs_ext_get_snippets(request: web.Request) -> web.Response:
-    """Return snippets when provided login code."""
+async def vs_ex_delete_snippet(request: web.Request) -> web.Response:
+    """Delete snippet for user"""
 
+    renzen_user_info = validate_jwt(request=request)
+    request_json = await request.json()
+    request_object: DeleteSnippetRequest = DeleteSnippetRequest(**request_json)
+    db_utils.delete_snippet_from_db(
+        renzen_user_id=renzen_user_info.renzen_user_id,
+        renzen_user_name=renzen_user_info.renzen_user_name,
+        snippet_id=request_object.snippet_id,
+    )
+    return web.Response(text="success")
+
+
+def validate_jwt(request: web.Request) -> RenzenUserInfo:
+    """Return user from header."""
     # CHECK HEADER
     auth_header = request.headers["Authorization"]
     logger.warning(f"{auth_header=}")
@@ -82,6 +104,18 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     logger.warning(f"{token=}")
 
     renzen_user_info = db_utils.get_renzen_user_by_username(token["renzen_user_name"])
+    if not renzen_user_info:
+        raise HeaderException
+
+    logger.warning(f"Valid header for: {renzen_user_info.renzen_user_name}")
+
+    return renzen_user_info
+
+
+async def vs_ext_get_snippets(request: web.Request) -> web.Response:
+    """Return snippets when provided login code."""
+
+    renzen_user_info = validate_jwt(request=request)
 
     logger.warning("Received get snippets code request.")
 
@@ -89,25 +123,18 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
     logger.warning(f"vs_ext_get_snippets {request_json=}")
     get_snippets_request: GetSnippetsRequest = GetSnippetsRequest(**request_json)
 
-    if renzen_user_info:
+    starred_snippets = db_utils.vs_ext_get_mapped_paths_to_snippets(
+        renzen_user_id=renzen_user_info.renzen_user_id,
+        fetch_url=get_snippets_request.fetch_url,
+    )
+    all_snippets = db_utils.vs_ext_get_all_user_snippets(
+        renzen_user_info.renzen_user_id
+    )
 
-        starred_snippets = db_utils.vs_ext_get_mapped_paths_to_snippets(
-            renzen_user_id=renzen_user_info.renzen_user_id,
-            fetch_url=get_snippets_request.fetch_url,
-        )
-        all_snippets = db_utils.vs_ext_get_all_user_snippets(
-            renzen_user_info.renzen_user_id
-        )
-
-        api_response_obj: Dict[Any, Any] = {
-            "all_dicts": [dataclasses.asdict(snippet) for snippet in all_snippets],
-            "starred_dicts": [
-                dataclasses.asdict(snippet) for snippet in starred_snippets
-            ],
-        }
-
-    else:
-        api_response_obj = {"error": "Something went wrong."}
+    api_response_obj: Dict[Any, Any] = {
+        "all_dicts": [dataclasses.asdict(snippet) for snippet in all_snippets],
+        "starred_dicts": [dataclasses.asdict(snippet) for snippet in starred_snippets],
+    }
 
     return web.Response(text=json.dumps(api_response_obj, default=str))
 
@@ -115,7 +142,7 @@ async def vs_ext_get_snippets(request: web.Request) -> web.Response:
 async def vs_ext_star(request: web.Request) -> web.Response:
     """Associates file page with snippet."""
 
-    # CHECK HEADER
+    renzen_user_info = validate_jwt(request=request)
 
     logger.warning("Received star request.")
 
@@ -124,16 +151,17 @@ async def vs_ext_star(request: web.Request) -> web.Response:
 
     star_request: StarRequest = StarRequest(**request_json)
 
-    result = db_utils.star(
-        renzen_user_id=star_request.renzen_user_id,
+    api_response_obj = db_utils.star(
+        renzen_user_id=renzen_user_info.renzen_user_id,
         path=star_request.page_path,
         snippet_id=star_request.snippet_id,
         fetch_url=star_request.fetch_url,
         req_type=star_request.req_type,
         star_id=star_request.star_id,
     )
+
     return web.Response(
-        text=json.dumps(result, default=str),
+        text=json.dumps(api_response_obj, default=str),
     )
 
 
@@ -176,9 +204,6 @@ async def get_github_user(code: str) -> Any:
         ) as user_data:
 
             return await user_data.json()
-
-
-GITHUB_LOCAL_CALLBACK_URI = "http://localhost:81/"
 
 
 async def github_oauth(request: web.Request) -> None:
@@ -267,5 +292,8 @@ cors.add(resource.add_route("GET", github_oauth))
 
 resource = cors.add(app.router.add_resource("/follow-up-code"))
 cors.add(resource.add_route("POST", github_oauth_jwt_followup))
+
+resource = cors.add(app.router.add_resource("/delete-snippet"))
+cors.add(resource.add_route("POST", vs_ex_delete_snippet))
 
 web.run_app(app, port=80, host="0.0.0.0")

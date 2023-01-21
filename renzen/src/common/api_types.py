@@ -58,3 +58,10 @@ class GithubAccessTokenResponse:
     access_token: str
     scope: str
     token_type: str
+
+
+@dataclass(frozen=True)
+class DeleteSnippetRequest:
+    """Data to delete snippet"""
+
+    snippet_id: str

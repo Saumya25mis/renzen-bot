@@ -79,6 +79,24 @@ export const Snippet: React.FC<SnippetProps> = ({
     }
   };
 
+  const deleteSnippet = async() => {
+    let url = apiVersion.url_prefix + "delete-snippet";
+    let body = {
+      snippet_id: snippet.snippet_id,
+    };
+    let options: RequestInit = {
+      method: "POST",
+      cache: "reload",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+        Authorization: "Bearer " + jwt,
+      },
+      body: JSON.stringify(body),
+    };
+    await fetch(url, options);
+    fetchSnippets();
+  }
+
   return (
     <div>
         <DiscordEmbed
@@ -110,6 +128,7 @@ export const Snippet: React.FC<SnippetProps> = ({
             Unstar From Current File
           </VSCodeButton>
         )}
+        <VSCodeButton onClick={deleteSnippet}>Delete Snippet</VSCodeButton>
         {debug && (
           <div>
             DEBUG <br />

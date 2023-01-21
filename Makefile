@@ -7,6 +7,9 @@ endif
 
 AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query "Account" --output text)
 
+staging-site-logs:
+	aws logs tail staging-bot-site --follow
+
 run-local:
 	docker compose up --build
 

@@ -69,6 +69,22 @@ def save_snippet_to_db(
 # VS EXTENSION ACTIONS
 
 
+def delete_snippet_from_db(
+    renzen_user_name: str, renzen_user_id: str, snippet_id: str
+) -> None:
+    """Deletes snippet from db."""
+
+    logger.warning(f"Deleting Snippet for {renzen_user_name}, {snippet_id=}")
+
+    sql = """
+    DELETE FROM snippets
+    WHERE renzen_user_id = %(renzen_user_id)s
+    AND snippet_id = %(snippet_id)s
+    """
+    values = {"renzen_user_id": renzen_user_id, "snippet_id": snippet_id}
+    cur.execute(sql, values)
+
+
 def star(
     renzen_user_id: str,
     path: str,
