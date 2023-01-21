@@ -190,11 +190,6 @@ async def github_oauth(request: web.Request) -> None:
     converted_path = parse.parse_qs(request.url.query_string)
     logger.warning(f"First parse: {converted_path=}")
 
-    # HACKY
-    # if "vscode" in converted_path["path"][0]:
-    #     converted_path = parse.parse_qs(converted_path["path"][0])
-    #     logger.warning(f"second parse: {converted_path=}")
-
     code = converted_path["code"][0]
     source = db_utils.LoginSource[str(converted_path["source"][0]).upper()]
 
@@ -236,20 +231,20 @@ async def github_oauth(request: web.Request) -> None:
 async def github_oauth_jwt_followup(request: web.Request) -> web.Response:
     """Get jwt using one-time-code"""
 
+    logger.warning("Getting JWT.")
+
     # use code to verify user and delete one-time-use code from db
     follow_up_code = request.url.query["follow-up-code"]
     renzen_user_info = db_utils.get_renzen_user_by_code(follow_up_code)
-    # db_utils.invalidate_code(code=follow_up_code)
 
-    logger.warning("AFTER INVALIDATING CODE")
-    logger.warning(f"{renzen_user_info}")
-    # logger.warning(f"{renzen_user_info.renzen_user_name}")
+    logger.warning(f"{renzen_user_info=}")
     logger.warning(f"{dataclasses.asdict(renzen_user_info)}")
     payload = dataclasses.asdict(renzen_user_info)
     payload.pop("creation_timestamp")
 
     encoded_jwt = jwt.encode(payload, secret_utils.JWT_SECRET, algorithm="HS256")  # type: ignore
 
+    db_utils.invalidate_code(code=follow_up_code)
     return web.Response(
         text=encoded_jwt,
     )

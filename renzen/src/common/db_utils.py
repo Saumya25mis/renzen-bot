@@ -293,7 +293,12 @@ def get_renzen_user_by_code(code: Union[str, int]) -> Optional[RenzenUserInfo]:
     cur.execute(sql, values)
     fetched = cur.fetchone()
 
-    return RenzenUserInfo(**fetched) if fetched else None
+    logger.warning(f"{fetched}")
+
+    return_value = RenzenUserInfo(**fetched) if fetched else None
+
+    logger.warning(f"{return_value}")
+    return return_value
 
 
 def get_renzen_user_by_username(username: Union[str, int]) -> Optional[RenzenUserInfo]:

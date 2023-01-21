@@ -10,7 +10,7 @@ class RenzenUserInfo:
     renzen_user_id: str  # PK
     renzen_user_name: str  # UNIQUE
     creation_timestamp: datetime.datetime
-    renzen_email: str
+    renzen_email: str = ""
     password: str = ""  # unused for now
 
 
