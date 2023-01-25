@@ -1,3 +1,7 @@
+# Renzen
+
+Renzen is a VS Code Extension and Chrome Extension (with Discord Bot Integration) backed by AWS and written in Typescript and React (front-end), and Python (backend) that allows you to save snippets and URLs of research and solutions from the internet using the Chrome Extension, and then view and "star" them to pages in your git repository in the VS code extension, keeping them close to your code. You can also search through and view the snippets using commands in the Discord app.
+
 # Extension Screenshots (In Development)
 
 Renzen VS Code Extension
@@ -16,9 +20,18 @@ Current Chrome Extension popup for logging into renzen accounts (Currently being
 
 ![Chrome Extension Popup](./readme_images//current_chrome_ext.jpg)
 
-# Renzen
+## Feature Roadmap
 
-Renzen is the combination of a Chrome Extension and VS Code Extension (with Discord Bot Integration) that allows you to save snippets from the internet using the Renzen Chrome Extension. You can then view them on the Renzen VS code extension, or in Discord. You can also search through the snippets using commands in the Discord app (currently working on making  the VS Code extension reach feature parity with the Discord Bot).
+- Community features
+- Suggesting snippets for pages based on community input
+- Search bar through snippets mirroring the Discord Bot search
+- Search bar that will also trigger a web Search Engine search
+- Personal and community stats on how many snippets are saved from the URL or domain
+- Sorting snippets by recommendation, most recent, etc
+- Adding notes to snippets
+- Adding notes to pages in the repository
+
+# Purpose
 
 The intended functional purpose of the project is to be able to keep information that helped you as close to the source as possible. For example if working on a file, you find answers/solutions on the web, you can attach them to that file so it is always there for you to reference when you need to work on that file again. This would also be useful for open-source projects that have many people contributing to them and to help new developers find resources applicable to specific files when trying to contribute.
 
@@ -34,7 +47,7 @@ The project is a combination of a lot of different parts you'd see at many compa
 - Handling web requests (aiohttp)
 - Working with Database and Messages (Postgres, AWS SQS, RabbitMQ)
 
-## Roadmap
+## Project Roadmap
 
 The goal of the project is to expand into covering as many technologies you'd encounter at a start-up or major company. To give a well-rounded exposure, it sometimes makes sense to do portions of the project in different ways. For example, though right now all infrastructure is done in Cloudformation, new capabilities might be done in terraform. Some integrations that are being looked into being added are
 
@@ -49,7 +62,7 @@ Some features to be added are
 
 - Running Batch jobs for ML model processing on data that users have opted-in to sharing. For purposes such as to see what type of information users are mostly to save or what websites etc. These could also lead in to a Recommendations engine that show up when users save specific data.
 
-## Setup
+# Setup
 
 The project was designed to take advantage of some of the features of VS code. One of the main featues are `dev containers` which spin up an environment in a Docker container. The advantage of this is that the container is pre-configured to work with the repository, and doesn't affect the environment of your computer. Hopefully this makes it simpler to contribute. There are other ways to run the project, but this is the recommended method.
 
